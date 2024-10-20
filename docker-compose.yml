@@ -1,0 +1,25 @@
+services:
+  api:
+    depends_on:
+      - db
+    build:  ./backend
+    ports:
+      - 8000:8000
+    environment:
+      DB_URL: mongodb://db/coin-price
+    develop:
+      watch:
+        - path: ./backend/go.mod
+          action: rebuild
+        - path: ./backend
+          target: /app
+          action: sync
+  db:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - coin-price:/data/db
+
+volumes:
+  coin-price:
