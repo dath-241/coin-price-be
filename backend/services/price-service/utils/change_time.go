@@ -19,3 +19,14 @@ func ConvertMillisecondsToTimestamp(ms int64) string {
 	t := time.Unix(ms/1000, (ms%1000)*1000000)
 	return t.Format("2006-01-02 15:04:05")
 }
+
+func GetTimeNow() string {
+	now := time.Now()
+	formattedTime := now.Format("2006-01-02 15:04:05")
+	return formattedTime
+}
+
+func ConvertMilisecondToTimeFormatedRFC3339(ms int64) string {
+	t := time.UnixMilli(ms).In(time.UTC)
+	return t.Format(time.RFC3339)
+}
