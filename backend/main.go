@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"github.com/dath-241/coin-price-be-go/routes"
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
@@ -10,7 +11,11 @@ func init() {
 }
 
 func main() {
-	fmt.Print("Hello world")
 
+	server := gin.Default()
+
+	routes.RegisterRoutes(server)
+
+	server.Run(":8080")
 	//Set up router, routs, server, websocket
 }
