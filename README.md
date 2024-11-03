@@ -13,3 +13,18 @@ Hệ thống hỗ trợ việc theo dõi thông tin thị trường (giá tiền
 # Cấu trúc thư mục `/docs`
 
 # Cấu trúc thư mục `/reports`
+
+# Hướng dẫn sử dụng
+- Clone repo về máy:
+```basg
+gh repo clone dath-241/coin-price-be-go
+```
+- Mở Docker Desktop
+- Chạy docker-compose:
+```basg
+docker-compose up -d
+```
+- Server đã sẵn sàng, gọi API mẫu (POSTMAN...):
+```basg
+http://localhost:8080/api/v1/funding-rate?symbol=BTCUSDT
+```

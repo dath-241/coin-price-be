@@ -1,4 +1,4 @@
-package fundingrate
+package funding_rate
 
 import (
 	"encoding/json"
