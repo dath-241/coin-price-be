@@ -33,3 +33,13 @@ func (r *ResponseFundingRate) UpdateData(symbol, fundingRate, fundingCountDown, 
 	r.AdjustedFundingRateFloor = AdjustedFundingRateFloor
 	r.FundingIntervalHours = fundingIntervalHours
 }
+
+type FundingRateWebSocket struct {
+	Data struct {
+		Symbol          string `json:"s"`
+		E               string `json:"e"`
+		EventTime       int64  `json:"E"`
+		FundingRate     string `json:"r"`
+		NextFundingTime int64  `json:"T"`
+	} `json:"data"`
+}
