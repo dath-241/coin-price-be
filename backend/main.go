@@ -1,16 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"log"
+
+	"github.com/dath-241/coin-price-be-go/services/price-service/routers"
+	"github.com/dath-241/coin-price-be-go/utils"
 )
 
-func init() {
-	//Load env
-	//Connect db
-}
-
 func main() {
-	fmt.Print("Hello world")
+    if err := utils.ConnectMongoDB("mongodb://localhost:27017"); err != nil {
+        log.Fatal(err.Error())  
+    }
 
-	//Set up router, routs, server, websocket
+    r := routers.SetupRouter()
+    r.Run(":3000")
 }
