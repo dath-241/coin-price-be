@@ -11,6 +11,8 @@ import (
 
 var MongoClient *mongo.Client
 var AlertCollection *mongo.Collection
+var IndicatorCollection *mongo.Collection
+
 func ConnectMongoDB(uri string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -27,6 +29,9 @@ func ConnectMongoDB(uri string) error {
 
 	fmt.Println("Connected to MongoDB!")
 	MongoClient = client
-	AlertCollection = client.Database("coinmanagement").Collection("alerts")
+	database := client.Database("coinmanagement")
+	AlertCollection = database.Collection("alerts")
+	IndicatorCollection = database.Collection("indicators")
+
 	return nil
 }

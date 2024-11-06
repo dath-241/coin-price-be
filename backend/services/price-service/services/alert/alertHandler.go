@@ -1,115 +1,173 @@
 package services
 
 import (
-    "context"
-    "net/http"
-    "time"
+	"context"
+	"net/http"
+	"time"
 
-    "github.com/dath-241/coin-price-be-go/services/price-service/models/alert"
-    "github.com/dath-241/coin-price-be-go/utils"
-    "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/dath-241/coin-price-be-go/services/price-service/models/alert"
+	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Create a new alert
+// Handler to create an alert
 func CreateAlert(c *gin.Context) {
-    var newAlert models.Alert
-    if err := c.ShouldBindJSON(&newAlert); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
 
-    if newAlert.Condition == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid condition"})
-        return
-    }
+	var newAlert models.Alert
+	if err := c.ShouldBindJSON(&newAlert); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
 
-    newAlert.ID = primitive.NewObjectID()
-    newAlert.IsActive = true
+	// Validate required fields
+	if newAlert.Symbol == "" || newAlert.Price == 0 || (newAlert.Condition != ">=" && newAlert.Condition != "<=" && newAlert.Condition != "==") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
+		return
+	}
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-    _, err := utils.AlertCollection.InsertOne(ctx, newAlert)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create alert"})
-        return
-    }
+	newAlert.ID = primitive.NewObjectID()
+	newAlert.IsActive = true
 
-    c.JSON(http.StatusCreated, gin.H{
-        "message":  "Alert created successfully",
-        "alert_id": newAlert.ID.Hex(),
-    })
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := utils.AlertCollection.InsertOne(ctx, newAlert)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create alert"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message":  "Alert created successfully",
+		"alert_id": newAlert.ID.Hex(),
+	})
 }
 
-// Get all alerts
+// Handler to retrieve all alerts
 func GetAlerts(c *gin.Context) {
-    var results []models.Alert
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-    cursor, err := utils.AlertCollection.Find(ctx, bson.M{})
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve alerts"})
-        return
-    }
-    defer cursor.Close(ctx)
+	var results []models.Alert
+	alertType := c.Query("type") // Optional query parameter to filter by type
 
-    if err := cursor.All(ctx, &results); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse alerts"})
-        return
-    }
+	filter := bson.M{}
+	if alertType != "" {
+		filter["type"] = alertType
+	}
 
-    c.JSON(http.StatusOK, results)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := utils.AlertCollection.Find(ctx, filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve alerts"})
+		return
+	}
+	defer cursor.Close(ctx)
+
+	if err := cursor.All(ctx, &results); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse alerts"})
+		return
+	}
+
+	c.JSON(http.StatusOK, results)
 }
 
-// Get an alert by ID
+// Handler to get an alert by ID
 func GetAlert(c *gin.Context) {
-    id := c.Param("id")
-    objectId, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid alert ID"})
-        return
-    }
 
-    var alert models.Alert
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-    err = utils.AlertCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&alert)
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
-        return
-    }
+	id := c.Param("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid alert ID"})
+		return
+	}
 
-    c.JSON(http.StatusOK, alert)
+	var alert models.Alert
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err = utils.AlertCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&alert)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, alert)
 }
 
-// Delete an alert by ID
+// Handler to delete an alert by ID
 func DeleteAlert(c *gin.Context) {
-    id := c.Param("id")
-    objectId, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid alert ID"})
-        return
-    }
 
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-    filter := bson.M{"_id": objectId}
-    result, err := utils.AlertCollection.DeleteOne(ctx, filter)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete alert"})
-        return
-    }
+	id := c.Param("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid alert ID"})
+		return
+	}
 
-    if result.DeletedCount == 0 {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
-        return
-    }
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-    c.JSON(http.StatusOK, gin.H{"message": "Alert deleted successfully"})
+	result, err := utils.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
+	if err != nil || result.DeletedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Alert deleted successfully"})
 }
 
-func GetSymbolAlerts(c* gin.Context){
+// Handler to retrieve new and delisted symbols
+func GetSymbolAlerts(c *gin.Context) {
+
+	newSymbols, delistedSymbols := updateSymbolCache()
+
+	if newSymbols == nil {
+		newSymbols = []string{}
+	}
+	if delistedSymbols == nil {
+		delistedSymbols = []string{}
+	}
+
+	response := gin.H{
+		"new_symbols":      newSymbols,
+		"delisted_symbols": delistedSymbols,
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// Handler to set a symbol alert for new or delisted symbols
+func SetSymbolAlert(c *gin.Context) {
+
+	var newAlert models.Alert
+	if err := c.ShouldBindJSON(&newAlert); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Validate required fields
+	if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
+		return
+	}
+
+	newAlert.ID = primitive.NewObjectID()
+	newAlert.IsActive = true
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := utils.AlertCollection.InsertOne(ctx, newAlert)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create alert"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message":  "Alert created successfully",
+		"alert_id": newAlert.ID.Hex(),
+	})
 
 }
