@@ -21,6 +21,11 @@ type Alert struct {
 	UpdatedAt          primitive.DateTime `json:"updated_at,omitempty" bson:"updated_at,omitempty"` // Timestamp for when the alert was last updated
 }
 
+type Symbol struct {
+    Symbol string `json:"symbol"`
+    Status string `json:"status"`
+}
+
 // NewAlert creates a new alert with default values
 func NewAlert(symbol, condition, notificationMethod string, price float64, alertType, frequency string, symbols []string) *Alert {
 	return &Alert{

@@ -2,10 +2,11 @@ package services
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
-	"github.com/dath-241/coin-price-be-go/services/price-service/models/alert"
+	models "github.com/dath-241/coin-price-be-go/services/price-service/models/alert"
 	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -121,14 +122,18 @@ func DeleteAlert(c *gin.Context) {
 // Handler to retrieve new and delisted symbols
 func GetSymbolAlerts(c *gin.Context) {
 
-	newSymbols, delistedSymbols := updateSymbolCache()
+	newSymbols, delistedSymbols, err := fetchSymbolsFromBinance()
+	if err != nil {
+		log.Printf("Error fetching symbol data: %v", err)
+		return 
+	}
 
-	if newSymbols == nil {
-		newSymbols = []string{}
-	}
-	if delistedSymbols == nil {
-		delistedSymbols = []string{}
-	}
+    if newSymbols == nil {
+        newSymbols = []string{}
+    }
+    if delistedSymbols == nil {
+        delistedSymbols = []string{}
+    }
 
 	response := gin.H{
 		"new_symbols":      newSymbols,
@@ -147,7 +152,7 @@ func SetSymbolAlert(c *gin.Context) {
 		return
 	}
 
-	// Validate required fields
+
 	if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
 		return
