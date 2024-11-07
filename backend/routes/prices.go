@@ -18,3 +18,7 @@ func getKline(context *gin.Context) {
 func getWebsocketFundingRate(context *gin.Context) {
 	websocket.FundingRateSocket(context)
 }
+
+func getWebsocketKline(context *gin.Context) {
+	websocket.KlineSocket(context)
+}
