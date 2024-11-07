@@ -33,3 +33,25 @@ func (klineEach *KLineEachData) UpdateKlineEachData(time string, open, high, low
 	klineEach.Close = close
 	klineEach.Volume = volume
 }
+
+// struct for KlineWebsocket
+type KlineWebsocket struct {
+	Data struct {
+		EventType string `json:"e"`
+		EventTime int64  `json:"E"`
+		Symbol    string `json:"s"`
+		KData     struct {
+			StartTime           int64  `json:"t"`
+			CloseTime           int64  `json:"T"`
+			LastTrade           int64  `json:"L"`
+			OpenPrice           string `json:"o"`
+			ClosePrice          string `json:"c"`
+			HighPrice           string `json:"h"`
+			LowPrice            string `json:"l"`
+			BaseAssetVolume     string `json:"v"`
+			QuoteAssetVolume    string `json:"q"`
+			TakerBuyBaseVolume  string `json:"V"`
+			TakerBuyQuoteVolume string `json:"Q"`
+		} `json:"k"`
+	} `json:"data"`
+}
