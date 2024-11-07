@@ -22,3 +22,7 @@ func getWebsocketFundingRate(context *gin.Context) {
 func getWebsocketKline(context *gin.Context) {
 	websocket.KlineSocket(context)
 }
+
+func getWebsocketMarketCap(context *gin.Context) {
+	websocket.MarketCapSocket(context)
+}
