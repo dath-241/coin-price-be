@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/dath-241/coin-price-be-go/services/price-service/models"
@@ -22,7 +23,7 @@ func MarketCapSocket(context *gin.Context) {
 	}
 	defer ws.Close()
 
-	symbol := context.Query("symbol")
+	symbol := strings.ToLower(context.Query("symbol"))
 	urlMarketCap := fmt.Sprintf("https://api.coingecko.com/api/v3/coins/%s", symbol)
 
 	// done chan to check if the main go routine is continue or not
