@@ -33,7 +33,7 @@ func MarketCapSocket(context *gin.Context) {
 
 	go func() {
 		defer close(done)
-		ticker := time.NewTicker(30 * time.Second)
+		ticker := time.NewTicker(15 * time.Minute)
 		defer ticker.Stop()
 		isContinue := processMarketCapSocket(urlMarketCap, ws)
 		if !isContinue {
