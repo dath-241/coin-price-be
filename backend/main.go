@@ -1,16 +1,28 @@
 package main
 
 import (
-	"fmt"
+    "backend/services/admin_service/src/config"
+    "backend/services/admin_service/src/routes"
+    "backend/services/admin_service/src/utils"
+    "github.com/joho/godotenv"
+    "log"
+
 )
 
-func init() {
-	//Load env
-	//Connect db
-}
-
 func main() {
-	fmt.Print("Hello world")
+    // Nạp file .env vào môi trường
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatal("Error loading .env file")
+    }
 
-	//Set up router, routs, server, websocket
+    config.ConnectDatabase()
+
+
+    // Bắt đầu routine dọn dẹp token hết hạn
+    utils.StartCleanupRoutine()
+    r := routes.SetupRouter()
+    //r.GET("/blacklisted-tokens", utils.ListBlacklistedTokens)
+
+    r.Run(":8082") // Chạy server tại cổng 8080
 }
