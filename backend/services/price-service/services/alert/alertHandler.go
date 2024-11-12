@@ -30,6 +30,9 @@ func CreateAlert(c *gin.Context) {
 
 	newAlert.ID = primitive.NewObjectID()
 	newAlert.IsActive = true
+	currentTime := primitive.NewDateTimeFromTime(time.Now())
+	newAlert.CreatedAt = currentTime  
+	newAlert.UpdatedAt = currentTime  
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -50,7 +53,7 @@ func CreateAlert(c *gin.Context) {
 func GetAlerts(c *gin.Context) {
 
 	var results []models.Alert
-	alertType := c.Query("type") // Optional query parameter to filter by type
+	alertType := c.Query("type") 
 
 	filter := bson.M{}
 	if alertType != "" {
@@ -122,7 +125,7 @@ func DeleteAlert(c *gin.Context) {
 // Handler to retrieve new and delisted symbols
 func GetSymbolAlerts(c *gin.Context) {
 
-	newSymbols, delistedSymbols, err := fetchSymbolsFromBinance()
+	newSymbols, delistedSymbols, err := FetchSymbolsFromBinance()
 	if err != nil {
 		log.Printf("Error fetching symbol data: %v", err)
 		return 
