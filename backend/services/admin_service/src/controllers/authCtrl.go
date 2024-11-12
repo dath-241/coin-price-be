@@ -146,7 +146,7 @@ func Login() func(*gin.Context) {
         err := collection.FindOne(ctx, bson.M{"email": loginRequest.Username}).Decode(&user)
         if err != nil {
             if err == mongo.ErrNoDocuments {
-                c.JSON(http.StatusNotFound, gin.H{"error": "Not found with this username"})
+                c.JSON(http.StatusUnauthorized, gin.H{"error": "Username or password is incorrect"}) //Not found with this username
             } else {
                 c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find user"})
             }
@@ -156,7 +156,7 @@ func Login() func(*gin.Context) {
         // Kiểm tra mật khẩu
         err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password))
         if err != nil {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials (username or password incorrect)"})
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Username or password is incorrect"})
             return
         }
 
