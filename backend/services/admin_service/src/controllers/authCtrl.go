@@ -249,7 +249,7 @@ func ForgotPassword() gin.HandlerFunc {
         }
         resetLink := fmt.Sprintf("%s/reset-password?token=%s", baseURL, token)
 
-        emailTemplatePath := "templates/password_reset_email.html"
+        emailTemplatePath := "services/admin_service/templates/password_reset_email.html"
         htmlBody, err := os.ReadFile(emailTemplatePath)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read email template"})
@@ -284,7 +284,7 @@ func ForgotPassword() gin.HandlerFunc {
             return
         }
 
-        c.JSON(http.StatusOK, gin.H{"message": "Reset password email sent"})
+        c.JSON(http.StatusOK, gin.H{"message": "Password reset link sent to your email"})
     }
 }
 
