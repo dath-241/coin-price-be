@@ -10,7 +10,7 @@ import (
     "backend/services/admin_service/src/middlewares"
     "backend/services/admin_service/src/utils"
     "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson/primitive"
+    //"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 
@@ -53,14 +53,17 @@ func GoogleLogin(c *gin.Context) {
     // userID := userInfo["sub"].(string) // Lấy user ID từ token
     // Tạo email từ thông tin Google
     email := userInfo["email"].(string)
-    ID:= primitive.NewObjectID()
+    
+    //ID:= primitive.NewObjectID()
     // Lấy thông tin user từ DB
     user, err := utils.GetUserByEmail(email)
     if err != nil {
         if err.Error() == fmt.Sprintf("user not found with email: %s", email) {
             // Nếu không tìm thấy user, tạo user mới trong DB
+            name := userInfo["name"].(string)
             user = &models.User{
-                ID: ID,
+                //ID: ID,
+                Name: name,
                 Email:  email,
                 Role:   "VIP-0", // Gán role mặc định cho user mới, có thể là "user" hoặc một role khác
                 // Thêm các trường khác nếu cần

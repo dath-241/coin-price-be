@@ -67,7 +67,7 @@ func CreateVIPPayment() func(*gin.Context) {
 
         // Kiểm tra dữ liệu hợp lệ
         if paymentRequest.Amount <= 0 || paymentRequest.VIPLevel == "" {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid payment data"})
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
             return
         }
 
@@ -87,7 +87,7 @@ func CreateVIPPayment() func(*gin.Context) {
         }
 
         if requestedVIPLevel <= currentVIPLevel {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "New VIP level must be higher than current level"})
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
             return
         }
 

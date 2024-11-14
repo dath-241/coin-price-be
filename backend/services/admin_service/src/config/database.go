@@ -18,7 +18,7 @@ func ConnectDatabase() error {
     // Lấy giá trị từ các biến môi trường
     mongoURI := os.Getenv("MONGO_URI")
     dbName := os.Getenv("MONGO_DB_NAME")
-    os.Getenv("")
+    //os.Getenv("")
 
     if mongoURI == "" || dbName == "" {
         log.Fatal("Required environment variables are missing!")
