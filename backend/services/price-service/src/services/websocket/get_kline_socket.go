@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/dath-241/coin-price-be-go/services/price-service/src/models"
 	"github.com/dath-241/coin-price-be-go/services/price-service/src/utils"
@@ -36,6 +37,9 @@ func KlineSocket(context *gin.Context) {
 	defer conn.Close()
 
 	done := make(chan struct{})
+	// handle symbol error
+	isReceivedMessage := make(chan bool)
+	timeoutDuration := 5 * time.Second
 
 	go func() {
 		defer close(done)
@@ -46,6 +50,9 @@ func KlineSocket(context *gin.Context) {
 				log.Println("Read error: ", err)
 				return
 			}
+
+			// alert get message (symbol not error)
+			isReceivedMessage <- true
 
 			var KlineResponse models.KlineWebsocket
 
@@ -66,6 +73,24 @@ func KlineSocket(context *gin.Context) {
 			if err = ws.WriteMessage(websocket.TextMessage, []byte(responseJSON)); err != nil {
 				errorMsg := fmt.Sprintf("Write error to client %s", err.Error())
 				utils.ShowErrorSocket(ws, errorMsg)
+				return
+			}
+		}
+	}()
+
+	// after 5 seconds, if not response
+	go func() {
+		for {
+			select {
+			case <-isReceivedMessage:
+				continue
+			case <-time.After(timeoutDuration):
+				errorMSG := "Symbol error"
+				utils.ShowErrorSocket(ws, errorMSG)
+				// close connect socket with binance server
+				conn.Close()
+				// close socket with user
+				ws.Close()
 				return
 			}
 		}
