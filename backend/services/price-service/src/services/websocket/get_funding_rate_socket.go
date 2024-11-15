@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/dath-241/coin-price-be-go/services/price-service/src/models"
 	"github.com/dath-241/coin-price-be-go/services/price-service/src/utils"
@@ -34,15 +35,23 @@ func FundingRateSocket(context *gin.Context) {
 	defer conn.Close()
 
 	done := make(chan struct{})
+	// handle symbol error
+	isReceivedMessage := make(chan bool)
+	timeoutDuration := 5 * time.Second
 
 	go func() {
 		defer close(done)
 		for {
+			fmt.Println("message")
 			_, message, err := conn.ReadMessage()
 			if err != nil {
 				log.Println("Read error: ", err)
 				return
 			}
+
+			// alert get message (symbol not error)
+			isReceivedMessage <- true
+
 			var FundingResponse models.FundingRateWebSocket
 			if err = json.Unmarshal(message, &FundingResponse); err != nil {
 				log.Println("JSON unmarshal error: ", err)
@@ -71,6 +80,25 @@ func FundingRateSocket(context *gin.Context) {
 		}
 	}()
 
+	// after 5 seconds, if not response
+	go func() {
+		for {
+			select {
+			case <-isReceivedMessage:
+				continue
+			case <-time.After(timeoutDuration):
+				errorMSG := "Symbol error"
+				utils.ShowErrorSocket(ws, errorMSG)
+				// close connect socket with binance server
+				conn.Close()
+				// close socket with user
+				ws.Close()
+				return
+			}
+		}
+	}()
+
+	// handle error with websocket
 	for {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
