@@ -28,6 +28,7 @@ type Alert struct {
 	NextTriggerTime    time.Time          `json:"next_trigger_time,omitempty" bson:"next_trigger_time,omitempty"` // Thời gian kích hoạt tiếp theo
 	RepeatCount        int                `json:"repeat_count,omitempty" bson:"repeat_count,omitempty"`           // Số lần đã lặp lại
 	Message            string             `json:"message" bson:"message"`                                         // Thông điệp sẽ được gửi trong cảnh báo (ví dụ: "BTC giá đã vượt $20,000")
+	LastInterval       string             `json:"last_fundingrate_interval" bson:"last_fundingrate_interval"`
 }
 
 

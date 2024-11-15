@@ -15,7 +15,25 @@ import (
 
 	"time"
 )
+func CheckFundingRateInterval(alert *models.Alert) bool {
+	log.Println("Checking funding rate interval...")
+	if alert.Type == "funding_rate_interval" {
+		
+		currentInterval, err := services.GetFundingRateInterval(alert.Symbol)
+		log.Println("Current funding rate interval:", currentInterval)
+		if err != nil {
+			log.Printf("Error fetching funding rate interval: %v", err)
+			return false
+		}
 
+		if currentInterval != alert.LastInterval {
+			log.Printf("Funding rate interval has changed from %s to %s", alert.LastInterval, currentInterval)
+			alert.LastInterval = currentInterval
+			return true
+		}
+	}
+	return false
+}
 func CheckPriceCondition(alert *models.Alert) bool {
 
 	var Price float64
@@ -26,7 +44,10 @@ func CheckPriceCondition(alert *models.Alert) bool {
 		Price, err = services.GetFuturePrice(alert.Symbol)
 	} else if alert.Type == "funding_rate" {
 		Price, err = services.GetFundingRate(alert.Symbol)
-	}
+	} else if alert.Type == "price_difference" {
+		Price, err = services.GetPriceDifference(alert.Symbol)
+	} 
+
 	if err != nil {
 		log.Printf("Error fetching price: %v", err)
 		return false
@@ -196,9 +217,11 @@ func CheckAndSendAlerts() {
 
 	for _, alert := range alerts {
 		conditionMet := false
-		if (alert.Type == "spot" || alert.Type == "future" || alert.Type == "funding_rate") && CheckPriceCondition(&alert) && checkRepeatCount(&alert) {
+		if (alert.Type == "spot" || alert.Type == "future" || alert.Type == "funding_rate"|| alert.Type == "price_difference") && CheckPriceCondition(&alert) && checkRepeatCount(&alert) {
 			conditionMet = true
 		} else if (alert.Type == "new_listing" || alert.Type == "delisting") && CheckNewListingAndDelisting(&alert) && checkRepeatCount(&alert) {
+			conditionMet = true
+		} else if alert.Type == "funding_rate_interval" && CheckFundingRateInterval(&alert) && checkRepeatCount(&alert) {
 			conditionMet = true
 		}
 
