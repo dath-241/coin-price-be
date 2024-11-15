@@ -42,7 +42,6 @@ func FundingRateSocket(context *gin.Context) {
 	go func() {
 		defer close(done)
 		for {
-			fmt.Println("message")
 			_, message, err := conn.ReadMessage()
 			if err != nil {
 				log.Println("Read error: ", err)
