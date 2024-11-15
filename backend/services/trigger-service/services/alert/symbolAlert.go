@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	models "github.com/dath-241/coin-price-be-go/services/price-service/models/alert"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
 )
 
 // fetchSymbolsFromBinance fetches symbols from Binance's API
@@ -54,6 +54,10 @@ type PriceResponse struct {
 
 type FundingRateResponse struct {
 	FundingRate string `json:"fundingRate"`
+}
+
+type FuturePriceResponse struct {
+	LastPrice string `json:"lastPrice"`
 }
 
 // Hàm lấy giá Spot
@@ -115,13 +119,12 @@ func GetFuturePrice(symbol string) (float64, error) {
 	}
 	defer resp.Body.Close()
 
-	var result PriceResponse
+	var result FuturePriceResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return 0, err
 	}
 
-	// Chuyển đổi Price từ string sang float64
-	price, err := strconv.ParseFloat(result.Price, 64)
+	price, err := strconv.ParseFloat(result.LastPrice, 64)
 	if err != nil {
 		return 0, fmt.Errorf("failed to parse price: %v", err)
 	}

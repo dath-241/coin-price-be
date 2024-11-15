@@ -3,8 +3,8 @@ package services
 import (
 	"net/http"
 
-	"github.com/dath-241/coin-price-be-go/services/price-service/models/indicator"
-	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
+	"github.com/dath-241/coin-price-be-go/services/trigger-service/models/indicator"
+	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

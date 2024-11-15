@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"log"
 
-	models "github.com/dath-241/coin-price-be-go/services/price-service/models/alert"
-	services "github.com/dath-241/coin-price-be-go/services/price-service/services/alert"
-
-	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
+	noify "github.com/dath-241/coin-price-be-go/services/trigger-service/services"
+	services "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
+	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -17,7 +17,7 @@ import (
 )
 
 func CheckPriceCondition(alert *models.Alert) bool {
-	
+
 	var Price float64
 	var err error
 	if alert.Type == "spot" {
@@ -53,7 +53,6 @@ func checkRepeatCount(alert *models.Alert) bool {
 	}
 	return true
 }
-
 
 func CheckNewListingAndDelisting(alert *models.Alert) bool {
 	newSymbols, delistedSymbols, err := services.FetchSymbolsFromBinance()
@@ -114,10 +113,10 @@ func CheckNumberOfAlertSent(alert *models.Alert) bool {
 func CheckSnoozeCondition(alert *models.Alert) bool {
 	currentTime := time.Now()
 
-
 	switch alert.SnoozeCondition {
 	case "Only once":
 		if alert.RepeatCount > 0 {
+			alert.IsActive = false
 			log.Println("Đã hết số lần gửi", alert.ID.Hex())
 			return false
 		}
@@ -137,7 +136,7 @@ func CheckSnoozeCondition(alert *models.Alert) bool {
 			return false
 		}
 	case "At Specific Time":
-		start := alert.NextTriggerTime
+		start := alert.NextTriggerTime	
 		if currentTime.Before(start) || currentTime.After(start) {
 			if currentTime.Before(start) {
 				log.Println("Chưa đến thời gian gửi", alert.ID.Hex())
@@ -159,8 +158,8 @@ func UpdateAlertAfterTrigger(alert *models.Alert) {
 
 	alert.RepeatCount++
 	if alert.MaxRepeatCount > 0 && alert.RepeatCount >= alert.MaxRepeatCount {
-        alert.IsActive = false
-    }
+		alert.IsActive = false
+	}
 	switch alert.SnoozeCondition {
 	case "Only once":
 		alert.IsActive = false
@@ -179,50 +178,48 @@ func UpdateAlertAfterTrigger(alert *models.Alert) {
 }
 
 func CheckAndSendAlerts() {
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
+	filter := bson.M{"is_active": true}
+	cursor, err := utils.AlertCollection.Find(ctx, filter)
+	if err != nil {
+		log.Println("Failed to fetch alerts:", err)
+		return
+	}
+	defer cursor.Close(ctx)
 
-    filter := bson.M{"is_active": true}
-    cursor, err := utils.AlertCollection.Find(ctx, filter)
-    if err != nil {
-        log.Println("Failed to fetch alerts:", err)
-        return
-    }
-    defer cursor.Close(ctx)
+	var alerts []models.Alert
+	if err = cursor.All(ctx, &alerts); err != nil {
+		return
+	}
 
-    var alerts []models.Alert
-    if err = cursor.All(ctx, &alerts); err != nil {
-        return
-    }
+	for _, alert := range alerts {
+		conditionMet := false
+		if (alert.Type == "spot" || alert.Type == "future" || alert.Type == "funding_rate") && CheckPriceCondition(&alert) && checkRepeatCount(&alert) {
+			conditionMet = true
+		} else if (alert.Type == "new_listing" || alert.Type == "delisting") && CheckNewListingAndDelisting(&alert) && checkRepeatCount(&alert) {
+			conditionMet = true
+		}
 
-    for _, alert := range alerts {
-        conditionMet := false
-        if (alert.Type == "spot" || alert.Type == "future" || alert.Type == "funding_rate") && CheckPriceCondition(&alert)&&checkRepeatCount(&alert) {
-            conditionMet = true
-        } else if (alert.Type == "new_listing" || alert.Type == "delisting") && CheckNewListingAndDelisting(&alert)&&checkRepeatCount(&alert) {
-            conditionMet = true
-        }
+		if conditionMet {
+			if CheckSnoozeCondition(&alert) {
+				noify.NotifyUserTriggers(alert.UserID)
+				log.Println("Đã gửi thông báo!!!:", alert.ID.Hex(), alert.Type, alert.Symbol)
+				UpdateAlertAfterTrigger(&alert)
 
-        if conditionMet {
-            if CheckSnoozeCondition(&alert) {
-                log.Println("Đã gửi thông báo!!!:", alert.ID.Hex(), alert.Type, alert.Symbol)
-                UpdateAlertAfterTrigger(&alert)
-                
-    
-                if !alert.IsActive {
-                    log.Println("Cảnh báo đã hết hiệu lực:", alert.ID.Hex())
-                    break
-                }
-            } else {
-                // log.Println("Không đủ điều kiện snooze để gửi cảnh báo:", alert.ID.Hex())
-            }
-        } else {
-            log.Println("Cảnh báo không đủ điều kiện kích hoạt:", alert.ID.Hex(), alert.Type, alert.Symbol)
-        }
-    }
+				if !alert.IsActive {
+					log.Println("Cảnh báo đã hết hiệu lực:", alert.ID.Hex())
+					break
+				}
+			} else {
+				// log.Println("Không đủ điều kiện snooze để gửi cảnh báo:", alert.ID.Hex())
+			}
+		} else {
+			log.Println("Cảnh báo không đủ điều kiện kích hoạt:", alert.ID.Hex(), alert.Type, alert.Symbol)
+		}
+	}
 }
-
 
 // SaveAlert lưu hoặc cập nhật một cảnh báo trong cơ sở dữ liệu
 func SaveAlert(alert *models.Alert) error {

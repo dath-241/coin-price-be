@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	models "github.com/dath-241/coin-price-be-go/services/price-service/models/alert"
-	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
+	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -28,11 +28,26 @@ func CreateAlert(c *gin.Context) {
 		return
 	}
 
+	// Add default or new values for additional fields
 	newAlert.ID = primitive.NewObjectID()
 	newAlert.IsActive = true
 	currentTime := primitive.NewDateTimeFromTime(time.Now())
-	newAlert.CreatedAt = currentTime  
-	newAlert.UpdatedAt = currentTime  
+	newAlert.CreatedAt = currentTime
+	newAlert.UpdatedAt = currentTime
+
+	// Add default values for new fields
+	if newAlert.Frequency == "" {
+		newAlert.Frequency = "immediate" // Set default frequency if not provided
+	}
+	if newAlert.MaxRepeatCount == 0 {
+		newAlert.MaxRepeatCount = 5 // Set default max repeat count if not provided
+	}
+	if newAlert.SnoozeCondition == "" {
+		newAlert.SnoozeCondition = "none" // Set default snooze condition if not provided
+	}
+	if newAlert.Range == nil {
+		newAlert.Range = []float64{} // Set default range if not provided
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -53,7 +68,7 @@ func CreateAlert(c *gin.Context) {
 func GetAlerts(c *gin.Context) {
 
 	var results []models.Alert
-	alertType := c.Query("type") 
+	alertType := c.Query("type")
 
 	filter := bson.M{}
 	if alertType != "" {
@@ -128,15 +143,15 @@ func GetSymbolAlerts(c *gin.Context) {
 	newSymbols, delistedSymbols, err := FetchSymbolsFromBinance()
 	if err != nil {
 		log.Printf("Error fetching symbol data: %v", err)
-		return 
+		return
 	}
 
-    if newSymbols == nil {
-        newSymbols = []string{}
-    }
-    if delistedSymbols == nil {
-        delistedSymbols = []string{}
-    }
+	if newSymbols == nil {
+		newSymbols = []string{}
+	}
+	if delistedSymbols == nil {
+		delistedSymbols = []string{}
+	}
 
 	response := gin.H{
 		"new_symbols":      newSymbols,
@@ -154,7 +169,6 @@ func SetSymbolAlert(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-
 
 	if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
