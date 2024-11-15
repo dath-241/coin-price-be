@@ -86,12 +86,11 @@ func FundingRateSocket(context *gin.Context) {
 			case <-isReceivedMessage:
 				continue
 			case <-time.After(timeoutDuration):
-				errorMSG := "Symbol error"
-				utils.ShowErrorSocket(ws, errorMSG)
 				// close connect socket with binance server
 				conn.Close()
 				// close socket with user
-				ws.Close()
+				errorMSG := "Symbol error"
+				ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseProtocolError, errorMSG))
 				return
 			}
 		}
