@@ -8,7 +8,7 @@ import (
     "strconv"
     "net/http"
 
-    "backend/services/admin_service/src/models"
+    "github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	
     "github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"

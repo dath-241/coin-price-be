@@ -1,24 +1,24 @@
 package utils
 
 import (
-    "time"
-	"backend/services/admin_service/src/middlewares"
-)
+	"time"
 
+	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
+)
 
 // Hàm dọn dẹp token hết hạn
 func StartCleanupRoutine() {
-    ticker := time.NewTicker(1 * time.Minute)
-    go func() {
-        for range ticker.C {
-            now := time.Now()
-            for token, expTime := range  middlewares.BlacklistedTokens {
-                if now.After(expTime) {
-                    delete(middlewares.BlacklistedTokens, token)
-                }
-            }
-        }
-    }()
+	ticker := time.NewTicker(1 * time.Minute)
+	go func() {
+		for range ticker.C {
+			now := time.Now()
+			for token, expTime := range middlewares.BlacklistedTokens {
+				if now.After(expTime) {
+					delete(middlewares.BlacklistedTokens, token)
+				}
+			}
+		}
+	}()
 }
 
 // func ListBlacklistedTokens(c *gin.Context) {

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"backend/services/admin_service/src/config"
-	"backend/services/admin_service/src/models"
-	"backend/services/admin_service/src/utils"
-	"backend/services/admin_service/src/middlewares"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/config"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/utils"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 
 	"github.com/gin-gonic/gin"
 
