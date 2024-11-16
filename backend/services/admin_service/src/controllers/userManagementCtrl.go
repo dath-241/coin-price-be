@@ -3,15 +3,14 @@ package controllers
 import (
 	"context"
 	"net/http"
-	"os"
 	"time"
 
 	"backend/services/admin_service/src/config"
 	"backend/services/admin_service/src/models"
 	"backend/services/admin_service/src/utils"
+	"backend/services/admin_service/src/middlewares"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -24,50 +23,58 @@ func GetCurrentUserInfo() func(*gin.Context) {
 		//userID := c.Param("user_id") // Lấy user_id từ URL
 
 		// Lấy token từ header Authorization
-		tokenString := c.GetHeader("Authorization")
-		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		// tokenString := c.GetHeader("Authorization")
+		// if tokenString == "" {
+		// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		// 	return
+		// }
+
+		// Lấy token từ cookie
+		tokenString, err := c.Cookie("accessToken")
+		//fmt.Println("cookie", tokenString)
+		if err != nil || tokenString == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Authorization token is required in cookies",
+			})
 			return
 		}
 
-		// Kiểm tra tính hợp lệ của token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		})
-
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			return
-		}
-
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+		// Xác thực token
+		claims, err := middlewares.VerifyJWT(tokenString, true) // true để chỉ định đây là AccessToken
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
 			return
 		}
 
 		// Lấy userID từ claims trong token
-		currentUserID, ok := claims["user_id"].(string)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		currentUserID := claims.UserID
+		if currentUserID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "User ID not found in token",
+			})
 			return
 		}
 
 		// Kết nối đến database
-		if err := config.ConnectDatabase(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database"})
-			return
-		}
+		// if err := config.ConnectDatabase(); err != nil {
+		// 	c.JSON(http.StatusInternalServerError, gin.H{
+		// 		"error": "Failed to connect to database",
+		// 	})
+		// 	return
+		// }
 
 		collection := config.DB.Collection("User")
-
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		var user models.User
 		objID, err := primitive.ObjectIDFromHex(currentUserID) // Chuyển user_id thành ObjectID
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid user ID",
+			})
 			return
 		}
 
@@ -75,9 +82,13 @@ func GetCurrentUserInfo() func(*gin.Context) {
 		err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
 		if err != nil {
 			if err == mongo.ErrNoDocuments {
-				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+				c.JSON(http.StatusNotFound, gin.H{
+					"error": "User not found",
+				})
 			} else {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user"})
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": "Failed to fetch user",
+				})
 			}
 			return
 		}
@@ -95,48 +106,22 @@ func GetCurrentUserInfo() func(*gin.Context) {
 // Chỉnh sửa thông tin tài khoản người dùng.
 func UpdateCurrentUser() func(*gin.Context) {
 	return func(c *gin.Context) {
-		// Lấy token từ header Authorization
-		tokenString := c.GetHeader("Authorization")
-		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
-			return
-		}
-
-		// Kiểm tra tính hợp lệ của token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		})
-
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			return
-		}
-
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
-			return
-		}
-
-		// Lấy userID từ claims trong token
-		currentUserID, ok := claims["user_id"].(string)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
-			return
-		}
-
 		//var updatedData models.User
 		var updateRequest struct {
 			Name  string `json:"name"`
-			Email string `json:"email" binding:"email"`
+			Email string `json:"email" binding:"omitempty,email"`
 		}
 		// Parse JSON để lấy dữ liệu cập nhật
 		if err := c.ShouldBindJSON(&updateRequest); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
 			return
 		}
 		if updateRequest.Email == "" && updateRequest.Name == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid information"})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid information",
+			})
 			return
 		}
 
@@ -144,50 +129,89 @@ func UpdateCurrentUser() func(*gin.Context) {
 		if updateRequest.Name != "" {
 			if !utils.IsValidName(updateRequest.Name) {
 				c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Name length must be between 1 and 50 characters.",
+					"error": "Name length must be between 1 and 50 characters.",
 				})
 				return
 			}
 			// Kiểm tra xem tên chỉ chứa các ký tự chữ cái
 			if !utils.IsAlphabetical(updateRequest.Name) {
 				c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Name must only contain alphabetical characters.",
+					"error": "Name must only contain alphabetical characters.",
 				})
 				return
 			}
 		}
 
-		// Thêm check email đã tồn tại hay chưa
+		// Lấy token từ header Authorization
+		// tokenString := c.GetHeader("Authorization")
+		// if tokenString == "" {
+		// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		// 	return
+		// }
 
-		// Kết nối đến database
-		if err := config.ConnectDatabase(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database"})
+		// Lấy token từ cookie
+		tokenString, err := c.Cookie("accessToken")
+		if err != nil || tokenString == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Authorization token is required in cookies",
+			})
 			return
 		}
 
-		collection := config.DB.Collection("User")
+		// Xác thực token
+		claims, err := middlewares.VerifyJWT(tokenString, true) // true chỉ định đây là AccessToken
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 
+		// Lấy userID từ claims
+		currentUserID := claims.UserID
+		if currentUserID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "User ID not found in token",
+			})
+			return
+		}
+
+		// Kết nối đến database
+		collection := config.DB.Collection("User")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		objID, err := primitive.ObjectIDFromHex(currentUserID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid user ID",
+			})
 			return
 		}
 
-		// Kiểm tra email đã tồn tại hay chưa
+		// Kiểm tra xem email hoặc tên có bị trùng với người dùng khác không
+		filter := bson.M{}
 		if updateRequest.Email != "" {
-			filter := bson.M{"email": updateRequest.Email, "_id": bson.M{"$ne": objID}}
-			count, err := collection.CountDocuments(ctx, filter)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error checking email"})
-				return
-			}
-			if count > 0 {
-				c.JSON(http.StatusConflict, gin.H{"error": "Email already in use"})
-				return
-			}
+			filter["email"] = updateRequest.Email
+		}
+		if updateRequest.Name != "" {
+			filter["name"] = updateRequest.Name
+		}
+		filter["_id"] = bson.M{"$ne": objID} // Đảm bảo không tìm thấy chính người dùng hiện tại
+
+		// Kiểm tra nếu tên hoặc email đã tồn tại trong cơ sở dữ liệu
+		count, err := collection.CountDocuments(ctx, filter)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Error checking name or email",
+			})
+			return
+		}
+		if count > 0 {
+			c.JSON(http.StatusConflict, gin.H{
+				"error": "Name or email already in use",
+			})
+			return
 		}
 
 		// Tạo bản cập nhật chỉ với các trường không trống
@@ -201,12 +225,16 @@ func UpdateCurrentUser() func(*gin.Context) {
 
 		result, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to update user",
+			})
 			return
 		}
 
 		if result.MatchedCount == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
 			return
 		}
 
@@ -221,128 +249,158 @@ func DeleteCurrentUser() func(*gin.Context) {
 	return func(c *gin.Context) {
 		//userID := c.Param("user_id")
 		// Lấy token từ header Authorization
-		tokenString := c.GetHeader("Authorization")
-		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		// tokenString := c.GetHeader("Authorization")
+		// if tokenString == "" {
+		// 	c.JSON(http.StatusUnauthorized, gin.H{
+		// 		"error": "Authorization header required",
+		// 	})
+		// 	return
+		// }
+
+		// Lấy token từ cookie
+		tokenString, err := c.Cookie("accessToken")
+		if err != nil || tokenString == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Authorization token is required in cookies",
+			})
 			return
 		}
 
-		// Kiểm tra tính hợp lệ của token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		})
-
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		// Xác thực token
+		claims, err := middlewares.VerifyJWT(tokenString, true) // true chỉ định đây là AccessToken
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
 			return
 		}
 
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
-			return
-		}
-
-		// Lấy userID từ claims trong token
-		currentUserID, ok := claims["user_id"].(string)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		// Lấy userID từ claims
+		currentUserID := claims.UserID
+		if currentUserID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "User ID not found in token",
+			})
 			return
 		}
 
 		// Kết nối đến database
-		if err := config.ConnectDatabase(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database"})
-			return
-		}
+		// if err := config.ConnectDatabase(); err != nil {
+		// 	c.JSON(http.StatusInternalServerError, gin.H{
+		// 		"error": "Failed to connect to database",
+		// 	})
+		// 	return
+		// }
 
 		collection := config.DB.Collection("User")
-
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		objID, err := primitive.ObjectIDFromHex(currentUserID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid user ID",
+			})
 			return
 		}
 
 		// Xóa người dùng
 		result, err := collection.DeleteOne(ctx, bson.M{"_id": objID})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to delete user",
+			})
 			return
 		}
 
 		if result.DeletedCount == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"message": "User account deleted successfully"})
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User account deleted successfully",
+		})
 	}
 }
 
-// func UpgradeUserVIP() func(*gin.Context) {
-//     return func(c *gin.Context) {
-//         userID := c.Param("user_id")
-//         var upgradeRequest struct {
-//             PaymentID   string `json:"payment_id" binding:"required"`
-//             NewVIPLevel string `json:"new_vip_level" binding:"required,oneof=VIP-1 VIP-2 VIP-3"`
-//         }
+// Xem lịch sử thanh toán của người dùng
+func GetPaymentHistory() func(*gin.Context) {
+    return func(c *gin.Context) {
+        // Lấy token từ cookie
+        tokenString, err := c.Cookie("accessToken")
+        if err != nil || tokenString == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": "Authorization token is required in cookies",
+            })
+            return
+        }
 
-//         // Parse JSON để lấy dữ liệu yêu cầu nâng cấp
-//         if err := c.ShouldBindJSON(&upgradeRequest); err != nil {
-//             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-//             return
-//         }
+        // Kiểm tra tính hợp lệ của token
+        claims, err := middlewares.VerifyJWT(tokenString, true) // true để chỉ định đây là AccessToken
+        if err != nil {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": err.Error(),
+            })
+            return
+        }
 
-//         // Kết nối đến database
-//         if err := config.ConnectDatabase(); err != nil {
-//             c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to connect to database"})
-//             return
-//         }
+        // Lấy userID từ claims
+        userID := claims.UserID
+        if userID == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": "Invalid token claims",
+            })
+            return
+        }
 
-//         collection := config.DB.Collection("User")
+        // Kết nối tới cơ sở dữ liệu MongoDB
+        collection := config.DB.Collection("OrderMoMo")
+        ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
 
-//         ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-//         defer cancel()
+        // Tìm lịch sử thanh toán của người dùng theo userID
+        cursor, err := collection.Find(ctx, bson.M{"user_id": userID})
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": "Error fetching payment history",
+            })
+            return
+        }
+        defer cursor.Close(ctx)
 
-//         objID, err := primitive.ObjectIDFromHex(userID)
-//         if err != nil {
-//             c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-//             return
-//         }
+        // Lưu các đơn hàng thanh toán
+        var payments []models.Order
+        for cursor.Next(ctx) {
+            var payment models.Order
+            if err := cursor.Decode(&payment); err != nil {
+                c.JSON(http.StatusInternalServerError, gin.H{
+                    "error": "Error decoding payment data",
+                })
+                return
+            }
+            payments = append(payments, payment)
+        }
 
-//         // Cập nhật cấp độ VIP của người dùng
-//         update := bson.M{
-//             "$set": bson.M{
-//                 "role":       upgradeRequest.NewVIPLevel,
-//                 "upgraded_at": time.Now(),
-//                 "payment_id": upgradeRequest.PaymentID,
-//             },
-//         }
+        if err := cursor.Err(); err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": "Error reading from cursor",
+            })
+            return
+        }
 
-//         opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
-//         var updatedUser models.User
-//         err = collection.FindOneAndUpdate(ctx, bson.M{"_id": objID}, update, opts).Decode(&updatedUser)
-//         if err != nil {
-//             if err == mongo.ErrNoDocuments {
-//                 c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-//             } else {
-//                 c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upgrade user VIP level"})
-//             }
-//             return
-//         }
+        if len(payments) == 0 {
+            c.JSON(http.StatusOK, gin.H{
+                "message": "No payment history found",
+            })
+            return
+        }
 
-//         // Trả về thông tin người dùng sau khi nâng cấp VIP
-//         c.JSON(http.StatusOK, gin.H{
-//             "user_id":      userID,
-//             "name":     updatedUser.Name,
-//             "email":        updatedUser.Email,
-//             "role":         updatedUser.Role,
-//             "upgraded_at":  time.Now(),
-//             "payment_id":   upgradeRequest.PaymentID,
-//         })
-//     }
-// }
+        // Trả về danh sách các lịch sử thanh toán
+        c.JSON(http.StatusOK, gin.H{
+            "payment_history": payments,
+        })
+    }
+}
