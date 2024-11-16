@@ -29,3 +29,11 @@ func getWebsocketKline(context *gin.Context) {
 func getWebsocketMarketCap(context *gin.Context) {
 	websocket.MarketCapSocket(context)
 }
+
+func getWebsocketSpotPrice(context *gin.Context) {
+	websocket.SpotPriceSocket(context)
+}
+
+func getWebsocketFuturePrice(context *gin.Context) {
+	websocket.FuturePriceSocket(context)
+}
