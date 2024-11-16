@@ -2,8 +2,6 @@ package main
 
 import (
 	"log"
-	
-		"github.com/dath-241/coin-price-be-go/services/routes"
 	services "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"os"
