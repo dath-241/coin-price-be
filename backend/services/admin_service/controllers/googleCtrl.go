@@ -7,10 +7,10 @@ import (
     "strconv"
     "os"
 
-	"backend/services/admin_service/src/models"
-	"backend/services/admin_service/src/config"
-    "backend/services/admin_service/src/middlewares"
-    "backend/services/admin_service/src/utils"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/config"
+    "github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
+    "github.com/dath-241/coin-price-be-go/services/admin_service/utils"
     "github.com/gin-gonic/gin"
 )
 

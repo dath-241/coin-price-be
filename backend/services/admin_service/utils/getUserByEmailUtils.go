@@ -5,8 +5,8 @@ import (
     "log"
 	"context"
 
-	"backend/services/admin_service/src/config"
-	"backend/services/admin_service/src/models"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/config"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	"go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/mongo"
 )
