@@ -4,39 +4,15 @@ import (
     "fmt"
 	"context"
     "net/http"
+    "strconv"
+    "os"
 
 	"backend/services/admin_service/src/models"
 	"backend/services/admin_service/src/config"
     "backend/services/admin_service/src/middlewares"
     "backend/services/admin_service/src/utils"
     "github.com/gin-gonic/gin"
-    //"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-
-// // Xác minh Google ID Token bằng OAuth2 Client
-// func verifyGoogleIDToken(idToken string) (map[string]interface{}, error) {
-//     // Sử dụng Google OAuth2 client để xác minh ID Token
-//     ctx := context.Background()
-//     client, err := oauth2.NewService(ctx, option.WithCredentialsFile("path_to_credentials.json"))
-//     if err != nil {
-//         return nil, fmt.Errorf("could not create OAuth2 service: %v", err)
-//     }
-
-//     // Kiểm tra token qua Google API
-//     tokenInfo, err := client.Tokeninfo().IdToken(idToken).Do()
-//     if err != nil {
-//         return nil, fmt.Errorf("invalid token: %v", err)
-//     }
-
-//     return map[string]interface{}{
-//         "sub":   tokenInfo.UserId,
-//         "email": tokenInfo.Email,
-//     }, nil
-// }
-
-// Hàm tạo JWT
-
 
 // GoogleLogin xử lý đăng nhập bằng Google ID Token
 func GoogleLogin(c *gin.Context) {
@@ -45,16 +21,16 @@ func GoogleLogin(c *gin.Context) {
     // Xác minh Google ID Token
     userInfo, err := utils.VerifyGoogleIDToken(idToken)
     if err != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Google ID token"})
+        c.JSON(http.StatusUnauthorized, gin.H{
+            "error": "Invalid Google ID token",
+        })
         return
     }
 
-    
     // userID := userInfo["sub"].(string) // Lấy user ID từ token
     // Tạo email từ thông tin Google
     email := userInfo["email"].(string)
     
-    //ID:= primitive.NewObjectID()
     // Lấy thông tin user từ DB
     user, err := utils.GetUserByEmail(email)
     if err != nil {
@@ -71,33 +47,80 @@ func GoogleLogin(c *gin.Context) {
             collection := config.DB.Collection("User")
             _, insertErr := collection.InsertOne(context.TODO(), user)
             if insertErr != nil {
-                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create new user"})
+                c.JSON(http.StatusInternalServerError, gin.H{
+                    "error": "Failed to create new user",
+                })
                 return
             }
         } else {
             // Lỗi khác trong quá trình truy xuất DB
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving user from database"})
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": "Error retrieving user from database",
+            })
             return
         }
     }
 
-    // Lấy role từ user (giả sử role đã được lưu trong DB)
-    role := user.Role
-
-    // Tạo JWT cho người dùng
-    token, err := middlewares.GenerateJWT(user.ID.Hex(), role)
+    // Tạo JWT Refresh token
+    refreshToken, err := middlewares.GenerateRefreshToken(user.ID.Hex(), user.Role)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to generate refresh token",
+        })
         return
     }
 
-    // // Lưu JWT vào cookie (hoặc trả lại token cho frontend)
-    // c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+    // Tạo JWT Access token 
+    accessToken, err := middlewares.GenerateAccessToken(user.ID.Hex(), user.Role)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to generate access token",
+        })
+        return
+    }
+
+    // Load biến môi trường cho tên miền cookie và thời gian sống
+    cookieDomain := os.Getenv("COOKIE_DOMAIN")
+    accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL")
+    refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
+
+    if cookieDomain == "" || accessTokenTTL == "" || refreshTokenTTL == "" {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Environment variables are not set",
+        })
+        return
+    }
+
+    accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Invalid ACCESS_TOKEN_TTL format",
+        })
+        return
+    }
+
+    refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Invalid REFRESH_TOKEN_TTL format",
+        })
+        return
+    }
+
+    // Gửi token dưới dạng cookie
+    // Cookie cho xác thực
+    c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)  // chỉ dành cho /api/v1
+    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/refresh-token", cookieDomain, true, true) // chỉ dành cho /auth/refresh-token
+
+    // Cookie cho các hành động logout hoặc các route riêng biệt
+    c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true)  // chỉ dành cho /auth/logout
+    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/logout", cookieDomain, true, true) // chỉ dành cho /auth/logout
+    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
 
     // Trả về JWT cho frontend
     c.JSON(http.StatusOK, gin.H{
         "message": "Login successful",
-        "token":   token,
+        //"token":   token,
     })
 }
 
