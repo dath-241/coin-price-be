@@ -6,6 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	// "github.com/dath-241/coin-price-be-go/services/price-service/routes"
+	"github.com/dath-241/coin-price-be-go/services/price-service/src/routes"
+	"github.com/gin-gonic/gin"
+)
 
 	"backend/services/admin_service/src/config"
 	"backend/services/admin_service/src/momo"
@@ -68,4 +72,12 @@ func main() {
 	//     log.Fatalf("Server encountered an error: %v", err)
 	// }
 
+
+	server := gin.Default()
+
+	routes.RegisterRoutes(server)
+	// routes.RegisterRoutes(server)
+
+	server.Run(":8080")
+	//Set up router, routs, server, websocket
 }
