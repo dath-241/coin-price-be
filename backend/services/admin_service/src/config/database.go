@@ -5,12 +5,16 @@ import (
     "log"
     "time"
     "os"
+    "fmt"
     
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var DB *mongo.Database
+var (
+    DB     *mongo.Database
+    client *mongo.Client // Lưu trữ client để quản lý kết nối
+)
 
 // ConnectDatabase kết nối đến MongoDB và trả về database
 func ConnectDatabase() error {
@@ -28,10 +32,11 @@ func ConnectDatabase() error {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
-    // Sử dụng Connect để kết nối đến MongoDB
-    client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
+    // Tạo client MongoDB
+    var err error
+    client, err = mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
     if err != nil {
-        return err
+        return fmt.Errorf("failed to connect to MongoDB: %v", err)
     }
 
     // Kiểm tra kết nối
@@ -44,4 +49,34 @@ func ConnectDatabase() error {
 
     log.Println("Connected to MongoDB!")
     return nil
+}
+
+// ConnectDatabaseWithRetry thử kết nối với MongoDB nhiều lần
+func ConnectDatabaseWithRetry(maxRetries int, delay time.Duration) error {
+    for i := 0; i < maxRetries; i++ {
+        err := ConnectDatabase()
+        if err != nil {
+            log.Printf("Failed to connect to MongoDB (attempt %d/%d): %v", i+1, maxRetries, err)
+            time.Sleep(delay) // Chờ trước khi thử lại
+        } else {
+            return nil // Kết nối thành công
+        }
+    }
+    return fmt.Errorf("failed to connect to MongoDB after %d attempts", maxRetries)
+}
+
+// DisconnectDatabase đóng kết nối với MongoDB
+func DisconnectDatabase() {
+    if client != nil {
+        ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+        defer cancel()
+        log.Println("Attempting to disconnect from MongoDB...")
+        if err := client.Disconnect(ctx); err != nil {
+            log.Printf("Error disconnecting from MongoDB: %v\n", err)
+        } else {
+            log.Println("Disconnected from MongoDB.")
+        }
+    } else {
+        log.Println("Client is nil, skipping disconnect.")
+    }
 }
