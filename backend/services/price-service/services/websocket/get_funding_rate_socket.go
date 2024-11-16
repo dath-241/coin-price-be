@@ -6,14 +6,16 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/models"
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/utils"
+	"github.com/dath-241/coin-price-be-go/services/price-service/models"
+	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
-func FuturePriceSocket(context *gin.Context) {
+func FundingRateSocket(context *gin.Context) {
+
 	ws, err := Upgrade(context.Writer, context.Request)
 	if err != nil {
 		log.Println("Upgrade error: ", err)
@@ -22,9 +24,7 @@ func FuturePriceSocket(context *gin.Context) {
 	defer ws.Close()
 
 	symbol := strings.ToLower(context.Query("symbol"))
-
-	wsURL := fmt.Sprintf("wss://stream.binance.com/ws/%s@kline_1s", symbol)
-
+	wsURL := fmt.Sprintf("wss://fstream.binance.com/stream?streams=%s@markPrice@1s", symbol)
 	headers := http.Header{}
 	headers.Add("method", "SUBSCRIBE")
 
@@ -35,6 +35,9 @@ func FuturePriceSocket(context *gin.Context) {
 	defer conn.Close()
 
 	done := make(chan struct{})
+	// handle symbol error
+	isReceivedMessage := make(chan bool)
+	timeoutDuration := 5 * time.Second
 
 	go func() {
 		defer close(done)
@@ -45,15 +48,20 @@ func FuturePriceSocket(context *gin.Context) {
 				return
 			}
 
-			var tickerResponse models.FutureKlineWebSocket
-			if err = json.Unmarshal(message, &tickerResponse); err != nil {
+			// alert get message (symbol not error)
+			isReceivedMessage <- true
+
+			var FundingResponse models.FundingRateWebSocket
+			if err = json.Unmarshal(message, &FundingResponse); err != nil {
 				log.Println("JSON unmarshal error: ", err)
 				continue
 			}
+
 			response := map[string]interface{}{
-				"symbol":    tickerResponse.Symbol,
-				"price":     tickerResponse.Kline.ClosePrice,
-				"eventTime": utils.ConvertMillisecondsToTimestamp(tickerResponse.EventTime),
+				"symbol":           FundingResponse.Data.Symbol,
+				"eventTime":        utils.ConvertMillisecondsToTimestamp(FundingResponse.Data.EventTime),
+				"fundingRate":      FundingResponse.Data.FundingRate,
+				"fundingCountDown": utils.ConvertMillisecondsToHHMMSS(FundingResponse.Data.NextFundingTime - FundingResponse.Data.EventTime),
 			}
 
 			responseJSON, err := json.Marshal(&response)
@@ -71,13 +79,30 @@ func FuturePriceSocket(context *gin.Context) {
 		}
 	}()
 
+	// after 5 seconds, if not response
+	go func() {
+		for {
+			select {
+			case <-isReceivedMessage:
+				continue
+			case <-time.After(timeoutDuration):
+				// close connect socket with binance server
+				conn.Close()
+				// close socket with user
+				errorMSG := "Symbol error"
+				ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseProtocolError, errorMSG))
+				return
+			}
+		}
+	}()
+
+	// handle error with websocket
 	for {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			log.Println("Error reading message: ", err)
 			break
 		}
-
 		if string(msg) == "disconnect" {
 			log.Println("Disconnecting from WebSocket")
 			break

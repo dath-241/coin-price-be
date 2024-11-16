@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/models"
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/utils"
+	"github.com/dath-241/coin-price-be-go/services/price-service/models"
+	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
-func SpotPriceSocket(context *gin.Context) {
+func FuturePriceSocket(context *gin.Context) {
 	ws, err := Upgrade(context.Writer, context.Request)
 	if err != nil {
 		log.Println("Upgrade error: ", err)
@@ -23,7 +23,7 @@ func SpotPriceSocket(context *gin.Context) {
 
 	symbol := strings.ToLower(context.Query("symbol"))
 
-	wsURL := fmt.Sprintf("wss://stream.binance.com/ws/%s@ticker", symbol)
+	wsURL := fmt.Sprintf("wss://stream.binance.com/ws/%s@kline_1s", symbol)
 
 	headers := http.Header{}
 	headers.Add("method", "SUBSCRIBE")
@@ -45,14 +45,14 @@ func SpotPriceSocket(context *gin.Context) {
 				return
 			}
 
-			var tickerResponse models.SpotTickerWebSocket
+			var tickerResponse models.FutureKlineWebSocket
 			if err = json.Unmarshal(message, &tickerResponse); err != nil {
 				log.Println("JSON unmarshal error: ", err)
 				continue
 			}
 			response := map[string]interface{}{
 				"symbol":    tickerResponse.Symbol,
-				"price":     tickerResponse.LastPrice,
+				"price":     tickerResponse.Kline.ClosePrice,
 				"eventTime": utils.ConvertMillisecondsToTimestamp(tickerResponse.EventTime),
 			}
 

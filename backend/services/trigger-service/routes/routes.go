@@ -21,6 +21,15 @@ func SetupRoute() *gin.Engine {
 		alerts.POST("/alerts/symbol", servicesA.SetSymbolAlert)
 		alerts.POST("/start-alert-checker", services.Run)
 		alerts.POST("/stop-alert-checker", services.Stop)
+		alerts.POST("/start-alert-checker", func(c *gin.Context) {
+			services.StartRunning()
+			c.JSON(200, gin.H{"status": "Alert checker started"})
+		})
+
+		alerts.POST("/stop-alert-checker", func(c *gin.Context) {
+			services.StopRunning()
+			c.JSON(200, gin.H{"status": "Alert checker stopped"})
+		})
 
 	}
 
