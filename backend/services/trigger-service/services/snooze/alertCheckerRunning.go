@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -15,6 +15,14 @@ var (
 	mutex     sync.Mutex
 )
 
+func Run(c *gin.Context) {
+	StartRunning()
+	c.JSON(200, gin.H{"status": "Alert checker started"})
+}
+func Stop(c *gin.Context) {
+	StopRunning()
+	c.JSON(200, gin.H{"status": "Alert checker stopped"})
+}
 func StartRunning() {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -40,7 +48,6 @@ func StartRunning() {
 		}
 	}()
 }
-
 
 func StopRunning() {
 	mutex.Lock()
