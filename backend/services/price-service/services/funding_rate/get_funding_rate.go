@@ -3,7 +3,7 @@ package fundingrate
 import (
 	"net/http"
 
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/utils"
+	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
 	"github.com/gin-gonic/gin"
 )
 
