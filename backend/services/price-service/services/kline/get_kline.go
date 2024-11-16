@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/models"
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/utils"
+	"github.com/dath-241/coin-price-be-go/services/price-service/models"
+	"github.com/dath-241/coin-price-be-go/services/price-service/utils"
 	"github.com/gin-gonic/gin"
 )
 

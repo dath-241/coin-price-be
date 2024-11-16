@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/models"
-	"github.com/dath-241/coin-price-be-go/services/price-service/src/utils"
 	"github.com/gin-gonic/gin"
 )
 
