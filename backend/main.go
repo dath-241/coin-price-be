@@ -2,13 +2,15 @@ package main
 
 import (
 	"log"
-	"github.com/dath-241/coin-price-be-go/routes"
+	
+		"github.com/dath-241/coin-price-be-go/services/routes"
 	services "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+	"github.com/dath-241/coin-price-be-go/services/trigger-service/routes"
 	// "github.com/dath-241/coin-price-be-go/services/price-service/routes"
 	"github.com/dath-241/coin-price-be-go/services/price-service/src/routes"
 	"github.com/gin-gonic/gin"
