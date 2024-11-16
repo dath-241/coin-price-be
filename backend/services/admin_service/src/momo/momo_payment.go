@@ -15,8 +15,34 @@ import (
 	"github.com/sony/sonyflake"
 )
 
+var (
+	partnerCodeEnv string
+	accessKeyEnv   string
+	secretKeyEnv   string
+	baseURLEnv     string
+	redirectURLEnv string
+	ipnURLEnv      string
+)
+
+func Init() {
+	partnerCodeEnv = getEnv("MOMO_PARTNER_CODE")
+	accessKeyEnv = getEnv("MOMO_ACCESS_KEY")
+	secretKeyEnv = getEnv("MOMO_SECRET_KEY")
+	baseURLEnv = getEnv("MOMO_BASE_URL")
+	redirectURLEnv = getEnv("MOMO_REDIRECT_URL")
+	ipnURLEnv = getEnv("MOMO_IPN_URL")
+}
+
+func getEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("Environment variable %s is not set", key)
+	}
+	return value
+}
+
 // Payload defines the data structure for a MoMo payment request
-type Payload struct {
+type payload struct {
 	PartnerCode  string `json:"partnerCode"`
 	AccessKey    string `json:"accessKey"`
 	RequestID    string `json:"requestId"`
@@ -43,12 +69,15 @@ func CreateMoMoPayment(amount string, vipLevel string, orderInfo string) (string
 	a, _ := flake.NextID()
 	b, _ := flake.NextID()
 
-	var endpoint = os.Getenv("MOMO_ENDPOINT")
-	var accessKey = os.Getenv("MOMO_ACCESS_KEY")
-	var secretKey = os.Getenv("MOMO_SECRET_KEY")
-	var partnerCode = os.Getenv("MOMO_PARTNER_CODE")
-	var redirectUrl = os.Getenv("MOMO_REDIRECT_URL")
-	var ipnUrl = os.Getenv("MOMO_IPN_URL")
+	// URL cho MoMo API để kiểm tra trạng thái thanh toán
+	url := fmt.Sprintf("%s/v2/gateway/api/create", baseURLEnv)
+
+	var endpoint = url
+	var accessKey = accessKeyEnv
+	var secretKey = secretKeyEnv
+	var partnerCode = partnerCodeEnv
+	var redirectUrl = redirectURLEnv
+	var ipnUrl = ipnURLEnv
 	var orderId = strconv.FormatUint(a, 16)
 	var requestId = strconv.FormatUint(b, 16)
 	var extraData = ""
@@ -98,7 +127,7 @@ func CreateMoMoPayment(amount string, vipLevel string, orderInfo string) (string
 	signature := hex.EncodeToString(hmac.Sum(nil))
 
 	// Create payload for the request
-	payload := Payload{
+	payload := payload{
 		PartnerCode:  partnerCode,
 		AccessKey:    accessKey,
 		RequestID:    requestId,
