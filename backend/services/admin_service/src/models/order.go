@@ -12,5 +12,6 @@ type Order struct {
     Amount     int                `bson:"amount"`      // Số tiền thanh toán
     OrderID    string             `bson:"order_id"`    // Mã đơn hàng
     PaymentURL string             `bson:"payment_url"` // URL thanh toán MoMo
-    CreatedAt  time.Time             `bson:"created_at"`  // Ngày tạo đơn hàng
+    CreatedAt  time.Time          `bson:"created_at"`  // Ngày tạo đơn hàng
+    TransactionStatus string      `bson:"transaction_status"` // Thêm trường này để lưu trạng thái giao dịch
 }
