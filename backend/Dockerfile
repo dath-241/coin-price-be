@@ -1,6 +1,6 @@
 # FROM golang:1.23.2 AS builder
 # WORKDIR /app
-# COPY go.mod go.sum ./
+# COPY . .
 # RUN go mod download
 # RUN go build -o main .
 # EXPOSE 8000
@@ -18,5 +18,5 @@ WORKDIR /app
 COPY --from=builder /app/main .
 COPY .env .
 
-EXPOSE 8000
+EXPOSE 8080
 CMD ["/app/main"]

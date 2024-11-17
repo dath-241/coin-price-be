@@ -4,9 +4,9 @@ services:
       - db
     build:  ./backend
     ports:
-      - 8000:8000
-    environment:
-      DB_URL: mongodb://db/coin-price
+      - 8080:8080
+    env_file:
+      - backend/.env
     develop:
       watch:
         - path: ./backend/go.mod
