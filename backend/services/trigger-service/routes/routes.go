@@ -8,9 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoute() *gin.Engine {
-	route := gin.Default()
-
+func SetupRoute(route *gin.Engine) {
 	alerts := route.Group("/api/v1/vip2")
 	{
 		alerts.POST("/alerts", servicesA.CreateAlert)
@@ -21,15 +19,16 @@ func SetupRoute() *gin.Engine {
 		alerts.POST("/alerts/symbol", servicesA.SetSymbolAlert)
 		alerts.POST("/start-alert-checker", services.Run)
 		alerts.POST("/stop-alert-checker", services.Stop)
-		alerts.POST("/start-alert-checker", func(c *gin.Context) {
-			services.StartRunning()
-			c.JSON(200, gin.H{"status": "Alert checker started"})
-		})
 
-		alerts.POST("/stop-alert-checker", func(c *gin.Context) {
-			services.StopRunning()
-			c.JSON(200, gin.H{"status": "Alert checker stopped"})
-		})
+		// alerts.POST("/start-alert-checker", func(c *gin.Context) {
+		// 	services.StartRunning()
+		// 	c.JSON(200, gin.H{"status": "Alert checker started"})
+		// })
+
+		// alerts.POST("/stop-alert-checker", func(c *gin.Context) {
+		// 	services.StopRunning()
+		// 	c.JSON(200, gin.H{"status": "Alert checker stopped"})
+		// })
 
 	}
 
@@ -44,6 +43,4 @@ func SetupRoute() *gin.Engine {
 		users.POST("/:id/alerts/notify", servicesU.NotifyUser)
 		users.POST("/", servicesU.CreateUser)
 	}
-
-	return route
 }

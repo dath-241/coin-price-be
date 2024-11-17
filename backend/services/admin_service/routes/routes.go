@@ -8,9 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
-
+func SetupRouter(r *gin.Engine) {
 	// Route User Management API (Quản lý tài khoản)
 	userRoutes := r.Group("/api/v1/user")
 	{
@@ -56,5 +54,5 @@ func SetupRouter() *gin.Engine {
 		paymentRoutes.POST("/momo-callback", momo.MoMoCallback())
 	}
 
-	return r
+	// return r
 }

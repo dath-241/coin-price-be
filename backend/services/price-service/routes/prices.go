@@ -4,9 +4,9 @@ import (
 	// fundingrate "github.com/dath-241/coin-price-be-go/services/price-service/services/funding_rate"
 	// "github.com/dath-241/coin-price-be-go/services/price-service/services/kline"
 	// "github.com/dath-241/coin-price-be-go/services/price-service/services/websocket"
+	fundingrate "github.com/dath-241/coin-price-be-go/services/price-service/services/funding_rate"
 	"github.com/dath-241/coin-price-be-go/services/price-service/services/kline"
 	"github.com/dath-241/coin-price-be-go/services/price-service/services/websocket"
-	fundingrate "github.com/dath-241/coin-price-be-go/services/price-service/src/services/funding_rate"
 	"github.com/gin-gonic/gin"
 )
 
