@@ -104,6 +104,7 @@ func FundingRateSocket(context *gin.Context) {
 			break
 		}
 		if string(msg) == "disconnect" {
+			ws.Close()
 			log.Println("Disconnecting from WebSocket")
 			break
 		}

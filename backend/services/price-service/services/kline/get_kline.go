@@ -25,6 +25,11 @@ func GetKlineData(symbol, interval string, context *gin.Context) {
 		return
 	}
 
+	if symbol == "" || interval == "" {
+		utils.ShowError(http.StatusInternalServerError, "Missing symbol or interval", context)
+		return
+	}
+
 	q := url.Values{}
 	q.Add("symbol", symbol)
 	q.Add("interval", interval)
@@ -63,6 +68,28 @@ func GetKlineData(symbol, interval string, context *gin.Context) {
 		kline.UpdateKlineEachData(timeKline, open, high, low, close, volume)
 		response.UpdateKlineResponseData(&kline)
 	}
+	// data response
+	// [
+	// "symbol": "BTCUSDT",
+	// "interval": "1d",
+	// "eventTime": "2024-11-20 09:09:02",
+	// "kline_data": [
+	//     {
+	//         "time": "2023-07-10T00:00:00Z",
+	//         "open": 30147.8,
+	//         "high": 31040,
+	//         "low": 29928.8,
+	//         "close": 30396.9,
+	//         "volume": 429115.537
+	//     },
+	//     {
+	//         "time": "2023-07-11T00:00:00Z",
+	//         "open": 30396.9,
+	//         "high": 30804.9,
+	//         "low": 30261.4,
+	//         "close": 30608.4,
+	//         "volume": 298904.747
+	//     },]
 
 	context.JSON(http.StatusOK, response)
 }
