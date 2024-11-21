@@ -16,8 +16,10 @@ func SetupRouter(r *gin.Engine) {
 		userRoutes.Use(middlewares.AuthMiddleware("VIP-0", "VIP-1", "VIP-2", "VIP-3", "Admin"))
 
 		userRoutes.GET("/me", controllers.GetCurrentUserInfo())   // Lấy thông tin tài khoản người dùng hiện tại.
-		userRoutes.PUT("/me", controllers.UpdateCurrentUser())    // Chỉnh sửa thông tin tài khoản người dùng.
+		userRoutes.PUT("/me", controllers.UpdateUserProfile())    // Chỉnh sửa thông tin tài khoản người dùng.
 		userRoutes.DELETE("/me", controllers.DeleteCurrentUser()) // Xóa tài khoản người dùng hiện tại.
+		userRoutes.PUT("/me/change_password", controllers.ChangePassword())
+		userRoutes.PUT("/me/change_email", controllers.ChangeEmail())
 		userRoutes.GET("/me/payment-history", controllers.GetPaymentHistory())
 	}
 
@@ -42,14 +44,17 @@ func SetupRouter(r *gin.Engine) {
 		adminRoutes.GET("/users", controllers.GetAllUsers())                  //Lay thong tin tat ca nguoi dung
 		adminRoutes.GET("/user/:user_id", controllers.GetUserByAdmin())       //Lay thong tin 1 user cu the
 		adminRoutes.DELETE("/user/:user_id", controllers.DeleteUserByAdmin()) //Xóa 1 người dùng
+		adminRoutes.PUT("/user/:user_id/ban", controllers.BanAccount()) //Ban 1 người dùn
+		adminRoutes.PUT("/user/:user_id/active", controllers.ActiveAccount()) //Ban 1 người dùn
 		adminRoutes.GET("/payment-history", controllers.GetPaymentHistoryForAdmin())
+		adminRoutes.GET("/payment-history/:user_id", controllers.GetPaymentHistoryForUserByAdmin())
 	}
 
 	// Route cho payment
 	paymentRoutes := r.Group("/api/v1/payment")
 	{
 		paymentRoutes.POST("/vip-upgrade", middlewares.AuthMiddleware("VIP-0", "VIP-1", "VIP-2"), controllers.CreateVIPPayment())
-		paymentRoutes.POST("/confirm", controllers.ConfirmPaymentHandlerSuccess())
+		//paymentRoutes.POST("/confirm", controllers.ConfirmPaymentHandlerSuccess())
 		paymentRoutes.POST("/status", controllers.HandleQueryPaymentStatus())
 		paymentRoutes.POST("/momo-callback", momo.MoMoCallback())
 	}
