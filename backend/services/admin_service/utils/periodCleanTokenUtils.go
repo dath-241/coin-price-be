@@ -7,19 +7,24 @@ import (
 )
 
 // Hàm dọn dẹp token hết hạn
-func StartCleanupRoutine() {
-	ticker := time.NewTicker(1 * time.Minute)
-	go func() {
-		for range ticker.C {
-			now := time.Now()
-			for token, expTime := range middlewares.BlacklistedTokens {
-				if now.After(expTime) {
-					delete(middlewares.BlacklistedTokens, token)
-				}
-			}
-		}
-	}()
+func StartCleanupRoutine(interval time.Duration) {
+    // interval := 1 * time.Minute  // Đặt tần suất dọn dẹp là mỗi 1 phút
+    ticker := time.NewTicker(interval)
+
+    go func() {
+        for range ticker.C {
+            now := time.Now()
+            middlewares.BlacklistedTokensMutex.Lock()
+            for token, expTime := range middlewares.BlacklistedTokens {
+                if now.After(expTime) {
+                    delete(middlewares.BlacklistedTokens, token)
+                }
+            }
+            middlewares.BlacklistedTokensMutex.Unlock()
+        }
+    }()
 }
+
 
 // func ListBlacklistedTokens(c *gin.Context) {
 //     if len(middlewares.BlacklistedTokens) == 0 {

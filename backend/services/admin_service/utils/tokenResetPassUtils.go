@@ -4,9 +4,14 @@ import (
     "crypto/rand"
     "crypto/sha256"
     "encoding/hex"
+    "errors"
 )
 
 func GenerateRandomString(length int) (string, error) {
+    if length <= 0 {
+        return "", errors.New("length must be greater than 0")
+    }
+
     bytes := make([]byte, length)
     _, err := rand.Read(bytes)
     if err != nil {

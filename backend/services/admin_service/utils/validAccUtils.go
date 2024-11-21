@@ -41,3 +41,18 @@ func IsAlphabetical(name string) bool {
     re := regexp.MustCompile(`^[A-Za-z]+$`)
     return re.MatchString(name)
 }
+
+func IsValidUsername(username string) bool {
+	// Regex chỉ cho phép ký tự alphanumeric và dấu gạch ngang
+	const usernameRegex = `^[a-zA-Z0-9-]{3,20}$`
+	matched, _ := regexp.MatchString(usernameRegex, username)
+	return matched
+}
+
+// Kiểm tra định dạng số điện thoại Việt Nam
+func IsValidPhoneNumber(phoneNumber string) bool {
+    // Regex cho số điện thoại Việt Nam: +84 hoặc 0, theo sau là 9-10 chữ số
+    regex := `^(?:\+84|0)(?:3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])[0-9]{7}$`
+    matched, _ := regexp.MatchString(regex, phoneNumber)
+    return matched
+}

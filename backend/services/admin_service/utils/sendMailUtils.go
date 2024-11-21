@@ -12,6 +12,10 @@ import (
 
 // SendEmail gửi email đến người nhận.
 func SendEmail(to, subject, htmlBody string) error {//, textBody
+    if to == "" {
+        return fmt.Errorf("recipient email is required")
+    }
+    
     // Khởi tạo Mailjet client
     
     apiKey := os.Getenv("MAILJET_API_KEY")

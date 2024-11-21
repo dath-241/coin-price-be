@@ -22,20 +22,20 @@ import (
 func CreateVIPPayment() func(*gin.Context) {
     return func(c *gin.Context) {
         //Lấy token từ header Authorization
-        // tokenString := c.GetHeader("Authorization")
-        // if tokenString == "" {
-        //     c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
-        //     return
-        // }
-
-        // Lấy token từ cookie
-        tokenString, err := c.Cookie("accessToken")
-        if err != nil || tokenString == "" {
-            c.JSON(http.StatusUnauthorized, gin.H{
-                "error": "Authorization token is required in cookies",
-            })
+        tokenString := c.GetHeader("Authorization")
+        if tokenString == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
             return
         }
+
+        // // Lấy token từ cookie
+        // tokenString, err := c.Cookie("accessToken")
+        // if err != nil || tokenString == "" {
+        //     c.JSON(http.StatusUnauthorized, gin.H{
+        //         "error": "Authorization token is required in cookies",
+        //     })
+        //     return
+        // }
 
         // Kiểm tra tính hợp lệ của token
         claims, err := middlewares.VerifyJWT(tokenString, true) // true để chỉ định đây là AccessToken
@@ -118,8 +118,10 @@ func CreateVIPPayment() func(*gin.Context) {
 			"vip_level":  paymentRequest.VIPLevel,
 			"amount":     paymentRequest.Amount,
 			"order_id":   orderId,
+            "orderInfo":  orderInfo,
 			"payment_url": paymentURL,
 			"created_at": time.Now(),
+            "updated_at": time.Now(),
             "transaction_status": "pending",
 		}
 
@@ -144,162 +146,140 @@ func CreateVIPPayment() func(*gin.Context) {
 }
 
 // Xác nhận thanh toán thành công và cập nhật VIP cho user
-func ConfirmPaymentHandlerSuccess() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        type ConfirmPaymentRequest struct {
-            OrderID          string `json:"order_id" binding:"required"`
-            TransactionStatus string `json:"transaction_status" binding:"required"`
-        }
-        var request ConfirmPaymentRequest
-
-        // Bind JSON body vào ConfirmPaymentRequest
-        if err := c.ShouldBindJSON(&request); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{
-                "error": "Invalid request body",
-            })
-            return
-        }
-
-        // Kiểm tra nếu transaction_status là success
-        if request.TransactionStatus != "success" {
-            c.JSON(http.StatusBadRequest, gin.H{
-                "error": "Payment not successful",
-            })
-            return
-        }
+func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string){
 		
-        collection := config.DB.Collection("OrderMoMo")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-        defer cancel()
+    collection := config.DB.Collection("OrderMoMo")
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
 
-        // Tìm đơn hàng bằng order_id
-        var order models.Order // Định nghĩa model order của bạn (với các thông tin như user_id, vip_level, v.v...)
-        err := collection.FindOne(context.Background(), bson.M{"order_id": request.OrderID}).Decode(&order)
-        if err != nil {
-            log.Println("Error finding order:", err)
-            c.JSON(http.StatusNotFound, gin.H{
-                "error": "Invalid order",
-            })
-            return
-        }
-
-        // Cập nhật trạng thái giao dịch thành công
-        update := bson.M{
-            "$set": bson.M{
-                "transaction_status": "success", // Cập nhật trạng thái giao dịch
-            },
-        }
-        _, err = collection.UpdateOne(ctx, bson.M{"order_id": request.OrderID}, update)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Failed to update transaction status",
-            })
-            return
-        }
-
-        // Lấy thông tin userID và VIP level từ order
-        userID := order.UserID
-        newVIP := order.VipLevel
-
-        // Cập nhật thông tin user (VIP level) trong collection User
-        userCollection := config.DB.Collection("User")
-
-        // Cập nhật VIP level cho người dùng
-        update = bson.M{"$set": bson.M{"role": newVIP}}
-        _, err = userCollection.UpdateOne(context.Background(), bson.M{"_id": userID}, update)
-        if err != nil {
-            log.Println("Error updating user role:", err)
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Failed to update user role",
-            })
-            return
-        }
-
-		// Chuyển đổi userID từ ObjectID sang string
-		userIDString := userID.Hex()
-
-        // Tạo lại Access Token và Refresh Token với role mới
-        accessToken, err := middlewares.GenerateAccessToken(userIDString, newVIP)
-        if err != nil {
-            log.Println("Error generating new access token:", err)
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Failed to generate access token",
-            })
-            return
-        }
-
-        refreshToken, err := middlewares.GenerateRefreshToken(userIDString, newVIP)
-        if err != nil {
-            log.Println("Error generating new refresh token:", err)
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Failed to generate refresh token",
-            })
-            return
-        }
-
-        // Lấy token cũ từ cookie hoặc header
-        oldAccessToken, err := c.Cookie("accessToken")
-        if err != nil {
-            log.Println("Error retrieving old access token:", err)
-        } else {
-            // Xác thực Access Token cũ và thêm vào blacklist nếu hợp lệ
-            accessClaims, err := middlewares.VerifyJWT(oldAccessToken, true)
-            if err == nil {
-                middlewares.BlacklistedTokens[oldAccessToken] = accessClaims.ExpiresAt.Time
-            }
-        }
-
-        oldRefreshToken, err := c.Cookie("refreshToken")
-        if err != nil {
-            log.Println("Error retrieving old refresh token:", err)
-        } else {
-            // Xác thực Refresh Token cũ và thêm vào blacklist nếu hợp lệ
-            refreshClaims, err := middlewares.VerifyJWT(oldRefreshToken, false)
-            if err == nil {
-                middlewares.BlacklistedTokens[oldRefreshToken] = refreshClaims.ExpiresAt.Time
-            }
-        }
-
-        // Load biến môi trường cho tên miền cookie và thời gian sống
-		cookieDomain := os.Getenv("COOKIE_DOMAIN")
-		accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL") // Thời gian sống token
-		refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
-
-		if cookieDomain == "" || accessTokenTTL == "" || refreshTokenTTL == "" {
-			c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Environment variables are not set",
-            })
-			return
-		}
-
-		accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Invalid ACCESS_TOKEN_TTL format",
-            })
-            return
-        }
-
-        refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Invalid REFRESH_TOKEN_TTL format",
-            })
-            return
-        }
-
-        // Gửi token dưới dạng cookie
-        c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)  // accessToken cookie
-        c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true)  // accessToken cookie
-        c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/refresh-token", cookieDomain, true, true) // refreshToken cookie
-        c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/logout", cookieDomain, true, true) // refreshToken cookie
-
-
-        // Trả về kết quả xác nhận thanh toán thành công
-        c.JSON(http.StatusOK, gin.H{
-            "message": "Payment confirmed and VIP level upgraded",
+    // Tìm đơn hàng bằng order_id
+    var order models.Order // Định nghĩa model order của bạn (với các thông tin như user_id, vip_level, v.v...)
+    err := collection.FindOne(context.Background(), bson.M{"order_id": OrderID}).Decode(&order)
+    if err != nil {
+        log.Println("Error finding order:", err)
+        c.JSON(http.StatusNotFound, gin.H{
+            "error": "Invalid order",
         })
+        return
     }
+
+    // Cập nhật trạng thái giao dịch thành công
+    update := bson.M{
+        "$set": bson.M{
+            "transaction_status": "success", // Cập nhật trạng thái giao dịch
+            "updated_at": time.Now(),
+        },
+    }
+    _, err = collection.UpdateOne(ctx, bson.M{"order_id": OrderID}, update)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to update transaction status",
+        })
+        return
+    }
+
+    // Lấy thông tin userID và VIP level từ order
+    userID := order.UserID
+    newVIP := order.VipLevel
+
+    // Cập nhật thông tin user (VIP level) trong collection User
+    userCollection := config.DB.Collection("User")
+
+    // Cập nhật VIP level cho người dùng
+    update = bson.M{"$set": bson.M{"role": newVIP}}
+    _, err = userCollection.UpdateOne(context.Background(), bson.M{"_id": userID}, update)
+    if err != nil {
+        log.Println("Error updating user role:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to update user role",
+        })
+        return
+    }
+
+    // Chuyển đổi userID từ ObjectID sang string
+    userIDString := userID.Hex()
+
+    // Tạo lại Access Token và Refresh Token với role mới
+    accessToken, err := middlewares.GenerateAccessToken(userIDString, newVIP)
+    if err != nil {
+        log.Println("Error generating new access token:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to generate access token",
+        })
+        return
+    }
+
+    refreshToken, err := middlewares.GenerateRefreshToken(userIDString, newVIP)
+    if err != nil {
+        log.Println("Error generating new refresh token:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to generate refresh token",
+        })
+        return
+    }
+
+    // Lấy token cũ từ cookie hoặc header
+    oldAccessToken, err := c.Cookie("accessToken")
+    if err != nil {
+        log.Println("Error retrieving old access token:", err)
+    } else {
+        // Xác thực Access Token cũ và thêm vào blacklist nếu hợp lệ
+        accessClaims, err := middlewares.VerifyJWT(oldAccessToken, true)
+        if err == nil {
+            middlewares.BlacklistedTokens[oldAccessToken] = accessClaims.ExpiresAt.Time
+        }
+    }
+
+    oldRefreshToken, err := c.Cookie("refreshToken")
+    if err != nil {
+        log.Println("Error retrieving old refresh token:", err)
+    } else {
+        // Xác thực Refresh Token cũ và thêm vào blacklist nếu hợp lệ
+        refreshClaims, err := middlewares.VerifyJWT(oldRefreshToken, false)
+        if err == nil {
+            middlewares.BlacklistedTokens[oldRefreshToken] = refreshClaims.ExpiresAt.Time
+        }
+    }
+
+    // Load biến môi trường cho tên miền cookie và thời gian sống
+    cookieDomain := os.Getenv("COOKIE_DOMAIN")
+    accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL") // Thời gian sống token
+    refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
+
+    if cookieDomain == "" || accessTokenTTL == "" || refreshTokenTTL == "" {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Environment variables are not set",
+        })
+        return
+    }
+
+    accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Invalid ACCESS_TOKEN_TTL format",
+        })
+        return
+    }
+
+    refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Invalid REFRESH_TOKEN_TTL format",
+        })
+        return
+    }
+
+    // Gửi token dưới dạng cookie
+    c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)  // accessToken cookie
+    c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true)  // accessToken cookie
+    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/refresh-token", cookieDomain, true, true) // refreshToken cookie
+    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/logout", cookieDomain, true, true) // refreshToken cookie
+
+
+    // Trả về kết quả xác nhận thanh toán thành công
+    c.JSON(http.StatusOK, gin.H{
+        "message": "Payment confirmed and VIP level upgraded",
+    })
 }
 
 // HandleQueryPaymentStatus returns a gin.HandlerFunc for querying the payment status
@@ -345,9 +325,15 @@ func HandleQueryPaymentStatus() gin.HandlerFunc {
 			return
 		}
 
-		// Return the result to the client
-		c.JSON(http.StatusOK, gin.H{
-			"result": result,
-		})
+        // Kiểm tra trạng thái giao dịch từ MoMo
+        if result.ResultCode == 0 {
+            // Gọi hàm xử lý thành công
+            confirmPaymentHandlerSuccess(c, req.OrderID)
+        } else {
+            c.JSON(http.StatusOK, gin.H{
+                "message": "Transaction is not successful yet", 
+                "status": result.Message,
+            })
+        }
 	}
 }

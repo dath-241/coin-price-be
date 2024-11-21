@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
+	//"github.com/dath-241/coin-price-be-go/services/admin_service/controllers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -54,6 +55,7 @@ func MoMoCallback() func(c *gin.Context) {
 			// Thanh toán thành công
 			fmt.Println("Thanh toan thanh cong.")
 			// Cap nhat VIP cho user dua tren orderID
+			//controllers.ConfirmPaymentHandlerSuccess()
 		} else {
 			// Thanh toán thất bại
 			fmt.Println("Thanh toan that bai.")
