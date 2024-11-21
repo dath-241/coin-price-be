@@ -11,7 +11,9 @@ type Order struct {
     VipLevel   string             `bson:"vip_level"`   // Cấp VIP
     Amount     int                `bson:"amount"`      // Số tiền thanh toán
     OrderID    string             `bson:"order_id"`    // Mã đơn hàng
+    OrderInfo  string             `bson:"orderInfo"`    // Thông tin đơn hàng
     PaymentURL string             `bson:"payment_url"` // URL thanh toán MoMo
     CreatedAt  time.Time          `bson:"created_at"`  // Ngày tạo đơn hàng
+    UpdatedAt  time.Time          `bson:"updated_at"`  // Ngày cập nhật đơn hàng
     TransactionStatus string      `bson:"transaction_status"` // Thêm trường này để lưu trạng thái giao dịch
 }
