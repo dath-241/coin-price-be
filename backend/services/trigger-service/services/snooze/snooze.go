@@ -49,7 +49,7 @@ func CheckPriceCondition(alert *models.Alert) bool {
 		Price, err = services.GetPriceDifference(alert.Symbol)
 	}
 	alert.Price = Price
-	SaveAlert(alert)
+	SaveAlertNonTime(alert)
 	if alert.Minrange != 0 && alert.Maxrange != 0 {
 		if Price < alert.Minrange || Price > alert.Maxrange {
 			return true
@@ -291,6 +291,31 @@ func SaveAlert(alert *models.Alert) error {
 		_, err = config.AlertCollection.InsertOne(ctx, alert)
 		if err != nil {
 			return errors.New("failed to insert new alert: " + err.Error())
+		}
+	}
+
+	return nil
+}
+
+func SaveAlertNonTime(alert *models.Alert) error {
+	// Tạo context với timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Tạo filter và update
+	filter := bson.M{"_id": alert.ID}
+	update := bson.M{"$set": alert}
+
+	// Cập nhật tài liệu (nếu đã tồn tại)
+	result, err := config.AlertCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to save or update alert: %v", err)
+	}
+
+	if result.MatchedCount == 0 {
+		_, err := config.AlertCollection.InsertOne(ctx, alert)
+		if err != nil {
+			return fmt.Errorf("failed to insert new alert: %v", err)
 		}
 	}
 
