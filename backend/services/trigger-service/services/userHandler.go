@@ -97,7 +97,7 @@ func NotifyUserTriggers(userID string) error {
 
     // Prepare the email subject and HTML body
     subject := "Your Trigger Alerts"
-    htmlBody := "<h1>Your Trigger Alerts</h1><ul>"
+    htmlBody := "<h1>Trigger Alerts</h1><ul>"
     for _, alert := range alerts {
         htmlBody += fmt.Sprintf("<li><strong>%s:</strong> %s</li>", alert.Symbol, alert.Message)
     }

@@ -47,7 +47,13 @@ func CheckPriceCondition(alert *models.Alert) bool {
 	} else if alert.Type == "price_difference" {
 		Price, err = services.GetPriceDifference(alert.Symbol)
 	} 
-
+	alert.Price = Price
+	SaveAlert(alert)
+	if alert.Minrange != 0 && alert.Maxrange != 0 {
+		if Price < alert.Minrange || Price > alert.Maxrange {
+			return true
+		}
+	}
 	if err != nil {
 		log.Printf("Error fetching price: %v", err)
 		return false
@@ -198,6 +204,23 @@ func UpdateAlertAfterTrigger(alert *models.Alert) {
 	SaveAlert(alert)
 }
 
+func UpdateMessageAfterTrigger(alert *models.Alert) {
+	switch alert.Type {
+		case "spot":
+			alert.Message = fmt.Sprintf("Spot price of %s is now %.2f", alert.Symbol, alert.Price)
+		case "future":
+			alert.Message = fmt.Sprintf("Future price of %s is now %.2f", alert.Symbol, alert.Price)
+		case "funding_rate":
+			alert.Message = fmt.Sprintf("Funding rate of %s is now %.2f", alert.Symbol, alert.Price)
+		case "price_difference":
+			alert.Message = fmt.Sprintf("Price difference between Spot and Future for %s is now %.2f", alert.Symbol, alert.Price)
+		case "funding_rate_interval":
+			alert.Message = fmt.Sprintf("Funding rate interval of %s is now %s", alert.Symbol, alert.LastInterval)
+
+	}
+	SaveAlert(alert)
+}
+
 func CheckAndSendAlerts() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -227,6 +250,7 @@ func CheckAndSendAlerts() {
 
 		if conditionMet {
 			if CheckSnoozeCondition(&alert) {
+				UpdateMessageAfterTrigger(&alert)
 				noify.NotifyUserTriggers(alert.UserID)
 				log.Println("Đã gửi thông báo!!!:", alert.ID.Hex(), alert.Type, alert.Symbol)
 				UpdateAlertAfterTrigger(&alert)

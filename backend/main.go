@@ -11,6 +11,7 @@ import (
 	triggerServiceAlert "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
 	"github.com/gin-gonic/gin"
 
+	triggerUtils "github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	adminRoutes "github.com/dath-241/coin-price-be-go/services/admin_service/routes"
 	adminUtils "github.com/dath-241/coin-price-be-go/services/admin_service/utils"
 
@@ -34,9 +35,9 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("Funding rate interval for BTCUSDT: %s", interval)
-	// if err := triggerUtils.ConnectMongoDB("mongodb://localhost:27017"); err != nil {
-	// 	log.Fatal(err.Error())
-	// }
+	if err := triggerUtils.ConnectMongoDB("mongodb://localhost:27017"); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	triggerRoutes.SetupRoute(server)
 	// triggerR.Run(":3000")

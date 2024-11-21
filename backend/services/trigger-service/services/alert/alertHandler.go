@@ -22,11 +22,6 @@ func CreateAlert(c *gin.Context) {
 		return
 	}
 
-	// Validate required fields
-	if newAlert.Symbol == "" || newAlert.Price == 0 || (newAlert.Condition != ">=" && newAlert.Condition != "<=" && newAlert.Condition != "==") {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
-		return
-	}
 
 	// Add default or new values for additional fields
 	newAlert.ID = primitive.NewObjectID()
