@@ -11,7 +11,6 @@ import (
 	"net/http"
 )
 
-
 // QueryPaymentStatusRequest defines the request structure for checking payment status
 type QueryPaymentStatusRequest struct {
 	PartnerCode string `json:"partnerCode"`
@@ -82,10 +81,10 @@ func QueryPaymentStatus(orderId, requestId, lang string) (QueryPaymentStatusResp
 		return QueryPaymentStatusResponse{}, err
 	}
 
-	// Check if the result code is not successful
-	if response.ResultCode != 0 {
-		return response, fmt.Errorf("failed to query payment status: %s", response.Message)
-	}
+	// // Check if the result code is not successful
+	// if response.ResultCode != 0 {
+	// 	return response, fmt.Errorf("failed to query payment status: %s", response.Message)
+	// }
 
 	// Return the successful response
 	return response, nil
