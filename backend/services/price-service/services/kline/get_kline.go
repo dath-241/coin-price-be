@@ -11,6 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Get Kline data
+// @Description Fetches Kline data for a specific symbol and interval from Binance API
+// @Tags Kline
+// @Param symbol query string true "Symbol for which to fetch Kline data (e.g., BTCUSDT)"
+// @Param interval query string true "Interval for Kline data (e.g., 1m, 5m, 1h, 1d)"
+// @Success 200 {object} models.ResponseKline "Successful response with Kline data"
+// @Failure 400 {object} models.ErrorResponseInputMissing "Missing Data"
+// @Failure 500 {object} models.ErrorResponseDataInternalServerError "Internal server error"
+// @Router /v1/vip1/kline [get]
 func GetKline(context *gin.Context) {
 	symbol := context.Query("symbol")
 	interval := context.Query("interval")
@@ -26,7 +35,7 @@ func GetKlineData(symbol, interval string, context *gin.Context) {
 	}
 
 	if symbol == "" || interval == "" {
-		utils.ShowError(http.StatusInternalServerError, "Missing symbol or interval", context)
+		utils.ShowError(http.StatusBadRequest, "Missing data", context)
 		return
 	}
 
@@ -36,21 +45,21 @@ func GetKlineData(symbol, interval string, context *gin.Context) {
 	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
 	if err != nil {
-		utils.ShowError(http.StatusInternalServerError, err.Error(), context)
+		utils.ShowError(http.StatusInternalServerError, "Internal server error", context)
 		return
 	}
 	defer resp.Body.Close()
 
 	respStatusCode := resp.StatusCode
 	if respStatusCode != http.StatusOK {
-		context.JSON(respStatusCode, gin.H{"message": "Error get data"})
+		utils.ShowError(http.StatusInternalServerError, "Internal server error", context)
 		return
 	}
 
 	var data [][]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error binding data"})
+		utils.ShowError(http.StatusInternalServerError, "Internal server error", context)
 		return
 	}
 

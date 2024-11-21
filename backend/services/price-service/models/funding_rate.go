@@ -15,13 +15,13 @@ type FundingRateSecond struct {
 }
 
 type ResponseFundingRate struct {
-	Symbol                   string `json:"symbol"`
-	FundingRate              string `json:"fundingRate"`
-	FundingCountDown         string `json:"fundingCountDown"`
-	EventTime                string `json:"eventTime"`
-	AdjustedFundingRateCap   string `json:"adjustedFundingRateCap"`
-	AdjustedFundingRateFloor string `json:"adjustedFundingRateFloor"`
-	FundingIntervalHours     int    `json:"fundingIntervalHours"`
+	Symbol                   string `json:"symbol" example:"QTUMUSDT"`
+	FundingRate              string `json:"fundingRate" example:"0.00010000"`
+	FundingCountDown         string `json:"fundingCountDown" example:"06:47:47"`
+	EventTime                string `json:"eventTime" example:"2024-11-21 08:12:13"`
+	AdjustedFundingRateCap   string `json:"adjustedFundingRateCap" example:"0.02000000"`
+	AdjustedFundingRateFloor string `json:"adjustedFundingRateFloor" example:"-0.02000000"`
+	FundingIntervalHours     int    `json:"fundingIntervalHours" example:"8"`
 }
 
 func (r *ResponseFundingRate) UpdateData(symbol, fundingRate, fundingCountDown, eventTime, adjustedFundingRateCap, AdjustedFundingRateFloor string, fundingIntervalHours int) {
