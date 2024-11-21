@@ -4,15 +4,43 @@ import (
     "fmt"
 	"context"
     "net/http"
-    "strconv"
-    "os"
-
+    "log"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/config"
     "github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
     "github.com/dath-241/coin-price-be-go/services/admin_service/utils"
     "github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+    "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/mongo"
 )
+
+// utlis 
+func generateUniqueUsername() string {
+	return "user-" + uuid.New().String()
+}
+
+// Hàm lấy thông tin người dùng từ DB dựa trên email
+func getUserByEmail(email string) (*models.User, error) {
+    // Lấy collection "users" từ DB
+    collection := config.DB.Collection("User")
+
+    var user models.User
+    filter := bson.M{"email": email}
+
+    // Truy vấn tìm kiếm người dùng theo email
+    err := collection.FindOne(context.TODO(), filter).Decode(&user)
+    if err != nil {
+        if err == mongo.ErrNoDocuments {
+            // Nếu không tìm thấy người dùng, trả về lỗi không có tài liệu
+            return nil, fmt.Errorf("user not found with email: %s", email)
+        }
+        log.Println("Error retrieving user:", err)
+        return nil, err
+    }
+
+    return &user, nil
+}
 
 // GoogleLogin xử lý đăng nhập bằng Google ID Token
 func GoogleLogin(c *gin.Context) {
@@ -32,18 +60,21 @@ func GoogleLogin(c *gin.Context) {
     email := userInfo["email"].(string)
     
     // Lấy thông tin user từ DB
-    user, err := utils.GetUserByEmail(email)
+    user, err := getUserByEmail(email)
     if err != nil {
         if err.Error() == fmt.Sprintf("user not found with email: %s", email) {
             // Nếu không tìm thấy user, tạo user mới trong DB
             name := userInfo["name"].(string)
-            user = &models.User{
-                //ID: ID,
-                Name: name,
-                Email:  email,
-                Role:   "VIP-0", // Gán role mặc định cho user mới, có thể là "user" hoặc một role khác
-                // Thêm các trường khác nếu cần
-            }
+			avatarURL := userInfo["picture"].(string)
+
+			var user models.User
+			user.Profile.FullName = name
+			user.Email = email
+			user.Username = generateUniqueUsername()
+			user.Profile.AvatarURL = avatarURL
+
+			user = newUser(user)
+
             collection := config.DB.Collection("User")
             _, insertErr := collection.InsertOne(context.TODO(), user)
             if insertErr != nil {
@@ -79,48 +110,18 @@ func GoogleLogin(c *gin.Context) {
         return
     }
 
-    // Load biến môi trường cho tên miền cookie và thời gian sống
-    cookieDomain := os.Getenv("COOKIE_DOMAIN")
-    accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL")
-    refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
-
-    if cookieDomain == "" || accessTokenTTL == "" || refreshTokenTTL == "" {
-        c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Environment variables are not set",
-        })
-        return
-    }
-
-    accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
+    // Gọi hàm set cookie để thiết lập cookies cho người dùng
+    err = setAuthCookies(c, accessToken, refreshToken, false, true) // set cả 2 cookie
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Invalid ACCESS_TOKEN_TTL format",
+            "error": err.Error(),
         })
         return
     }
-
-    refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Invalid REFRESH_TOKEN_TTL format",
-        })
-        return
-    }
-
-    // Gửi token dưới dạng cookie
-    // Cookie cho xác thực
-    c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)  // chỉ dành cho /api/v1
-    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/refresh-token", cookieDomain, true, true) // chỉ dành cho /auth/refresh-token
-
-    // Cookie cho các hành động logout hoặc các route riêng biệt
-    c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true)  // chỉ dành cho /auth/logout
-    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/logout", cookieDomain, true, true) // chỉ dành cho /auth/logout
-    c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
 
     // Trả về JWT cho frontend
     c.JSON(http.StatusOK, gin.H{
         "message": "Login successful",
-        //"token":   token,
+        "token":   accessToken,
     })
 }
-

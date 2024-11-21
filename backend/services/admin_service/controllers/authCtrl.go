@@ -23,6 +23,75 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Khởi tạo 1 user 
+func newUser(user models.User) models.User {
+	// Gán giá trị mặc định
+	user.Role = "VIP-0"       // Mặc định là 'VIP-0'
+	user.IsActive = true        // Mặc định là true
+	user.CreatedAt = time.Now() // Mặc định thời gian hiện tại
+	user.UpdatedAt = time.Now()
+
+	// Khởi tạo Profile mặc định
+	if user.Profile.FullName == "" {
+		user.Profile.FullName = user.Username
+	}
+	if user.Profile.AvatarURL == "" {
+		user.Profile.AvatarURL = "https://drive.google.com/file/d/15Ef4yebpGhT8pwgnt__utSESZtJdmA4a/view?usp=sharing"
+	}
+	return user // Bạn có thể thay đổi giá trị trả về dựa trên logic của bạn
+}
+
+// setAuthCookies sẽ thiết lập các cookie cho accessToken và refreshToken nếu được yêu cầu
+func setAuthCookies(c *gin.Context, accessToken, refreshToken string, setAccessToken, setRefreshToken bool) error {
+	// Load biến môi trường cho tên miền cookie và thời gian sống
+	cookieDomain := os.Getenv("COOKIE_DOMAIN")
+	accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL") // Thời gian sống token
+	refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
+
+	if cookieDomain == "" || accessTokenTTL == "" || refreshTokenTTL == "" {
+		return fmt.Errorf("environment variables are not set")
+	}
+
+	accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
+	if err != nil {
+		return fmt.Errorf("invalid ACCESS_TOKEN_TTL format")
+	}
+
+	refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
+	if err != nil {
+		return fmt.Errorf("invalid REFRESH_TOKEN_TTL format")
+	}
+
+	// Nếu set accessToken là true thì thiết lập cookie accessToken
+	if setAccessToken {
+		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)                // chỉ dành cho /api/v1
+		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true)               // chỉ dành cho /auth/logout
+	}
+
+	// Nếu set refreshToken là true thì thiết lập cookie refreshToken
+	if setRefreshToken {
+		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/refresh-token", cookieDomain, true, true) // chỉ dành cho /auth/refresh-token
+		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/logout", cookieDomain, true, true)            // chỉ dành cho /auth/logout
+		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
+	}
+
+	return nil
+}
+// resetAuthCookies sẽ xóa các cookie cho accessToken và refreshToken 
+func resetAuthCookies(c *gin.Context) error {
+	// Load biến môi trường cho tên miền cookie và thời gian sống
+	cookieDomain := os.Getenv("COOKIE_DOMAIN")
+	if cookieDomain == "" {
+		return fmt.Errorf("environment variables are not set")
+	}
+
+	// Xóa cookie Access Token và Refresh Token
+	c.SetCookie("accessToken", "", 0, "/", cookieDomain, true, true)
+	c.SetCookie("refreshToken", "", 0, "/", cookieDomain, true, true)
+
+	return nil
+}
+
 // Đăng kí tài khoản
 func Register() func(*gin.Context) {
 	return func(c *gin.Context) {
@@ -31,33 +100,21 @@ func Register() func(*gin.Context) {
 		// Kiểm tra nhận được file JSON
 		if err := c.ShouldBindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+				"error": "Invalid input",
 			})
 			return
 		}
 
-		// Kiểm tra xem tên, email và mật khẩu có null không
-		if user.Name == "" || user.Email == "" || user.Password == "" {
+		//fmt.Printf("User received: %+v\n", user)
+
+		// Kiểm tra định dạng username 
+		if !utils.IsValidUsername(user.Username) {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Name, email and password are required.",
-			})
-			return
-		}
-		// Kiểm tra độ dài tên
-		if !utils.IsValidName(user.Name) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Name length must be between 1 and 50 characters.",
+				"error": "Username only alphanumeric characters and hyphens are allowed.",
 			})
 			return
 		}
 
-		// Kiểm tra xem tên chỉ chứa các ký tự chữ cái
-		if !utils.IsAlphabetical(user.Name) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Name must only contain alphabetical characters.",
-			})
-			return
-		}
 		// Kiểm tra mật khẩu
 		if !utils.IsValidPassword(user.Password) {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -66,36 +123,47 @@ func Register() func(*gin.Context) {
 			return
 		}
 
-		// Kết nối đến database
-		// if err := config.ConnectDatabase(); err != nil {
-		//     c.JSON(http.StatusInternalServerError, gin.H{
-		//         "error": "Failed to connect to database",
-		//     })
-		//     return
-		// }
+		// Kiểm tra phone number nếu có 
+		if user.Profile.PhoneNumber != "" {
+			if !utils.IsValidPhoneNumber(user.Profile.PhoneNumber) {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Invalid phone number.",
+				})
+				return
+			}
+		}
 
 		// Sử dụng DB đã kết nối từ trước (không cần gọi lại ConnectDatabase)
 		collection := config.DB.Collection("User")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		// Kiểm tra email đã tồn tại
+		// Kiểm tra email hoặc username đã tồn tại, chỉ kiểm tra phone nếu có giá trị
 		var existingUser models.User
-		err := collection.FindOne(ctx, bson.M{"$or": []bson.M{
-			{"name": user.Name},
+		filter := bson.M{"$or": []bson.M{
+			{"username": user.Username},
 			{"email": user.Email},
-		}}).Decode(&existingUser)
+		}}
 
+		// Thêm kiểm tra phone nếu nó được khai báo
+		if user.Profile.PhoneNumber != "" {
+			filter["$or"] = append(filter["$or"].([]bson.M), bson.M{"profile.phone_number": user.Profile.PhoneNumber})
+		}
+
+		err := collection.FindOne(ctx, filter).Decode(&existingUser)
 		if err == nil {
+			if user.Profile.PhoneNumber != ""{
+				c.JSON(http.StatusConflict, gin.H{
+					"error": "Email or username or phone already exists.",
+				})
+				return
+			}
 			// Nếu không có lỗi, tức là người dùng đã tồn tại
 			c.JSON(http.StatusConflict, gin.H{
-				"error": "Email or name already exists.",
+				"error": "Email or username already exists.",
 			})
 			return
 		}
-
-		user.Role = "VIP-0"
-		user.CreatedAt = time.Now()
 
 		// Hash mật khẩu trước khi lưu vào database
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -107,7 +175,10 @@ func Register() func(*gin.Context) {
 		}
 		user.Password = string(hashedPassword)
 
-		result, err := collection.InsertOne(ctx, user)
+		// Khoi tao 1 user
+		user = newUser(user)
+
+		_, err = collection.InsertOne(ctx, user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Failed to create user",
@@ -118,12 +189,12 @@ func Register() func(*gin.Context) {
 		// Response: 201 Created
 		c.JSON(http.StatusCreated, gin.H{
 			"message": "User registered successfully",
-			"user_id": result.InsertedID,
+			//"user_id": result.InsertedID,
 		})
 	}
 }
 
-// Đăng nhập username + password
+// Đăng nhập username/email + password
 func Login() func(*gin.Context) {
 	return func(c *gin.Context) {
 		var loginRequest struct {
@@ -155,7 +226,7 @@ func Login() func(*gin.Context) {
 		filter := bson.M{
 			"$or": []bson.M{
 				{"email": loginRequest.Username},
-				{"name": loginRequest.Username},
+				{"username": loginRequest.Username},
 			},
 		}
 		err := collection.FindOne(ctx, filter).Decode(&user)
@@ -169,6 +240,12 @@ func Login() func(*gin.Context) {
 					"error": "Failed to find user",
 				})
 			}
+			return
+		}
+
+		// Kiểm tra trạng thái is_active
+		if !user.IsActive {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Your account has been banned. Please contact support for assistance."})
 			return
 		}
 
@@ -199,48 +276,19 @@ func Login() func(*gin.Context) {
 			return
 		}
 
-		// Load biến môi trường cho tên miền cookie và thời gian sống
-		cookieDomain := os.Getenv("COOKIE_DOMAIN")
-		accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL") // Thời gian sống token
-		refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
-
-		if cookieDomain == "" || accessTokenTTL == "" || refreshTokenTTL == "" {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Environment variables are not set",
-			})
-			return
-		}
-
-		accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
+		// Gọi hàm set cookie để thiết lập cookies cho người dùng
+		err = setAuthCookies(c, accessToken, refreshToken, false, true) // set cả 2 cookie
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Invalid ACCESS_TOKEN_TTL format",
+				"error": err.Error(),
 			})
 			return
 		}
-
-		refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Invalid REFRESH_TOKEN_TTL format",
-			})
-			return
-		}
-
-		// Gửi token dưới dạng cookie
-		// Cookie cho xác thực
-		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)                // chỉ dành cho /api/v1
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/refresh-token", cookieDomain, true, true) // chỉ dành cho /auth/refresh-token
-
-		// Cookie cho các hành động logout hoặc các route riêng biệt
-		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true)               // chỉ dành cho /auth/logout
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/logout", cookieDomain, true, true)            // chỉ dành cho /auth/logout
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
 
 		// Trả về đăng nhập thành công và token
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Login successful",
-			//"accessToken":    accessToken,
+			"token":    accessToken,
 			//"refreshToken":    refreshToken,
 		})
 	}
@@ -250,20 +298,20 @@ func Login() func(*gin.Context) {
 func Logout() func(*gin.Context) {
 	return func(c *gin.Context) {
 		// Lấy token từ header
-		// tokenString := c.GetHeader("Authorization")
-		// if tokenString == "" {
-		//     c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
-		//     return
-		// }
-
-		// Lấy Access Token từ cookie
-		accessToken, err := c.Cookie("accessToken")
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Access Token not provided",
-			})
-			return
+		accessToken := c.GetHeader("Authorization")
+		if accessToken == "" {
+		    c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
+		    return
 		}
+
+		// // Lấy Access Token từ cookie
+		// accessToken, err := c.Cookie("accessToken")
+		// if err != nil {
+		// 	c.JSON(http.StatusBadRequest, gin.H{
+		// 		"error": "Access Token not provided",
+		// 	})
+		// 	return
+		// }
 
 		// Lấy Refresh Token từ cookie
 		refreshToken, err := c.Cookie("refreshToken")
@@ -288,18 +336,14 @@ func Logout() func(*gin.Context) {
 			middlewares.BlacklistedTokens[refreshToken] = refreshClaims.ExpiresAt.Time
 		}
 
-		// Load biến môi trường cho tên miền cookie
-		cookieDomain := os.Getenv("COOKIE_DOMAIN")
-		if cookieDomain == "" {
+		// Gọi hàm reset cookie để xóa cookies
+		err = resetAuthCookies(c) 
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Environment variables are not set",
+				"error": err.Error(),
 			})
 			return
 		}
-
-		// Xóa cookie Access Token và Refresh Token
-		c.SetCookie("accessToken", "", -1, "/", cookieDomain, true, true)
-		c.SetCookie("refreshToken", "", -1, "/", cookieDomain, true, true)
 
 		// Trả về thông báo thành công
 		c.JSON(http.StatusOK, gin.H{
@@ -404,7 +448,7 @@ func ForgotPassword() gin.HandlerFunc {
 
 		var bodyBuffer bytes.Buffer
 		err = t.Execute(&bodyBuffer, map[string]interface{}{
-			"Name":      user.Name,
+			"Name":      user.Username,
 			"ResetLink": resetLink,
 		})
 		if err != nil {
@@ -414,8 +458,8 @@ func ForgotPassword() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println("User Name:", user.Name)
-		fmt.Println("Reset Link:", resetLink)
+		//fmt.Println("User Name:", user.Name)
+		//fmt.Println("Reset Link:", resetLink)
 
 		htmlBodyString := bodyBuffer.String()
 
@@ -555,32 +599,19 @@ func RefreshToken() func(*gin.Context) {
 			return
 		}
 
-		// Load biến môi trường cho tên miền cookie và thời gian sống
-		cookieDomain := os.Getenv("COOKIE_DOMAIN")
-		accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL") // Thời gian sống token
-		if cookieDomain == "" || accessTokenTTL == "" {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Environment variables are not set",
-			})
-			return
-		}
-
-		// Chuyển đổi TTL từ chuỗi sang số nguyên
-		accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Invalid ACCESS_TOKEN_TTL format",
-			})
-			return
-		}
-
-		// Set lại access token mới vào cookie
-		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)      // accessToken cookie
-		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true) // accessToken cookie
+		// Gọi hàm set cookie để thiết lập cookies cho người dùng
+		// err = setAuthCookies(c, accessToken, refreshToken, true, false)
+		// if err != nil {
+		// 	c.JSON(http.StatusInternalServerError, gin.H{
+		// 		"error": err.Error(),
+		// 	})
+		// 	return
+		// }
 
 		// Trả về thông báo thành công và token mới
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Access token refreshed successfully",
+			"token": accessToken,
 		})
 	}
 }
