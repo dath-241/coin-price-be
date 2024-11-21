@@ -7,10 +7,11 @@ import (
 	"time"
 
 	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
-	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
 )
 
 // Handler to create an alert
@@ -22,6 +23,11 @@ func CreateAlert(c *gin.Context) {
 		return
 	}
 
+	// Validate required fields
+	// if newAlert.Symbol == "" || newAlert.Price == 0 || (newAlert.Condition != ">=" && newAlert.Condition != "<=" && newAlert.Condition != "==") {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
+	// 	return
+	// }
 
 	// Add default or new values for additional fields
 	newAlert.ID = primitive.NewObjectID()
@@ -47,7 +53,7 @@ func CreateAlert(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := utils.AlertCollection.InsertOne(ctx, newAlert)
+	_, err := config.AlertCollection.InsertOne(ctx, newAlert)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create alert"})
 		return
@@ -73,7 +79,7 @@ func GetAlerts(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := utils.AlertCollection.Find(ctx, filter)
+	cursor, err := config.AlertCollection.Find(ctx, filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve alerts"})
 		return
@@ -101,7 +107,7 @@ func GetAlert(c *gin.Context) {
 	var alert models.Alert
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	err = utils.AlertCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&alert)
+	err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&alert)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
 		return
@@ -123,7 +129,7 @@ func DeleteAlert(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	result, err := utils.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
+	result, err := config.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
 	if err != nil || result.DeletedCount == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
 		return
@@ -165,10 +171,10 @@ func SetSymbolAlert(c *gin.Context) {
 		return
 	}
 
-	if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
-		return
-	}
+	// if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
+	// 	return
+	// }
 
 	newAlert.ID = primitive.NewObjectID()
 	newAlert.IsActive = true
@@ -176,7 +182,7 @@ func SetSymbolAlert(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := utils.AlertCollection.InsertOne(ctx, newAlert)
+	_, err := config.AlertCollection.InsertOne(ctx, newAlert)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create alert"})
 		return

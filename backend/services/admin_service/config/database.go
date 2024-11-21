@@ -14,6 +14,8 @@ import (
 var (
 	DB     *mongo.Database
 	client *mongo.Client // Lưu trữ client để quản lý kết nối
+	AlertCollection *mongo.Collection
+	IndicatorCollection *mongo.Collection
 )
 
 // ConnectDatabase kết nối đến MongoDB và trả về database
@@ -46,7 +48,15 @@ func ConnectDatabase() error {
 	}
 
 	DB = client.Database(dbName)
+	AlertCollection = DB.Collection("alerts")
+	IndicatorCollection = DB.Collection("indicators")
 
+	if AlertCollection != nil {
+		log.Println("AlertCollection initialized successfully")
+	} else {
+		log.Println("AlertCollection is nil")
+	}
+	
 	log.Println("Connected to MongoDB!")
 	return nil
 }

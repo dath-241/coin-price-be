@@ -3,16 +3,17 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
+	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
 	alert "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
 	user "github.com/dath-241/coin-price-be-go/services/trigger-service/models/user"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/repositories"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // CreateUser handles the creation of a new user.
@@ -37,7 +38,7 @@ func CreateUser(c *gin.Context) {
 	defer cancel()
 
 	// Insert the new user into the database
-	_, err := utils.AlertCollection.InsertOne(ctx, newUser)
+	_, err := config.AlertCollection.InsertOne(ctx, newUser)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
@@ -67,47 +68,49 @@ func GetUserAlerts(c *gin.Context) {
 }
 
 func NotifyUser(c *gin.Context) {
-    userID := c.Param("id")
-    err := NotifyUserTriggers(userID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(http.StatusOK, gin.H{"status": "Notification sent"})
+	userID := c.Param("id")
+	err := NotifyUserTriggers(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "Notification sent"})
 }
 
 func NotifyUserTriggers(userID string) error {
 
-    // Retrieve user details from the repository
-    user, err := repositories.GetUserByID(userID)
-    if err != nil {
-        return fmt.Errorf("user not found")
-    }
-
-    // Check if the user has an email
-    if user.Email == "" {
-        return fmt.Errorf("user email is missing")
-    }
-
-    // Retrieve user alerts
-    alerts, err := repositories.GetUserAlerts(userID)
-    if err != nil {
-        return fmt.Errorf("failed to retrieve alerts")
-    }
-
-    // Prepare the email subject and HTML body
-    subject := "Your Trigger Alerts"
-    htmlBody := "<h1>Trigger Alerts</h1><ul>"
-    for _, alert := range alerts {
-        htmlBody += fmt.Sprintf("<li><strong>%s:</strong> %s</li>", alert.Symbol, alert.Message)
-    }
-    htmlBody += "</ul>"
-
-    // Send the email notification to the user
+	// Retrieve user details from the repository
+	user, err := repositories.GetUserByID(userID)
+	log.Println(user)
+	if err != nil {
+		return fmt.Errorf("user not found")
+	}
 	
-    if err := utils.SendAlertEmail(user.Email, subject, htmlBody); err != nil {
-        return fmt.Errorf("failed to send email: %v", err)
-    }
+	// Check if the user has an email
+	if user.Email == "" {
+		return fmt.Errorf("user email is missing")
+	}
+	
+	
+	// Retrieve user alerts
+	alerts, err := repositories.GetUserAlerts(userID)
+	log.Println("Email sent successfully")
+	if err != nil {
+		return fmt.Errorf("failed to retrieve alerts")
+	}
 
-    return nil
+	// Prepare the email subject and HTML body
+	subject := "Your Trigger Alerts"
+	htmlBody := "<h1>Trigger Alerts</h1><ul>"
+	for _, alert := range alerts {
+		htmlBody += fmt.Sprintf("<li><strong>%s:</strong> %s</li>", alert.Symbol, alert.Message)
+	}
+	htmlBody += "</ul>"
+
+	// Send the email notification to the user
+
+	if err := utils.SendAlertEmail(user.Email, subject, htmlBody); err != nil {
+		return fmt.Errorf("failed to send email: %v", err)
+	}
+	return nil
 }

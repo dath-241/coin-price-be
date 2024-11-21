@@ -11,7 +11,7 @@ import (
 	triggerServiceAlert "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
 	"github.com/gin-gonic/gin"
 
-	triggerUtils "github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
+	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
 	adminRoutes "github.com/dath-241/coin-price-be-go/services/admin_service/routes"
 	adminUtils "github.com/dath-241/coin-price-be-go/services/admin_service/utils"
 
@@ -35,9 +35,9 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("Funding rate interval for BTCUSDT: %s", interval)
-	if err := triggerUtils.ConnectMongoDB("mongodb://localhost:27017"); err != nil {
-		log.Fatal(err.Error())
-	}
+	// if err := triggerUtils.ConnectMongoDB("mongodb://localhost:27017"); err != nil {
+	// 	log.Fatal(err.Error())
+	// }
 
 	triggerRoutes.SetupRoute(server)
 	// triggerR.Run(":3000")
@@ -50,9 +50,9 @@ func main() {
 	// Kết nối MongoDB với retry
 	// maxRetries := 3
 	// retryDelay := 5 * time.Second
-	// if err := adminConfig.ConnectDatabaseWithRetry(maxRetries, retryDelay); err != nil {
-	// 	log.Fatalf("Failed to connect to MongoDB: %v", err)
-	// }
+	if err := config.ConnectDatabase(); err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
 	// // Đảm bảo ngắt kết nối khi server dừng
 	// defer adminConfig.DisconnectDatabase()
 

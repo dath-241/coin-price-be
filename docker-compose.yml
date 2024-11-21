@@ -1,19 +1,19 @@
 services:
-  api:
-    depends_on:
-      - db
-    build:  ./backend
-    ports:
-      - 8080:8080
-    env_file:
-      - backend/.env
-    develop:
-      watch:
-        - path: ./backend/go.mod
-          action: rebuild
-        - path: ./backend
-          target: /app
-          action: sync
+  # api:
+  #   depends_on:
+  #     - db
+  #   build:  ./backend
+  #   ports:
+  #     - 8080:8080
+  #   env_file:
+  #     - backend/.env
+  #   develop:
+  #     watch:
+  #       - path: ./backend/go.mod
+  #         action: rebuild
+  #       - path: ./backend
+  #         target: /app
+  #         action: sync
   db:
     image: mongo:latest
     ports:
