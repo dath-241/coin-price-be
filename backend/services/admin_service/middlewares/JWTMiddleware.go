@@ -7,7 +7,7 @@ import (
     "errors"
     "strconv"
     "net/http"
-
+    "sync"
     "github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	
     "github.com/gin-gonic/gin"
@@ -15,28 +15,31 @@ import (
 
 )
 
-var BlacklistedTokens = make(map[string]time.Time) // Token và thời gian hết hạn
+var (
+	BlacklistedTokens      = make(map[string]time.Time) // Token và thời gian hết hạn
+	BlacklistedTokensMutex sync.Mutex                  // Mutex để đồng bộ
+)
 
 // Hàm kiểm tra phân quyền token người dùng
 func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
     return func(c *gin.Context) {
-        // tokenString := c.GetHeader("Authorization")
-		// fmt.Println(tokenString)
-        // if tokenString == "" {
-        //     c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
-        //     c.Abort()
-        //     return
-        // }
-
-        tokenString, err := c.Cookie("accessToken")
-		fmt.Println("cookie", tokenString)
-		if err != nil || tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-                "error": "Authorization token is required in cookies",
-            })
-			c.Abort()
+        tokenString := c.GetHeader("Authorization")
+		fmt.Println(tokenString)
+        if tokenString == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+            c.Abort()
             return
-		}
+        }
+
+        // tokenString, err := c.Cookie("accessToken")
+		// fmt.Println("cookie", tokenString)
+		// if err != nil || tokenString == "" {
+		// 	c.JSON(http.StatusUnauthorized, gin.H{
+        //         "error": "Authorization token is required in cookies",
+        //     })
+		// 	c.Abort()
+        //     return
+		// }
 
         // Kiểm tra xem token có trong danh sách từ chối và hết hạn chưa
         if expTime, found := BlacklistedTokens[tokenString]; found {
@@ -180,16 +183,3 @@ func GenerateRefreshToken(userID, role string) (string, error) {
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
     return token.SignedString(refreshSecret)
 }
-
-// // Hàm tạo JWT token
-// func GenerateJWT(userID, role string) (string, error) {
-//     jwtKey := []byte(os.Getenv("JWT_SECRET")) // Lấy khóa bí mật từ biến môi trường
-//     claims := jwt.MapClaims{
-//         "user_id":  userID,
-//         "role":     role,
-//         "exp":      time.Now().Add(5 * time.Minute).Unix(),
-//     }
-
-//     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-//     return token.SignedString(jwtKey)
-// }
