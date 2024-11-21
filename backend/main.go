@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 	"os/signal"
 	"syscall"
 
@@ -13,6 +14,8 @@ import (
 
 	adminRoutes "github.com/dath-241/coin-price-be-go/services/admin_service/routes"
 	adminUtils "github.com/dath-241/coin-price-be-go/services/admin_service/utils"
+	adminConfig "github.com/dath-241/coin-price-be-go/services/admin_service/config"
+	adminMomo "github.com/dath-241/coin-price-be-go/services/admin_service/momo"
 
 	"github.com/joho/godotenv"
 )
@@ -47,21 +50,21 @@ func main() {
 	}
 	log.Print("Admin routes------------------------")
 	// Kết nối MongoDB với retry
-	// maxRetries := 3
-	// retryDelay := 5 * time.Second
-	// if err := adminConfig.ConnectDatabaseWithRetry(maxRetries, retryDelay); err != nil {
-	// 	log.Fatalf("Failed to connect to MongoDB: %v", err)
-	// }
-	// // Đảm bảo ngắt kết nối khi server dừng
-	// defer adminConfig.DisconnectDatabase()
+	maxRetries := 3
+	retryDelay := 5 * time.Second
+	if err := adminConfig.ConnectDatabaseWithRetry(maxRetries, retryDelay); err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+	// Đảm bảo ngắt kết nối khi server dừng
+	defer adminConfig.DisconnectDatabase()
 
 	// Bắt đầu routine dọn dẹp token hết hạn
-	adminUtils.StartCleanupRoutine()
+	adminUtils.StartCleanupRoutine(1 * time.Minute)
 	adminRoutes.SetupRouter(server)
 
 	// Gọi hàm init trong package momo để khởi tạo các giá trị cần thiết
 
-	// adminMomo.Init()
+	adminMomo.Init()
 	//r.GET("/blacklisted-tokens", utils.ListBlacklistedTokens)
 
 	server.Run(":8080")
