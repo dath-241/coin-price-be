@@ -3,7 +3,7 @@ package services
 import (
 	"net/http"
 
-	"github.com/dath-241/coin-price-be-go/services/trigger-service/models/indicator"
+	"github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,7 +11,7 @@ import (
 
 // PostIndicator creates a new advanced indicator alert
 func SetAdvancedIndicatorAlert(c *gin.Context) {
-	var newIndicator indicator.Indicator
+	var newIndicator models.Indicator
 
 	if err := c.ShouldBindJSON(&newIndicator); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})

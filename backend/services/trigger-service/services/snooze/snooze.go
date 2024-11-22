@@ -7,7 +7,7 @@ import (
 	"log"
 
 	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	noify "github.com/dath-241/coin-price-be-go/services/trigger-service/services"
 	services "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -207,16 +207,16 @@ func UpdateAlertAfterTrigger(alert *models.Alert) {
 }
 func UpdateMessageAfterTrigger(alert *models.Alert) {
 	switch alert.Type {
-		case "spot":
-			alert.Message = fmt.Sprintf("Spot price of %s is now %.2f", alert.Symbol, alert.Price)
-		case "future":
-			alert.Message = fmt.Sprintf("Future price of %s is now %.2f", alert.Symbol, alert.Price)
-		case "funding_rate":
-			alert.Message = fmt.Sprintf("Funding rate of %s is now %.2f", alert.Symbol, alert.Price)
-		case "price_difference":
-			alert.Message = fmt.Sprintf("Price difference between Spot and Future for %s is now %.2f", alert.Symbol, alert.Price)
-		case "funding_rate_interval":
-			alert.Message = fmt.Sprintf("Funding rate interval of %s is now %s", alert.Symbol, alert.LastInterval)
+	case "spot":
+		alert.Message = fmt.Sprintf("Spot price of %s is now %.2f", alert.Symbol, alert.Price)
+	case "future":
+		alert.Message = fmt.Sprintf("Future price of %s is now %.2f", alert.Symbol, alert.Price)
+	case "funding_rate":
+		alert.Message = fmt.Sprintf("Funding rate of %s is now %.2f", alert.Symbol, alert.Price)
+	case "price_difference":
+		alert.Message = fmt.Sprintf("Price difference between Spot and Future for %s is now %.2f", alert.Symbol, alert.Price)
+	case "funding_rate_interval":
+		alert.Message = fmt.Sprintf("Funding rate interval of %s is now %s", alert.Symbol, alert.LastInterval)
 
 	}
 	SaveAlert(alert)

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
-	alert "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
+	alert "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

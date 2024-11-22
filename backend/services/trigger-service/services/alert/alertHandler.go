@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

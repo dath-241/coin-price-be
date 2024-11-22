@@ -1,4 +1,18 @@
 definitions:
+  github_com_dath-241_coin-price-be-go_services_trigger-service_models.User:
+    properties:
+      alerts:
+        description: Danh sách các cảnh báo của người dùng
+        items:
+          $ref: '#/definitions/models.Alert'
+        type: array
+      email:
+        description: Email của người dùng
+        type: string
+      id:
+        description: ID của người dùng
+        type: string
+    type: object
   models.Alert:
     properties:
       alert_id:
@@ -161,6 +175,12 @@ definitions:
           type: string
         type: array
     type: object
+  models.ResponseNotificationSent:
+    properties:
+      status:
+        example: Notification sent
+        type: string
+    type: object
   models.ResponseSetSymbolAlert:
     properties:
       alert_id:
@@ -168,6 +188,22 @@ definitions:
         type: string
       message:
         example: Alert created successfully
+        type: string
+    type: object
+  models.ResponseUserAlerts:
+    properties:
+      alerts:
+        items:
+          $ref: '#/definitions/models.Alert'
+        type: array
+    type: object
+  models.ResponseUserCreated:
+    properties:
+      message:
+        example: User created successfully
+        type: string
+      user_id:
+        example: 647f1f77bcf86cd799439011
         type: string
     type: object
 info:
@@ -334,6 +370,86 @@ paths:
       summary: Get new and delisted symbols
       tags:
       - Alerts
+  /api/v1/users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the given details
+      parameters:
+      - description: User details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/models.ResponseUserCreated'
+        "400":
+          description: Invalid request body or missing email
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Failed to create user
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a user
+      tags:
+      - Users
+  /api/v1/users/{id}/alerts:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all alerts for a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user alerts
+          schema:
+            $ref: '#/definitions/models.ResponseUserAlerts'
+        "500":
+          description: Failed to retrieve alerts
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get user alerts
+      tags:
+      - Users
+  /api/v1/users/{id}/alerts/notify:
+    post:
+      consumes:
+      - application/json
+      description: Send a notification email to the user for their alerts
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification sent successfully
+          schema:
+            $ref: '#/definitions/models.ResponseNotificationSent'
+        "500":
+          description: Failed to send notification
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Notify user of alerts
+      tags:
+      - Users
   /api/v1/vip2/start-alert-checker:
     post:
       consumes:
@@ -352,7 +468,7 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Start alert checker
       tags:
-      - Alert
+      - Alert Running
   /api/v1/vip2/stop-alert-checker:
     post:
       consumes:
@@ -371,5 +487,5 @@ paths:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Stop alert checker
       tags:
-      - Alert
+      - Alert Running
 swagger: "2.0"

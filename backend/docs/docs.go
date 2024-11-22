@@ -260,6 +260,128 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/users": {
+            "post": {
+                "description": "Create a new user with the given details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a user",
+                "parameters": [
+                    {
+                        "description": "User details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseUserCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or missing email",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create user",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{id}/alerts": {
+            "get": {
+                "description": "Retrieve all alerts for a user by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user alerts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of user alerts",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseUserAlerts"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve alerts",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{id}/alerts/notify": {
+            "post": {
+                "description": "Send a notification email to the user for their alerts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Notify user of alerts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification sent successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseNotificationSent"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to send notification",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/vip2/start-alert-checker": {
             "post": {
                 "description": "Starts the alert checker to monitor for alerts",
@@ -270,7 +392,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Alert"
+                    "Alert Running"
                 ],
                 "summary": "Start alert checker",
                 "responses": {
@@ -299,7 +421,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Alert"
+                    "Alert Running"
                 ],
                 "summary": "Stop alert checker",
                 "responses": {
@@ -320,6 +442,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_dath-241_coin-price-be-go_services_trigger-service_models.User": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "description": "Danh sách các cảnh báo của người dùng",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Alert"
+                    }
+                },
+                "email": {
+                    "description": "Email của người dùng",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID của người dùng",
+                    "type": "string"
+                }
+            }
+        },
         "models.Alert": {
             "type": "object",
             "properties": {
@@ -545,6 +687,15 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ResponseNotificationSent": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "Notification sent"
+                }
+            }
+        },
         "models.ResponseSetSymbolAlert": {
             "type": "object",
             "properties": {
@@ -555,6 +706,30 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Alert created successfully"
+                }
+            }
+        },
+        "models.ResponseUserAlerts": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Alert"
+                    }
+                }
+            }
+        },
+        "models.ResponseUserCreated": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "User created successfully"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "647f1f77bcf86cd799439011"
                 }
             }
         }

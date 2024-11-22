@@ -73,3 +73,19 @@ type ResponseSetSymbolAlert struct {
 type ResponseAlertCheckerStatus struct {
 	Status string `json:"status" example:"Alert checker started"`
 }
+
+// Response for CreateUser success
+type ResponseUserCreated struct {
+	Message string `json:"message" example:"User created successfully"`
+	UserID  string `json:"user_id" example:"647f1f77bcf86cd799439011"`
+}
+
+// Response for GetUserAlerts success
+type ResponseUserAlerts struct {
+	Alerts []Alert `json:"alerts"`
+}
+
+// Response for NotifyUser success
+type ResponseNotificationSent struct {
+	Status string `json:"status" example:"Notification sent"`
+}

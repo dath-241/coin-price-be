@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 )
 
 // fetchSymbolsFromBinance fetches symbols from Binance's API
