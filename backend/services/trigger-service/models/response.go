@@ -89,3 +89,9 @@ type ResponseUserAlerts struct {
 type ResponseNotificationSent struct {
 	Status string `json:"status" example:"Notification sent"`
 }
+
+// ResponseIndicatorCreated là cấu trúc dữ liệu trả về khi tạo thành công một indicator alert
+type ResponseIndicatorCreated struct {
+	Message string `json:"message"`
+	AlertID string `json:"alert_id"` // ID của indicator alert vừa tạo
+}

@@ -9,6 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// SetAdvancedIndicatorAlert creates a new advanced indicator alert
+// @Summary Create an advanced indicator alert
+// @Description Create an alert with the given indicator type and settings
+// @Tags Indicators
+// @Accept json
+// @Produce json
+// @Param body body models.Indicator true "Indicator alert details"
+// @Success 201 {object} models.ResponseIndicatorCreated "Indicator alert created successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid request body or invalid indicator type"
+// @Failure 500 {object} models.ErrorResponse "Failed to create indicator alert"
+// @Router /api/v1/vip3/indicators [post]
 // PostIndicator creates a new advanced indicator alert
 func SetAdvancedIndicatorAlert(c *gin.Context) {
 	var newIndicator models.Indicator
