@@ -69,3 +69,7 @@ type ResponseSetSymbolAlert struct {
 	Message string `json:"message" example:"Alert created successfully"`
 	AlertID string `json:"alert_id" example:"647f1f77bcf86cd799439011"`
 }
+
+type ResponseAlertCheckerStatus struct {
+	Status string `json:"status" example:"Alert checker started"`
+}

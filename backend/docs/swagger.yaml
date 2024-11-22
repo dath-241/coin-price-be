@@ -80,6 +80,12 @@ definitions:
         example: An error occurred
         type: string
     type: object
+  models.ResponseAlertCheckerStatus:
+    properties:
+      status:
+        example: Alert checker started
+        type: string
+    type: object
   models.ResponseAlertCreated:
     properties:
       alert_id:
@@ -328,4 +334,42 @@ paths:
       summary: Get new and delisted symbols
       tags:
       - Alerts
+  /api/v1/vip2/start-alert-checker:
+    post:
+      consumes:
+      - application/json
+      description: Starts the alert checker to monitor for alerts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert checker started successfully
+          schema:
+            $ref: '#/definitions/models.ResponseAlertCheckerStatus'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Start alert checker
+      tags:
+      - Alert
+  /api/v1/vip2/stop-alert-checker:
+    post:
+      consumes:
+      - application/json
+      description: Stops the alert checker from monitoring for alerts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert checker stopped successfully
+          schema:
+            $ref: '#/definitions/models.ResponseAlertCheckerStatus'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Stop alert checker
+      tags:
+      - Alert
 swagger: "2.0"

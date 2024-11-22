@@ -259,6 +259,64 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/vip2/start-alert-checker": {
+            "post": {
+                "description": "Starts the alert checker to monitor for alerts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "Start alert checker",
+                "responses": {
+                    "200": {
+                        "description": "Alert checker started successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAlertCheckerStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip2/stop-alert-checker": {
+            "post": {
+                "description": "Stops the alert checker from monitoring for alerts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert"
+                ],
+                "summary": "Stop alert checker",
+                "responses": {
+                    "200": {
+                        "description": "Alert checker stopped successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAlertCheckerStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -367,6 +425,15 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "An error occurred"
+                }
+            }
+        },
+        "models.ResponseAlertCheckerStatus": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "Alert checker started"
                 }
             }
         },
