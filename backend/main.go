@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	_ "github.com/dath-241/coin-price-be-go/docs"
+
 	priceRoutes "github.com/dath-241/coin-price-be-go/services/price-service/routes"
 	triggerRoutes "github.com/dath-241/coin-price-be-go/services/trigger-service/routes"
 	triggerServiceAlert "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"

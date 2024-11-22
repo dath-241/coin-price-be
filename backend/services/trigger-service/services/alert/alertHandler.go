@@ -15,6 +15,16 @@ import (
 )
 
 // Handler to create an alert
+// @Summary Create an alert
+// @Description Create a new alert with the given details
+// @Tags Alerts
+// @Accept json
+// @Produce json
+// @Param body body models.Alert true "Alert details"
+// @Success 201 {object} models.ResponseAlertCreated "Successfully created alert"
+// @Failure 400 {object} models.ErrorResponse "Invalid request body"
+// @Failure 500 {object} models.ErrorResponse "Failed to create alert"
+// @Router /api/v1/alerts [post]
 func CreateAlert(c *gin.Context) {
 
 	var newAlert models.Alert
@@ -66,6 +76,15 @@ func CreateAlert(c *gin.Context) {
 }
 
 // Handler to retrieve all alerts
+// @Summary Get all alerts
+// @Description Retrieve all alerts, optionally filter by type
+// @Tags Alerts
+// @Accept json
+// @Produce json
+// @Param type query string false "Filter by alert type (e.g., new_listing, delisting)"
+// @Success 200 {array} models.ResponseAlertList "List of alerts"
+// @Failure 500 {object} models.ErrorResponse "Failed to retrieve alerts"
+// @Router /api/v1/alerts [get]
 func GetAlerts(c *gin.Context) {
 
 	var results []models.Alert
@@ -95,6 +114,16 @@ func GetAlerts(c *gin.Context) {
 }
 
 // Handler to get an alert by ID
+// @Summary Get an alert by ID
+// @Description Retrieve an alert by its unique identifier
+// @Tags Alerts
+// @Accept json
+// @Produce json
+// @Param id path string true "Alert ID"
+// @Success 200 {object} models.ResponseAlertDetail "Alert details"
+// @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
+// @Failure 404 {object} models.ErrorResponse "Alert not found"
+// @Router /api/v1/alerts/{id} [get]
 func GetAlert(c *gin.Context) {
 
 	id := c.Param("id")
@@ -117,6 +146,16 @@ func GetAlert(c *gin.Context) {
 }
 
 // Handler to delete an alert by ID
+// @Summary Delete an alert
+// @Description Delete an alert by its unique identifier
+// @Tags Alerts
+// @Accept json
+// @Produce json
+// @Param id path string true "Alert ID"
+// @Success 200 {object} models.ResponseAlertDeleted "Alert deleted successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
+// @Failure 404 {object} models.ErrorResponse "Alert not found"
+// @Router /api/v1/alerts/{id} [delete]
 func DeleteAlert(c *gin.Context) {
 
 	id := c.Param("id")
@@ -139,6 +178,15 @@ func DeleteAlert(c *gin.Context) {
 }
 
 // Handler to retrieve new and delisted symbols
+// Handler to retrieve new and delisted symbols
+// @Summary Get new and delisted symbols
+// @Description Retrieve new and delisted symbols from Binance
+// @Tags Alerts
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.ResponseNewDelistedSymbols "List of new and delisted symbols"
+// @Failure 500 {object} models.ErrorResponse "Failed to retrieve symbols"
+// @Router /api/v1/symbols-alerts [get]
 func GetSymbolAlerts(c *gin.Context) {
 
 	newSymbols, delistedSymbols, err := FetchSymbolsFromBinance()
@@ -163,6 +211,17 @@ func GetSymbolAlerts(c *gin.Context) {
 }
 
 // Handler to set a symbol alert for new or delisted symbols
+// Handler to set a symbol alert for new or delisted symbols
+// @Summary Set an alert for new or delisted symbols
+// @Description Set a new alert for symbols that are newly listed or delisted
+// @Tags Alerts
+// @Accept json
+// @Produce json
+// @Param body body models.Alert true "Alert details"
+// @Success 201 {object} models.ResponseSetSymbolAlert "Successfully created alert for symbol"
+// @Failure 400 {object} models.ErrorResponse "Invalid request body"
+// @Failure 500 {object} models.ErrorResponse "Failed to create alert for symbol"
+// @Router /api/v1/alerts/symbol [post]
 func SetSymbolAlert(c *gin.Context) {
 
 	var newAlert models.Alert

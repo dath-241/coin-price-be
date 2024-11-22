@@ -13,7 +13,7 @@ type Alert struct {
 	Symbol             string             `json:"symbol" bson:"symbol"`                                           // Symbol for the alert, e.g., "BTCUSDT"
 	Price              float64            `json:"price,omitempty" bson:"price,omitempty"`                         // Price threshold for the alert, only applicable for price alerts
 	Condition          string             `json:"condition,omitempty" bson:"condition,omitempty"`                 // Condition for the alert, e.g., ">=", "<=", "==", "in range", "out range"
-	Threshold          float64            `json:"threshold,omitempty" bson:"threshold,omitempty"`     // Threshold for the alert, only applicable for price alerts
+	Threshold          float64            `json:"threshold,omitempty" bson:"threshold,omitempty"`                 // Threshold for the alert, only applicable for price alerts
 	Market             string             `json:"market,omitempty" bson:"market,omitempty"`                       // Market for the alert, e.g., "spot" or "future"
 	Range              []float64          `json:"range,omitempty" bson:"range,omitempty"`                         // Price range for alerts that check if price falls within or outside a range
 	IsActive           bool               `json:"is_active" bson:"is_active"`                                     // Whether the alert is active
@@ -29,10 +29,9 @@ type Alert struct {
 	RepeatCount        int                `json:"repeat_count,omitempty" bson:"repeat_count,omitempty"`           // Số lần đã lặp lại
 	Message            string             `json:"message" bson:"message"`                                         // Thông điệp sẽ được gửi trong cảnh báo (ví dụ: "BTC giá đã vượt $20,000")
 	LastInterval       string             `json:"last_fundingrate_interval" bson:"last_fundingrate_interval"`
-	Minrange   		   float64			  `json:"min_range" bson:"min_range"`
-	Maxrange   		   float64			  `json:"max_range" bson:"max_range"`
+	Minrange           float64            `json:"min_range" bson:"min_range"`
+	Maxrange           float64            `json:"max_range" bson:"max_range"`
 }
-
 
 // Symbol struct
 type Symbol struct {

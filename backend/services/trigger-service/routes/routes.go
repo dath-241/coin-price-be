@@ -6,9 +6,18 @@ import (
 	servicesI "github.com/dath-241/coin-price-be-go/services/trigger-service/services/indicator"
 	services "github.com/dath-241/coin-price-be-go/services/trigger-service/services/snooze"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title           Your API Title
+// @version         1.0
+// @description     Your API Description
+// @host            localhost:8080
+// @BasePath        /api
+
 func SetupRoute(route *gin.Engine) {
+	route.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	alerts := route.Group("/api/v1/vip2")
 	{
 		alerts.POST("/alerts", servicesA.CreateAlert)
