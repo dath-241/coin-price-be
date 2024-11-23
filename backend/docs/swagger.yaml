@@ -94,6 +94,24 @@ definitions:
         example: An error occurred
         type: string
     type: object
+  models.Indicator:
+    properties:
+      id:
+        type: string
+      indicator:
+        type: string
+      notification_method:
+        type: string
+      period:
+        type: integer
+      symbol:
+        type: string
+    required:
+    - indicator
+    - notification_method
+    - period
+    - symbol
+    type: object
   models.ResponseAlertCheckerStatus:
     properties:
       status:
@@ -158,6 +176,14 @@ definitions:
         items:
           $ref: '#/definitions/models.ResponseAlertDetail'
         type: array
+    type: object
+  models.ResponseIndicatorCreated:
+    properties:
+      alert_id:
+        description: ID của indicator alert vừa tạo
+        type: string
+      message:
+        type: string
     type: object
   models.ResponseNewDelistedSymbols:
     properties:
@@ -488,4 +514,34 @@ paths:
       summary: Stop alert checker
       tags:
       - Alert Running
+  /api/v1/vip3/indicators:
+    post:
+      consumes:
+      - application/json
+      description: Create an alert with the given indicator type and settings
+      parameters:
+      - description: Indicator alert details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Indicator'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Indicator alert created successfully
+          schema:
+            $ref: '#/definitions/models.ResponseIndicatorCreated'
+        "400":
+          description: Invalid request body or invalid indicator type
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Failed to create indicator alert
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create an advanced indicator alert
+      tags:
+      - Indicators
 swagger: "2.0"

@@ -24,7 +24,7 @@ import (
 // @Success 201 {object} models.ResponseAlertCreated "Successfully created alert"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body"
 // @Failure 500 {object} models.ErrorResponse "Failed to create alert"
-// @Router /api/v1/alerts [post]
+// @Router /api/v1/vip2/alerts [post]
 func CreateAlert(c *gin.Context) {
 
 	var newAlert models.Alert
@@ -84,7 +84,7 @@ func CreateAlert(c *gin.Context) {
 // @Param type query string false "Filter by alert type (e.g., new_listing, delisting)"
 // @Success 200 {array} models.ResponseAlertList "List of alerts"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve alerts"
-// @Router /api/v1/alerts [get]
+// @Router /api/v1/vip2/alerts [get]
 func GetAlerts(c *gin.Context) {
 
 	var results []models.Alert
@@ -123,7 +123,7 @@ func GetAlerts(c *gin.Context) {
 // @Success 200 {object} models.ResponseAlertDetail "Alert details"
 // @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
 // @Failure 404 {object} models.ErrorResponse "Alert not found"
-// @Router /api/v1/alerts/{id} [get]
+// @Router /api/v1/vip2/alerts/{id} [get]
 func GetAlert(c *gin.Context) {
 
 	id := c.Param("id")
@@ -155,7 +155,7 @@ func GetAlert(c *gin.Context) {
 // @Success 200 {object} models.ResponseAlertDeleted "Alert deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
 // @Failure 404 {object} models.ErrorResponse "Alert not found"
-// @Router /api/v1/alerts/{id} [delete]
+// @Router /api/v1/vip2/alerts/{id} [delete]
 func DeleteAlert(c *gin.Context) {
 
 	id := c.Param("id")
@@ -186,7 +186,7 @@ func DeleteAlert(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} models.ResponseNewDelistedSymbols "List of new and delisted symbols"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve symbols"
-// @Router /api/v1/symbols-alerts [get]
+// @Router /api/v1/vip2/symbols-alerts [get]
 func GetSymbolAlerts(c *gin.Context) {
 
 	newSymbols, delistedSymbols, err := FetchSymbolsFromBinance()
@@ -221,7 +221,7 @@ func GetSymbolAlerts(c *gin.Context) {
 // @Success 201 {object} models.ResponseSetSymbolAlert "Successfully created alert for symbol"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body"
 // @Failure 500 {object} models.ErrorResponse "Failed to create alert for symbol"
-// @Router /api/v1/alerts/symbol [post]
+// @Router /api/v1/vip2/alerts/symbol [post]
 func SetSymbolAlert(c *gin.Context) {
 
 	var newAlert models.Alert

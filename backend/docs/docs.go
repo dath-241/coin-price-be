@@ -439,6 +439,52 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/vip3/indicators": {
+            "post": {
+                "description": "Create an alert with the given indicator type and settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Indicators"
+                ],
+                "summary": "Create an advanced indicator alert",
+                "parameters": [
+                    {
+                        "description": "Indicator alert details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Indicator"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Indicator alert created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseIndicatorCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or invalid indicator type",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create indicator alert",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -570,6 +616,32 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Indicator": {
+            "type": "object",
+            "required": [
+                "indicator",
+                "notification_method",
+                "period",
+                "symbol"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "indicator": {
+                    "type": "string"
+                },
+                "notification_method": {
+                    "type": "string"
+                },
+                "period": {
+                    "type": "integer"
+                },
+                "symbol": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ResponseAlertCheckerStatus": {
             "type": "object",
             "properties": {
@@ -660,6 +732,18 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.ResponseAlertDetail"
                     }
+                }
+            }
+        },
+        "models.ResponseIndicatorCreated": {
+            "type": "object",
+            "properties": {
+                "alert_id": {
+                    "description": "ID của indicator alert vừa tạo",
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },
