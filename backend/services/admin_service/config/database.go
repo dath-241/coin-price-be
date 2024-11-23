@@ -18,7 +18,6 @@ var (
 
 // ConnectDatabase kết nối đến MongoDB và trả về database
 func ConnectDatabase() error {
-
 	// Lấy giá trị từ các biến môi trường
 	mongoURI := os.Getenv("MONGO_URI")
 	dbName := os.Getenv("MONGO_DB_NAME")
