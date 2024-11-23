@@ -7,11 +7,21 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
-
-	//"github.com/dath-241/coin-price-be-go/services/admin_service/controllers"
 	"github.com/gin-gonic/gin"
+
 )
 
+// MoMoCallback godoc
+// @Summary MoMo Payment Callback
+// @Description Handles callback from MoMo after payment is made
+// @Tags Payment
+// @Accept json
+// @Produce json
+// @Param callbackData body map[string]interface{} true "MoMo Callback Data" 
+// @Success 200 {object} models.ErrorResponse "MoMo callback success response"
+// @Failure 400 {object} models.ErrorResponse "Invalid JSON payload"
+// @Failure 401 {object} models.ErrorResponse "Invalid signature"
+// @Router /api/v1/payment/momo-callback [post]
 func MoMoCallback() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		// Lấy reponse của momo lưu vào callbackData.
