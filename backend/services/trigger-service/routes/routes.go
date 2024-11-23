@@ -1,11 +1,13 @@
 package routes
 
 import (
+	middlewares "github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 	servicesU "github.com/dath-241/coin-price-be-go/services/trigger-service/services"
 	servicesA "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
 	servicesI "github.com/dath-241/coin-price-be-go/services/trigger-service/services/indicator"
 	services "github.com/dath-241/coin-price-be-go/services/trigger-service/services/snooze"
 	"github.com/gin-gonic/gin"
+
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -20,6 +22,7 @@ func SetupRoute(route *gin.Engine) {
 	route.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	alerts := route.Group("/api/v1/vip2")
 	{
+		alerts.Use(middlewares.AuthMiddleware("VIP-2", "VIP-3"))
 		alerts.POST("/alerts", servicesA.CreateAlert)
 		alerts.GET("/alerts", servicesA.GetAlerts)
 		alerts.GET("/alerts/:id", servicesA.GetAlert)
@@ -43,7 +46,7 @@ func SetupRoute(route *gin.Engine) {
 
 	indicators := route.Group("/api/v1/vip3/indicators")
 	{
-		indicators.POST("/", servicesI.SetAdvancedIndicatorAlert)
+		indicators.POST("/", middlewares.AuthMiddleware("VIP-3"), servicesI.SetAdvancedIndicatorAlert)
 	}
 
 	users := route.Group("/api/v1/users")
