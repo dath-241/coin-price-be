@@ -3,8 +3,8 @@ package services
 import (
 	"net/http"
 
+	"github.com/dath-241/coin-price-be-go/services/admin_service/config"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/models"
-	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -37,7 +37,7 @@ func SetAdvancedIndicatorAlert(c *gin.Context) {
 	newIndicator.ID = primitive.NewObjectID().Hex()
 
 	// Insert into the IndicatorCollection
-	_, err := utils.IndicatorCollection.InsertOne(c, newIndicator)
+	_, err := config.IndicatorCollection.InsertOne(c, newIndicator)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create indicator alert"})
 		return
