@@ -11,6 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Get Kline data
+// @Description Fetches Kline data for a specific symbol and interval from Binance API
+// @Tags Kline
+// @Param symbol query string true "Symbol for which to fetch Kline data (e.g., BTCUSDT)"
+// @Param interval query string true "Interval for Kline data (e.g., 1m, 5m, 1h, 1d)"
+// @Success 200 {object} models.ResponseKline "Successful response with Kline data"
+// @Failure 400 {object} models.ErrorResponseInputMissing "Missing Data"
+// @Failure 500 {object} models.ErrorResponseDataInternalServerError "Internal server error"
+// @Router /v1/vip1/kline [get]
 func GetKline(context *gin.Context) {
 	symbol := context.Query("symbol")
 	interval := context.Query("interval")
@@ -25,27 +34,32 @@ func GetKlineData(symbol, interval string, context *gin.Context) {
 		return
 	}
 
+	if symbol == "" || interval == "" {
+		utils.ShowError(http.StatusBadRequest, "Missing data", context)
+		return
+	}
+
 	q := url.Values{}
 	q.Add("symbol", symbol)
 	q.Add("interval", interval)
 	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
 	if err != nil {
-		utils.ShowError(http.StatusInternalServerError, err.Error(), context)
+		utils.ShowError(http.StatusInternalServerError, "Internal server error", context)
 		return
 	}
 	defer resp.Body.Close()
 
 	respStatusCode := resp.StatusCode
 	if respStatusCode != http.StatusOK {
-		context.JSON(respStatusCode, gin.H{"message": "Error get data"})
+		utils.ShowError(http.StatusInternalServerError, "Internal server error", context)
 		return
 	}
 
 	var data [][]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Error binding data"})
+		utils.ShowError(http.StatusInternalServerError, "Internal server error", context)
 		return
 	}
 
@@ -63,6 +77,28 @@ func GetKlineData(symbol, interval string, context *gin.Context) {
 		kline.UpdateKlineEachData(timeKline, open, high, low, close, volume)
 		response.UpdateKlineResponseData(&kline)
 	}
+	// data response
+	// [
+	// "symbol": "BTCUSDT",
+	// "interval": "1d",
+	// "eventTime": "2024-11-20 09:09:02",
+	// "kline_data": [
+	//     {
+	//         "time": "2023-07-10T00:00:00Z",
+	//         "open": 30147.8,
+	//         "high": 31040,
+	//         "low": 29928.8,
+	//         "close": 30396.9,
+	//         "volume": 429115.537
+	//     },
+	//     {
+	//         "time": "2023-07-11T00:00:00Z",
+	//         "open": 30396.9,
+	//         "high": 30804.9,
+	//         "low": 30261.4,
+	//         "close": 30608.4,
+	//         "volume": 298904.747
+	//     },]
 
 	context.JSON(http.StatusOK, response)
 }
