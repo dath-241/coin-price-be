@@ -12,13 +12,33 @@ import (
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/momo"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
-
+    "go.mongodb.org/mongo-driver/bson/primitive"
 	"github.com/gin-gonic/gin"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
+type CreateVIPPaymentRequest struct {
+    Amount   int    `json:"amount"`
+    VIPLevel string `json:"vip_level"`
+}
+type CreateVIPPaymentReponse struct {
+	PaymentURL string `json:"payment_url"`
+	OrderID 	string `json:"order_id"`
+}
 
-// Khởi tạo thanh toán qua Momo
+// CreateVIPPayment godoc
+// @Summary Initiate MoMo payment for VIP upgrade
+// @Description Creates a MoMo payment request for upgrading the user's VIP level, validates the token, and stores the order details in the database
+// @Tags Payment
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param paymentRequest body CreateVIPPaymentRequest true "Payment request data"
+// @Success 200 {object} CreateVIPPaymentReponse "Payment URL and Order ID"
+// @Failure 400 {object} models.ErrorResponse "Invalid request data or missing parameters"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized: Invalid or missing authorization token"
+// @Failure 500 {object} models.ErrorResponse "Internal server error during payment creation"
+// @Router /api/v1/payment/vip-upgrade [post]
 func CreateVIPPayment() func(*gin.Context) {
     return func(c *gin.Context) {
         //Lấy token từ header Authorization
@@ -120,8 +140,8 @@ func CreateVIPPayment() func(*gin.Context) {
 			"order_id":   orderId,
             "orderInfo":  orderInfo,
 			"payment_url": paymentURL,
-			"created_at": time.Now(),
-            "updated_at": time.Now(),
+			"created_at": primitive.NewDateTimeFromTime(time.Now()),
+            "updated_at": primitive.NewDateTimeFromTime(time.Now()),
             "transaction_status": "pending",
 		}
 
@@ -279,18 +299,35 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string){
     // Trả về kết quả xác nhận thanh toán thành công
     c.JSON(http.StatusOK, gin.H{
         "message": "Payment confirmed and VIP level upgraded",
+        "status": "0",
     })
 }
 
-// HandleQueryPaymentStatus returns a gin.HandlerFunc for querying the payment status
+type QueryPaymentRequest struct {
+    OrderID   string `json:"orderId"`
+    RequestID string `json:"requestId"`
+    Lang      string `json:"lang"`
+}
+type ReponseQueryPaymentRequest struct {
+    Message   string `json:"message"`
+    Status    string `json:"status"`
+}
+
+// HandleQueryPaymentStatus godoc
+// @Summary Check payment status and upgrade user's VIP level if successful
+// @Description Queries the payment status and upgrades the user's VIP level if the payment is successful based on the order details
+// @Tags Payment
+// @Accept json
+// @Produce json
+// @Param statusRequest body QueryPaymentRequest true "Order ID from the payment gateway"
+// @Success 200 {object} ReponseQueryPaymentRequest "Payment confirmed and VIP level upgraded"
+// @Failure 400 {object} models.ErrorResponse "Invalid order ID or missing parameters"
+// @Failure 404 {object} models.ErrorResponse "Order not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error during payment confirmation"
+// @Router /api/v1/payment/status [post]
 func HandleQueryPaymentStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Define the struct for the incoming request body
-		type QueryPaymentRequest struct {
-			OrderID   string `json:"orderId"`
-			RequestID string `json:"requestId"`
-			Lang      string `json:"lang"`
-		}
 
 		// Bind the JSON body to the struct
 		var req QueryPaymentRequest

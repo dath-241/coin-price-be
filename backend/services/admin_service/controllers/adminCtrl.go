@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dath-241/coin-price-be-go/services/admin_service/config"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/repository"
 
 	"github.com/gin-gonic/gin"
 
@@ -15,49 +15,73 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Lấy thông tin tất cả người dùng bởi admin
-func GetAllUsers() gin.HandlerFunc {
+type User struct {
+    ID       string `json:"id"`
+    Username string `json:"username"`
+    Email    string `json:"email"`
+    VIPLevel string `json:"vip_level"`
+    Status   bool   `json:"status"`
+}
+
+
+// GetAllUsers godoc
+// @Summary Get all users
+// @Description Admin can retrieve a list of all users in the system. Returns basic information about each user.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 {array} User "List of users successfully fetched"
+// @Failure 500 {object} models.ErrorResponse "Internal server error while fetching users"
+// @Router /api/v1/admin/users [get]
+func GetAllUsers(repo repository.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		collection := config.DB.Collection("User")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		// Lấy tất cả người dùng
-		cursor, err := collection.Find(ctx, bson.M{})
+		// Sử dụng repository để tìm dữ liệu
+		users, err := repo.Find(ctx, bson.M{})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Failed to fetch users
+				"error": "Internal Server Error", // Failed to fetch users
 			})
 			return
 		}
-		defer cursor.Close(ctx)
 
-		var users []models.UserDTO
-		if err := cursor.All(ctx, &users); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Failed to parse users
+		// Tạo kết quả cần trả về
+		var result []gin.H
+		for _, user := range users {
+			// Lấy thông tin người dùng và thêm vào kết quả
+			result = append(result, gin.H{
+				"user_id":  user.ID.Hex(),
+				"username":	user.Username,
+				"email":    user.Email,
+				"vip_level": user.Role,
+				"status":   user.IsActive, 
 			})
-			return
 		}
 
 		// Trả về danh sách người dùng
-		var result []gin.H
-		for _, user := range users {
-			result = append(result, gin.H{
-				"user_id": user.ID.Hex(),
-				"username":   user.Username,
-				"email":     user.Email,
-				"vip_level": user.Role,
-				"status":    user.IsActive,
-			})
-		}
-
 		c.JSON(http.StatusOK, result)
 	}
 }
 
-// Lấy thông tin của 1 người dùng bởi admin
-func GetUserByAdmin() func(*gin.Context) {
+
+
+// GetUserByAdmin godoc
+// @Summary Get user details by admin
+// @Description Admin can retrieve user details by providing the user ID. Returns user information such as username, email, VIP level, etc.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param user_id path string true "User ID"
+// @Success 200 {object} models.UserDTO "User details successfully fetched"
+// @Failure 400 {object} models.ErrorResponse "Invalid user ID"
+// @Failure 404 {object} models.ErrorResponse "User not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error while fetching user"
+// @Router /api/v1/admin/user/{user_id} [get]
+func GetUserByAdmin(repo repository.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.Param("user_id") // Lấy user_id từ URL
 		if userID == "" {
@@ -66,27 +90,20 @@ func GetUserByAdmin() func(*gin.Context) {
 			})
 			return
 		}
+
 		// Kiểm tra tính hợp lệ của ObjectID
-		_, err := primitive.ObjectIDFromHex(userID)
+		objID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 			return
 		}
 
-		// Kết nối đến database
-		collection := config.DB.Collection("User")
+		// Tìm kiếm người dùng qua repository
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		var user models.UserDTO
-		objID, err := primitive.ObjectIDFromHex(userID) // Chuyển user_id thành ObjectID
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-			return
-		}
-
-		// Tìm kiếm người dùng theo ObjectID
-		err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
+		err = repo.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
 		if err != nil {
 			if err == mongo.ErrNoDocuments {
 				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -100,28 +117,36 @@ func GetUserByAdmin() func(*gin.Context) {
 
 		// Trả về dữ liệu người dùng
 		c.JSON(http.StatusOK, gin.H{
-			"user_id": 		user.ID.Hex(),
-			"username": 	user.Username,
-			"profile": 		user.Profile,
-			"email":    	user.Email,
-			"vip_level":	user.Role,
-			"is_active":   	user.IsActive,
-			"created_at":	user.CreatedAt,
-			"updated_at": 	user.UpdatedAt,
+			"user_id":    user.ID.Hex(),
+			"username":   user.Username,
+			"profile":    user.Profile,
+			"email":      user.Email,
+			"vip_level":  user.Role,
+			"is_active":  user.IsActive,
+			"created_at": user.CreatedAt,
+			"updated_at": user.UpdatedAt,
 		})
 	}
 }
 
-// Xóa 1 người dùng từ user_id bởi admin
-func DeleteUserByAdmin() func(*gin.Context) {
+// DeleteUserByAdmin godoc
+// @Summary Delete a user by admin
+// @Description Admin can delete a user from the system by providing the user ID. The user will be permanently removed from the database.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param user_id path string true "User ID"
+// @Success 200 {object} models.MessageResponse "User deleted successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid user ID"
+// @Failure 404 {object} models.ErrorResponse "User not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error while deleting user"
+// @Router /api/v1/admin/user/{user_id} [delete]
+func DeleteUserByAdmin(repo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
 		userID := c.Param("user_id")
 
-		// Kết nối đến database
-		collection := config.DB.Collection("User")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
+		// Kiểm tra tính hợp lệ của ObjectID
 		objID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -131,10 +156,10 @@ func DeleteUserByAdmin() func(*gin.Context) {
 		}
 
 		// Xóa người dùng
-		result, err := collection.DeleteOne(ctx, bson.M{"_id": objID})
+		result, err := repo.DeleteOne(context.Background(), bson.M{"_id": objID})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Failed to delete user
+				"error": "Internal Server Error", // Failed to delete user
 			})
 			return
 		}
@@ -152,58 +177,46 @@ func DeleteUserByAdmin() func(*gin.Context) {
 	}
 }
 
-// Xem lịch sử thanh toán của tất cả người dùng (dành cho admin)
-func GetPaymentHistoryForAdmin() func(*gin.Context) {
-	return func(c *gin.Context) {
-		// Lấy lịch sử thanh toán từ MongoDB
-		collection := config.DB.Collection("OrderMoMo")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+// GetPaymentHistoryForAdmin godoc
+// @Summary Get payment history for all users (admin only)
+// @Description Retrieves the payment history for all users. Admin can view all payments made by users.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Success 200 {object} GetPaymentHistoryResponse "List of all payment histories"
+// @Failure 500 {object} models.ErrorResponse "Internal server error while fetching payment history"
+// @Router /api/v1/admin/payment-history [get]
+func GetPaymentHistoryForAdmin(repo repository.PaymentRepository) func(*gin.Context) {
+    return func(c *gin.Context) {
+        // Lấy lịch sử thanh toán từ repository thay vì MongoDB trực tiếp
+        ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
 
-		cursor, err := collection.Find(ctx, bson.M{})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Error fetching payment history
-			})
-			return
-		}
-		defer cursor.Close(ctx)
+        payments, err := repo.FindPayments(ctx, bson.M{})
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": "Internal Server Error", // Error fetching payment history
+            })
+            return
+        }
 
-		var payments []models.Order
-		for cursor.Next(ctx) {
-			var payment models.Order
-			if err := cursor.Decode(&payment); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": "Internal Server Error", //Error decoding payment data
-				})
-				return
-			}
-			payments = append(payments, payment)
-		}
+        if len(payments) == 0 {
+            c.JSON(http.StatusOK, gin.H{
+                "message": "No payment history found",
+            })
+            return
+        }
 
-		if err := cursor.Err(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Error reading from cursor
-			})
-			return
-		}
-
-		if len(payments) == 0 {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "No payment history found",
-			})
-			return
-		}
-
-		// Trả về danh sách các lịch sử thanh toán
+        // Trả về danh sách các lịch sử thanh toán
         var paymentHistory []map[string]interface{}
         for _, payment := range payments {
             paymentDetails := map[string]interface{}{
-				"order_id":				payment.OrderID,	
-				"user_id":				payment.UserID,	
-                "orderInfo":        	payment.OrderInfo,         // Thông tin đơn hàng
-                "transaction_status": 	payment.TransactionStatus, // Trạng thái giao dịch
-                "amount":           	payment.Amount,             // Số tiền thanh toán
+                "order_id":          payment.OrderID,
+                "user_id":           payment.UserID.Hex(),
+                "orderInfo":         payment.OrderInfo,           // Thông tin đơn hàng
+                "transaction_status": payment.TransactionStatus,  // Trạng thái giao dịch
+                "amount":            payment.Amount,              // Số tiền thanh toán
             }
             paymentHistory = append(paymentHistory, paymentDetails)
         }
@@ -211,81 +224,102 @@ func GetPaymentHistoryForAdmin() func(*gin.Context) {
         c.JSON(http.StatusOK, gin.H{
             "payment_history": paymentHistory,
         })
-	}
+    }
 }
 
-// Xem lịch sử thanh toán của một người dùng (dành cho admin)
-func GetPaymentHistoryForUserByAdmin() func(*gin.Context) {
-	return func(c *gin.Context) {
-		// Lấy user_id từ URL
-		userID := c.Param("user_id")
-
-		if userID == "" {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "User ID is required",
-			})
-			return
-		}
-		// Kiểm tra tính hợp lệ của ObjectID
-		_, err := primitive.ObjectIDFromHex(userID)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid user ID",
-			})
-			return
-		}
-
-		// Kết nối tới cơ sở dữ liệu MongoDB
-		collection := config.DB.Collection("OrderMoMo")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		// Tìm lịch sử thanh toán của người dùng theo userID
-		cursor, err := collection.Find(ctx, bson.M{"user_id": userID})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Error fetching payment history
-			})
-			return
-		}
-		defer cursor.Close(ctx)
-
-		// Lưu các đơn hàng thanh toán
-		var payments []models.Order
-		for cursor.Next(ctx) {
-			var payment models.Order
-			if err := cursor.Decode(&payment); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": "Internal Server Error", //Error decoding payment data
-				})
-				return
-			}
-			payments = append(payments, payment)
-		}
-
-		if err := cursor.Err(); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Error reading from cursor
-			})
-			return
-		}
-
-		// Nếu không có lịch sử thanh toán nào
-		if len(payments) == 0 {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "No payment history found for this user",
-			})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"payment_history": payments,
-		})
-	}
+type GetPaymentHistoryResponse struct {
+	PaymentHistory []map[string]interface{} `json:"payment_history"`
 }
 
-// Ban account 
-func BanAccount() func(*gin.Context) {
+// GetPaymentHistoryForUserByAdmin godoc
+// @Summary Retrieve payment history for a specific user (admin access only)
+// @Description Retrieves the payment history of a specific user based on the provided user ID. This endpoint is restricted to admin access only and returns a list of payment transactions associated with the user.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param user_id path string true "User ID" 
+// @Success 200 {object} GetPaymentHistoryResponse "List of payment transactions for the user"
+// @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing parameters"
+// @Failure 404 {object} models.ErrorResponse "No payment history found for this user"
+// @Failure 500 {object} models.ErrorResponse "Internal server error during payment history retrieval"
+// @Router /api/v1/admin/payment-history/{user_id} [get]
+func GetPaymentHistoryForUserByAdmin(repo repository.PaymentRepository) func(*gin.Context) {
+    return func(c *gin.Context) {
+        // Lấy user_id từ URL
+        userID := c.Param("user_id")
+        if userID == "" {
+            c.JSON(http.StatusBadRequest, gin.H{
+                "error": "User ID is required",
+            })
+            return
+        }
+
+        // Kiểm tra tính hợp lệ của ObjectID
+        // objectID, err := primitive.ObjectIDFromHex(userID)
+        // if err != nil {
+        //     c.JSON(http.StatusBadRequest, gin.H{
+        //         "error": "Invalid user ID",
+        //     })
+        //     return
+        // }
+
+        // Lấy lịch sử thanh toán từ repository thay vì MongoDB trực tiếp
+        ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
+
+        payments, err := repo.FindPayments(ctx, bson.M{"user_id": userID})
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{
+                "error": "Internal Server Error", // Error fetching payment history
+            })
+            return
+        }
+
+        if len(payments) == 0 {
+            c.JSON(http.StatusOK, gin.H{
+                "message": "No payment history found for this user",
+            })
+            return
+        }
+
+        // Trả về danh sách các lịch sử thanh toán
+        var paymentHistory []map[string]interface{}
+        for _, payment := range payments {
+            paymentDetails := map[string]interface{}{
+                "order_id":          	payment.OrderID,
+                //"user_id":           payment.UserID.Hex(),
+                "orderInfo":        	payment.OrderInfo,           // Thông tin đơn hàng
+                "transaction_status": 	payment.TransactionStatus,  // Trạng thái giao dịch
+                "amount":            	payment.Amount,              // Số tiền thanh toán
+				"vip_level":			payment.VipLevel,
+				"payment_url":			payment.PaymentURL,
+				"created_at":			payment.PaymentURL,	
+				"updated_at":			payment.UpdatedAt,
+            }
+            paymentHistory = append(paymentHistory, paymentDetails)
+        }
+
+        c.JSON(http.StatusOK, gin.H{
+            "payment_history": paymentHistory,
+        })
+    }
+}
+
+// BanAccount godoc
+// @Summary Ban a user account
+// @Description Ban a user account by setting the account status to inactive. Admin can use this to ban a user account.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param user_id path string true "User ID"
+// @Success 200 {object} models.MessageResponse "Account banned successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing user ID"
+// @Failure 404 {object} models.ErrorResponse "User not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error while banning account"
+// @Router /api/v1/admin/user/{user_id}/ban [put] 
+func BanAccount(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
 		userID := c.Param("user_id") // Lấy user_id từ URL
 		if userID == "" {
@@ -294,6 +328,7 @@ func BanAccount() func(*gin.Context) {
 			})
 			return
 		}
+
 		// Kiểm tra tính hợp lệ của ObjectID
 		_, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
@@ -303,12 +338,7 @@ func BanAccount() func(*gin.Context) {
 			return
 		}
 
-		// Kết nối đến database
-		collection := config.DB.Collection("User")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		// Tìm kiếm người dùng theo ObjectID
+		// Chuyển đổi userID thành ObjectID
 		objID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -317,22 +347,34 @@ func BanAccount() func(*gin.Context) {
 			return
 		}
 
-		// Lưu email mới vào cơ sở dữ liệu
+		// Tìm người dùng trong cơ sở dữ liệu
+		userResult := userRepo.FindOne(c, bson.M{"_id": objID})
+		var user models.User
+		if err := userResult.Decode(&user); err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
+			return
+		}
+
+		// Cập nhật trạng thái tài khoản là đã bị cấm
 		update := bson.M{
 			"$set": bson.M{
-				"is_active": false,
+				"is_active":  false,
 				"updated_at": time.Now(),
 			},
 		}
 
-		result, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
+		// Sử dụng repository để cập nhật trạng thái tài khoản
+		updateResult, err := userRepo.UpdateOne(c, bson.M{"_id": objID}, update)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error", //Failed to update account status
+				"error": "Failed to ban account", // Thất bại khi cập nhật trạng thái tài khoản
 			})
 			return
 		}
-		if result.MatchedCount == 0 {
+
+		if updateResult.MatchedCount == 0 {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "User not found",
 			})
@@ -346,8 +388,20 @@ func BanAccount() func(*gin.Context) {
 	}
 }
 
-// Ban account 
-func ActiveAccount() func(*gin.Context) {
+// ActiveAccount godoc
+// @Summary Activate a user account
+// @Description Activate a user account by setting the account status to active. Admin can use this to activate a banned account.
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Authorization token"
+// @Param user_id path string true "User ID"
+// @Success 200 {object} models.MessageResponse "Account activated successfully"
+// @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing user ID"
+// @Failure 404 {object} models.ErrorResponse "User not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error while activating account"
+// @Router /api/v1/admin/user/{user_id}/active [put] 
+func ActiveAccount(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
 		userID := c.Param("user_id") // Lấy user_id từ URL
 		if userID == "" {
@@ -356,6 +410,7 @@ func ActiveAccount() func(*gin.Context) {
 			})
 			return
 		}
+
 		// Kiểm tra tính hợp lệ của ObjectID
 		_, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
@@ -365,12 +420,7 @@ func ActiveAccount() func(*gin.Context) {
 			return
 		}
 
-		// Kết nối đến database
-		collection := config.DB.Collection("User")
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		// Tìm kiếm người dùng theo ObjectID
+		// Chuyển đổi userID thành ObjectID
 		objID, err := primitive.ObjectIDFromHex(userID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -379,22 +429,34 @@ func ActiveAccount() func(*gin.Context) {
 			return
 		}
 
-		// Lưu email mới vào cơ sở dữ liệu
+		// Tìm người dùng trong cơ sở dữ liệu
+		userResult := userRepo.FindOne(c, bson.M{"_id": objID})
+		var user models.User
+		if err := userResult.Decode(&user); err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
+			return
+		}
+
+		// Cập nhật trạng thái tài khoản là đã bị cấm
 		update := bson.M{
 			"$set": bson.M{
-				"is_active": true,
+				"is_active":  true,
 				"updated_at": time.Now(),
 			},
 		}
 
-		result, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
+		// Sử dụng repository để cập nhật trạng thái tài khoản
+		updateResult, err := userRepo.UpdateOne(c, bson.M{"_id": objID}, update)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
+				"error": "Failed to active account", // Thất bại khi cập nhật trạng thái tài khoản
 			})
 			return
 		}
-		if result.MatchedCount == 0 {
+
+		if updateResult.MatchedCount == 0 {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "User not found",
 			})
