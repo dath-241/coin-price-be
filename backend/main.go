@@ -16,10 +16,25 @@ import (
 	adminUtils "github.com/dath-241/coin-price-be-go/services/admin_service/utils"
 	adminConfig "github.com/dath-241/coin-price-be-go/services/admin_service/config"
 	adminMomo "github.com/dath-241/coin-price-be-go/services/admin_service/momo"
+	"github.com/swaggo/gin-swagger"
+    "github.com/swaggo/files"
+	_ "github.com/dath-241/coin-price-be-go/docs"
 
 	"github.com/joho/godotenv"
 )
 
+
+
+// @title Coin-Price
+// @version 1.0 
+// @description This is a sample server. 
+// @termsOfService http://swagger.io/terms/ 
+// @contact.name API Support 
+// @contact.url http://www.swagger.io/support 
+// @contact.email support@swagger.io 
+// @license.name Apache 2.0 
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html 
+// @host localhost:8080
 func main() {
 	server := gin.Default()
 
@@ -60,6 +75,7 @@ func main() {
 
 	// Bắt đầu routine dọn dẹp token hết hạn
 	adminUtils.StartCleanupRoutine(1 * time.Minute)
+	server.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	adminRoutes.SetupRouter(server)
 
 	// Gọi hàm init trong package momo để khởi tạo các giá trị cần thiết
