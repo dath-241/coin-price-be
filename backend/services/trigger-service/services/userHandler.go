@@ -25,7 +25,9 @@ import (
 // @Param body body models.User true "User details"
 // @Success 201 {object} models.ResponseUserCreated "User created successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body or missing email"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to create user"
+// @Security ApiKeyAuth
 // @Router /api/v1/users [post]
 func CreateUser(c *gin.Context) {
 	var newUser models.User
@@ -71,7 +73,9 @@ func CreateUser(c *gin.Context) {
 // @Param Authorization header string true "Bearer Token"
 // @Param id path string true "User ID"
 // @Success 200 {object} models.ResponseUserAlerts "List of user alerts"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve alerts"
+// @Security ApiKeyAuth
 // @Router /api/v1/users/{id}/alerts [get]
 func GetUserAlerts(c *gin.Context) {
 	// Get user ID from URL parameter
@@ -97,7 +101,9 @@ func GetUserAlerts(c *gin.Context) {
 // @Param Authorization header string true "Bearer Token"
 // @Param id path string true "User ID"
 // @Success 200 {object} models.ResponseNotificationSent "Notification sent successfully"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to send notification"
+// @Security ApiKeyAuth
 // @Router /api/v1/users/{id}/alerts/notify [post]
 func NotifyUser(c *gin.Context) {
 	userID := c.Param("id")

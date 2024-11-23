@@ -19,7 +19,9 @@ import (
 // @Param body body models.Indicator true "Indicator alert details"
 // @Success 201 {object} models.ResponseIndicatorCreated "Indicator alert created successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body or invalid indicator type"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to create indicator alert"
+// @Security ApiKeyAuth
 // @Router /api/v1/vip3/indicators [post]
 // PostIndicator creates a new advanced indicator alert
 func SetAdvancedIndicatorAlert(c *gin.Context) {

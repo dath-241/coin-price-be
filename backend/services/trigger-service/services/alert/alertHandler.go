@@ -87,7 +87,9 @@ func CreateAlert(c *gin.Context) {
 // @Param Authorization header string true "Bearer Token"
 // @Param type query string false "Filter by alert type (e.g., new_listing, delisting)"
 // @Success 200 {array} models.ResponseAlertList "List of alerts"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve alerts"
+// @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts [get]
 func GetAlerts(c *gin.Context) {
 
@@ -127,7 +129,9 @@ func GetAlerts(c *gin.Context) {
 // @Param id path string true "Alert ID"
 // @Success 200 {object} models.ResponseAlertDetail "Alert details"
 // @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 404 {object} models.ErrorResponse "Alert not found"
+// @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/{id} [get]
 func GetAlert(c *gin.Context) {
 
@@ -160,7 +164,9 @@ func GetAlert(c *gin.Context) {
 // @Param id path string true "Alert ID"
 // @Success 200 {object} models.ResponseAlertDeleted "Alert deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 404 {object} models.ErrorResponse "Alert not found"
+// @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/{id} [delete]
 func DeleteAlert(c *gin.Context) {
 
@@ -191,7 +197,9 @@ func DeleteAlert(c *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Bearer Token"
 // @Success 200 {object} models.ResponseNewDelistedSymbols "List of new and delisted symbols"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve symbols"
+// @Security ApiKeyAuth
 // @Router /api/v1/vip2/symbols-alerts [get]
 func GetSymbolAlerts(c *gin.Context) {
 
@@ -227,7 +235,9 @@ func GetSymbolAlerts(c *gin.Context) {
 // @Param body body models.Alert true "Alert details"
 // @Success 201 {object} models.ResponseSetSymbolAlert "Successfully created alert for symbol"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to create alert for symbol"
+// @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/symbol [post]
 func SetSymbolAlert(c *gin.Context) {
 
