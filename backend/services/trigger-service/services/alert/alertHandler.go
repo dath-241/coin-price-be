@@ -20,10 +20,13 @@ import (
 // @Tags Alerts
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param body body models.Alert true "Alert details"
 // @Success 201 {object} models.ResponseAlertCreated "Successfully created alert"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body"
+// @Failure 401 {object} models.ErrorResponse "Unauthorized"
 // @Failure 500 {object} models.ErrorResponse "Failed to create alert"
+// @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts [post]
 func CreateAlert(c *gin.Context) {
 
@@ -81,6 +84,7 @@ func CreateAlert(c *gin.Context) {
 // @Tags Alerts
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param type query string false "Filter by alert type (e.g., new_listing, delisting)"
 // @Success 200 {array} models.ResponseAlertList "List of alerts"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve alerts"
@@ -119,6 +123,7 @@ func GetAlerts(c *gin.Context) {
 // @Tags Alerts
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param id path string true "Alert ID"
 // @Success 200 {object} models.ResponseAlertDetail "Alert details"
 // @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
@@ -151,6 +156,7 @@ func GetAlert(c *gin.Context) {
 // @Tags Alerts
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param id path string true "Alert ID"
 // @Success 200 {object} models.ResponseAlertDeleted "Alert deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid alert ID"
@@ -178,12 +184,12 @@ func DeleteAlert(c *gin.Context) {
 }
 
 // Handler to retrieve new and delisted symbols
-// Handler to retrieve new and delisted symbols
 // @Summary Get new and delisted symbols
 // @Description Retrieve new and delisted symbols from Binance
 // @Tags Alerts
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Success 200 {object} models.ResponseNewDelistedSymbols "List of new and delisted symbols"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve symbols"
 // @Router /api/v1/vip2/symbols-alerts [get]
@@ -217,6 +223,7 @@ func GetSymbolAlerts(c *gin.Context) {
 // @Tags Alerts
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param body body models.Alert true "Alert details"
 // @Success 201 {object} models.ResponseSetSymbolAlert "Successfully created alert for symbol"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body"

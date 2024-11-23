@@ -21,6 +21,7 @@ import (
 // @Tags Users
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param body body models.User true "User details"
 // @Success 201 {object} models.ResponseUserCreated "User created successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body or missing email"
@@ -67,6 +68,7 @@ func CreateUser(c *gin.Context) {
 // @Tags Users
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param id path string true "User ID"
 // @Success 200 {object} models.ResponseUserAlerts "List of user alerts"
 // @Failure 500 {object} models.ErrorResponse "Failed to retrieve alerts"
@@ -92,6 +94,7 @@ func GetUserAlerts(c *gin.Context) {
 // @Tags Users
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param id path string true "User ID"
 // @Success 200 {object} models.ResponseNotificationSent "Notification sent successfully"
 // @Failure 500 {object} models.ErrorResponse "Failed to send notification"

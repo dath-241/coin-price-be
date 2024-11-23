@@ -53,6 +53,5 @@ func SetupRoute(route *gin.Engine) {
 	{
 		users.GET("/:id/alerts", servicesU.GetUserAlerts)
 		users.POST("/:id/alerts/notify", servicesU.NotifyUser)
-		users.POST("/", servicesU.CreateUser)
 	}
 }

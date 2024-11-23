@@ -15,6 +15,7 @@ import (
 // @Tags Indicators
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer Token"
 // @Param body body models.Indicator true "Indicator alert details"
 // @Success 201 {object} models.ResponseIndicatorCreated "Indicator alert created successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body or invalid indicator type"
