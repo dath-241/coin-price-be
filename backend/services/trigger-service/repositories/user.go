@@ -5,27 +5,41 @@ import (
 	"fmt"
 	"time"
 
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/user"
-	alert "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
-	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
+	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
+	alert "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func GetUserByID(userID string) (models.User, error) {
-	var user models.User
+	// Lấy collection từ database
+	collection := config.DB.Collection("User")
+
+	// Thiết lập timeout cho context
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Tìm kiếm người dùng trong MongoDB theo ID
-	err := utils.AlertCollection.FindOne(ctx, bson.M{"id": userID}).Decode(&user)
+	// Tạo biến lưu trữ kết quả người dùng
+	var user models.User
+
+	// Chuyển đổi userID từ string sang ObjectID
+	objID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return models.User{}, nil // Trả về nil nếu không tìm thấy người dùng
-		}
-		return models.User{}, err
+		return models.User{}, fmt.Errorf("invalid user ID format: %v", err)
 	}
 
+	// Tìm kiếm người dùng theo ObjectID
+	err = collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return models.User{}, nil // Không tìm thấy người dùng
+		}
+		return models.User{}, fmt.Errorf("error fetching user: %v", err)
+	}
+
+	// Trả về thông tin người dùng và không có lỗi
 	return user, nil
 }
 
@@ -38,7 +52,7 @@ func GetUserAlerts(userID string) ([]alert.Alert, error) {
 	var alerts []alert.Alert
 
 	// Truy vấn dữ liệu từ MongoDB
-	cursor, err := utils.AlertCollection.Find(context.Background(), filter)
+	cursor, err := config.AlertCollection.Find(context.Background(), filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find alerts: %v", err)
 	}

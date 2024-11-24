@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 )
 
 // fetchSymbolsFromBinance fetches symbols from Binance's API
@@ -170,13 +170,11 @@ func GetPriceDifference(symbol string) (float64, error) {
 		return 0, fmt.Errorf("error fetching spot price: %v", err)
 	}
 
-	
 	futurePrice, err := GetFuturePrice(symbol)
 	if err != nil {
 		return 0, fmt.Errorf("error fetching future price: %v", err)
 	}
 
-	
 	priceDifference := futurePrice - spotPrice
 
 	log.Printf("Price difference between Spot and Future for %s: %.2f", symbol, priceDifference)

@@ -6,19 +6,20 @@ import (
 	"fmt"
 	"log"
 
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models/alert"
+	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
+	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	noify "github.com/dath-241/coin-price-be-go/services/trigger-service/services"
 	services "github.com/dath-241/coin-price-be-go/services/trigger-service/services/alert"
-	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"time"
 )
+
 func CheckFundingRateInterval(alert *models.Alert) bool {
 	log.Println("Checking funding rate interval...")
 	if alert.Type == "funding_rate_interval" {
-		
+
 		currentInterval, err := services.GetFundingRateInterval(alert.Symbol)
 		log.Println("Current funding rate interval:", currentInterval)
 		if err != nil {
@@ -46,8 +47,14 @@ func CheckPriceCondition(alert *models.Alert) bool {
 		Price, err = services.GetFundingRate(alert.Symbol)
 	} else if alert.Type == "price_difference" {
 		Price, err = services.GetPriceDifference(alert.Symbol)
-	} 
-
+	}
+	alert.Price = Price
+	SaveAlertNonTime(alert)
+	if alert.Minrange != 0 && alert.Maxrange != 0 {
+		if Price < alert.Minrange || Price > alert.Maxrange {
+			return true
+		}
+	}
 	if err != nil {
 		log.Printf("Error fetching price: %v", err)
 		return false
@@ -98,6 +105,7 @@ func CheckNewListingAndDelisting(alert *models.Alert) bool {
 }
 
 func FetchAlerts(alertID string) ([]models.Alert, error) {
+
 	var results []models.Alert
 
 	filter := bson.M{}
@@ -112,7 +120,7 @@ func FetchAlerts(alertID string) ([]models.Alert, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := utils.AlertCollection.Find(ctx, filter)
+	cursor, err := config.AlertCollection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +165,7 @@ func CheckSnoozeCondition(alert *models.Alert) bool {
 			return false
 		}
 	case "At Specific Time":
-		start := alert.NextTriggerTime	
+		start := alert.NextTriggerTime
 		if currentTime.Before(start) || currentTime.After(start) {
 			if currentTime.Before(start) {
 				log.Println("Chưa đến thời gian gửi", alert.ID.Hex())
@@ -197,13 +205,28 @@ func UpdateAlertAfterTrigger(alert *models.Alert) {
 
 	SaveAlert(alert)
 }
+func UpdateMessageAfterTrigger(alert *models.Alert) {
+	switch alert.Type {
+	case "spot":
+		alert.Message = fmt.Sprintf("Spot price of %s is now %.2f", alert.Symbol, alert.Price)
+	case "future":
+		alert.Message = fmt.Sprintf("Future price of %s is now %.2f", alert.Symbol, alert.Price)
+	case "funding_rate":
+		alert.Message = fmt.Sprintf("Funding rate of %s is now %.2f", alert.Symbol, alert.Price)
+	case "price_difference":
+		alert.Message = fmt.Sprintf("Price difference between Spot and Future for %s is now %.2f", alert.Symbol, alert.Price)
+	case "funding_rate_interval":
+		alert.Message = fmt.Sprintf("Funding rate interval of %s is now %s", alert.Symbol, alert.LastInterval)
 
+	}
+	SaveAlert(alert)
+}
 func CheckAndSendAlerts() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	filter := bson.M{"is_active": true}
-	cursor, err := utils.AlertCollection.Find(ctx, filter)
+	cursor, err := config.AlertCollection.Find(ctx, filter)
 	if err != nil {
 		log.Println("Failed to fetch alerts:", err)
 		return
@@ -217,7 +240,7 @@ func CheckAndSendAlerts() {
 
 	for _, alert := range alerts {
 		conditionMet := false
-		if (alert.Type == "spot" || alert.Type == "future" || alert.Type == "funding_rate"|| alert.Type == "price_difference") && CheckPriceCondition(&alert) && checkRepeatCount(&alert) {
+		if (alert.Type == "spot" || alert.Type == "future" || alert.Type == "funding_rate" || alert.Type == "price_difference") && CheckPriceCondition(&alert) && checkRepeatCount(&alert) {
 			conditionMet = true
 		} else if (alert.Type == "new_listing" || alert.Type == "delisting") && CheckNewListingAndDelisting(&alert) && checkRepeatCount(&alert) {
 			conditionMet = true
@@ -227,6 +250,7 @@ func CheckAndSendAlerts() {
 
 		if conditionMet {
 			if CheckSnoozeCondition(&alert) {
+				UpdateMessageAfterTrigger(&alert)
 				noify.NotifyUserTriggers(alert.UserID)
 				log.Println("Đã gửi thông báo!!!:", alert.ID.Hex(), alert.Type, alert.Symbol)
 				UpdateAlertAfterTrigger(&alert)
@@ -258,15 +282,40 @@ func SaveAlert(alert *models.Alert) error {
 
 	filter := bson.M{"_id": alert.ID}
 	update := bson.M{"$set": alert}
-	result, err := utils.AlertCollection.UpdateOne(ctx, filter, update)
+	result, err := config.AlertCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return errors.New("failed to save or update alert: " + err.Error())
 	}
 
 	if result.MatchedCount == 0 {
-		_, err = utils.AlertCollection.InsertOne(ctx, alert)
+		_, err = config.AlertCollection.InsertOne(ctx, alert)
 		if err != nil {
 			return errors.New("failed to insert new alert: " + err.Error())
+		}
+	}
+
+	return nil
+}
+
+func SaveAlertNonTime(alert *models.Alert) error {
+	// Tạo context với timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Tạo filter và update
+	filter := bson.M{"_id": alert.ID}
+	update := bson.M{"$set": alert}
+
+	// Cập nhật tài liệu (nếu đã tồn tại)
+	result, err := config.AlertCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to save or update alert: %v", err)
+	}
+
+	if result.MatchedCount == 0 {
+		_, err := config.AlertCollection.InsertOne(ctx, alert)
+		if err != nil {
+			return fmt.Errorf("failed to insert new alert: %v", err)
 		}
 	}
 

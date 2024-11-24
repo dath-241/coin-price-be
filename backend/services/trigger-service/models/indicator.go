@@ -1,4 +1,4 @@
-package indicator
+package models
 
 type Indicator struct {
 	ID                 string `bson:"_id,omitempty" json:"id"`

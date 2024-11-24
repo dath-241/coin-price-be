@@ -12,16 +12,20 @@ import (
 )
 
 var (
-	DB     *mongo.Database
-	client *mongo.Client // Lưu trữ client để quản lý kết nối
+	DB                  *mongo.Database
+	client              *mongo.Client // Lưu trữ client để quản lý kết nối
+	AlertCollection     *mongo.Collection
+	IndicatorCollection *mongo.Collection
+	TodosCollection     *mongo.Collection
+	TodosTestCollection *mongo.Collection
 )
 
 // ConnectDatabase kết nối đến MongoDB và trả về database
 func ConnectDatabase() error {
+
 	// Lấy giá trị từ các biến môi trường
 	mongoURI := os.Getenv("MONGO_URI")
 	dbName := os.Getenv("MONGO_DB_NAME")
-	//os.Getenv("")
 
 	if mongoURI == "" || dbName == "" {
 		log.Fatal("Required environment variables are missing!")
@@ -45,6 +49,24 @@ func ConnectDatabase() error {
 	}
 
 	DB = client.Database(dbName)
+	AlertCollection = DB.Collection("alerts")
+	IndicatorCollection = DB.Collection("indicators")
+	TodosCollection = DB.Collection("Todos")
+	TodosTestCollection = DB.Collection("TodosTest")
+
+	log.Println("Collections initialized successfully:")
+	if AlertCollection != nil {
+		log.Println("- AlertCollection")
+	}
+	if IndicatorCollection != nil {
+		log.Println("- IndicatorCollection")
+	}
+	if TodosCollection != nil {
+		log.Println("- TodosCollection")
+	}
+	if TodosTestCollection != nil {
+		log.Println("- TodosTestCollection")
+	}
 
 	log.Println("Connected to MongoDB!")
 	return nil
