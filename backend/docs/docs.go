@@ -15,70 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/users": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create a new user with the given details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Create a user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer Token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "User details",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "User created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/models.ResponseUserCreated"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request body or missing email",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to create user",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/users/{id}/alerts": {
             "get": {
                 "security": [
@@ -670,26 +606,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_dath-241_coin-price-be-go_services_trigger-service_models.User": {
-            "type": "object",
-            "properties": {
-                "alerts": {
-                    "description": "Danh sách các cảnh báo của người dùng",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Alert"
-                    }
-                },
-                "email": {
-                    "description": "Email của người dùng",
-                    "type": "string"
-                },
-                "id": {
-                    "description": "ID của người dùng",
-                    "type": "string"
-                }
-            }
-        },
         "models.Alert": {
             "type": "object",
             "properties": {
@@ -983,19 +899,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Alert"
                     }
-                }
-            }
-        },
-        "models.ResponseUserCreated": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "User created successfully"
-                },
-                "user_id": {
-                    "type": "string",
-                    "example": "647f1f77bcf86cd799439011"
                 }
             }
         }
