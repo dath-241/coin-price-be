@@ -1,67 +1,15 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
-	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
+	_ "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/repositories"
 	"github.com/dath-241/coin-price-be-go/services/trigger-service/utils"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-// CreateUser handles the creation of a new user.
-// @Summary Create a user
-// @Description Create a new user with the given details
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param Authorization header string true "Bearer Token"
-// @Param body body models.User true "User details"
-// @Success 201 {object} models.ResponseUserCreated "User created successfully"
-// @Failure 400 {object} models.ErrorResponse "Invalid request body or missing email"
-// @Failure 401 {object} models.ErrorResponse "Unauthorized"
-// @Failure 500 {object} models.ErrorResponse "Failed to create user"
-// @Security ApiKeyAuth
-// @Router /api/v1/users [post]
-func CreateUser(c *gin.Context) {
-	var newUser models.User
-	if err := c.ShouldBindJSON(&newUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-		return
-	}
-
-	if newUser.Email == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email is required"})
-		return
-	}
-
-	// Create a new unique ID for the user
-	newUser.ID = primitive.NewObjectID().Hex()
-	newUser.Alerts = []models.Alert{}
-
-	// Set a timeout context
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	// Insert the new user into the database
-	_, err := config.AlertCollection.InsertOne(ctx, newUser)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		return
-	}
-
-	// Return a success response with the new user ID
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "User created successfully",
-		"user_id": newUser.ID,
-	})
-}
 
 // GetUserAlerts retrieves all alerts for a user by their ID.
 // GetUserAlerts retrieves all alerts for a user by their ID.
