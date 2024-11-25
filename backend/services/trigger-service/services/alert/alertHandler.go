@@ -127,6 +127,7 @@ func CreateAlert(c *gin.Context) {
 	})
 }
 
+
 // Handler to retrieve all alerts
 // @Summary Get all alerts
 // @Description Retrieve all alerts, optionally filter by type
@@ -141,7 +142,26 @@ func CreateAlert(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts [get]
 func GetAlerts(c *gin.Context) {
+	// Lấy token từ header Authorization
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		return
+	}
 
+	// Xác thực token
+	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// Lấy userID từ claims trong token
+	currentUserID := claims.UserID
+	if currentUserID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		return
+	}
 	var results []models.Alert
 	alertType := c.Query("type")
 
@@ -183,7 +203,26 @@ func GetAlerts(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/{id} [get]
 func GetAlert(c *gin.Context) {
+	// Lấy token từ header Authorization
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		return
+	}
 
+	// Xác thực token
+	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// Lấy userID từ claims trong token
+	currentUserID := claims.UserID
+	if currentUserID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		return
+	}
 	id := c.Param("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -218,7 +257,26 @@ func GetAlert(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/{id} [delete]
 func DeleteAlert(c *gin.Context) {
+	// Lấy token từ header Authorization
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		return
+	}
 
+	// Xác thực token
+	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// Lấy userID từ claims trong token
+	currentUserID := claims.UserID
+	if currentUserID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		return
+	}
 	id := c.Param("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -251,7 +309,26 @@ func DeleteAlert(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/symbols-alerts [get]
 func GetSymbolAlerts(c *gin.Context) {
+	// Lấy token từ header Authorization
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		return
+	}
 
+	// Xác thực token
+	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// Lấy userID từ claims trong token
+	currentUserID := claims.UserID
+	if currentUserID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		return
+	}
 	newSymbols, delistedSymbols, err := FetchSymbolsFromBinance()
 	if err != nil {
 		log.Printf("Error fetching symbol data: %v", err)
@@ -289,12 +366,13 @@ func GetSymbolAlerts(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/symbol [post]
 func SetSymbolAlert(c *gin.Context) {
-
+	
 	var newAlert models.Alert
 	if err := c.ShouldBindJSON(&newAlert); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
+	
 
 	// if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
 	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})

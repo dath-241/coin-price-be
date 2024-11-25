@@ -45,14 +45,35 @@ func GetUserByID(userID string) (models.User, error) {
 
 // Lấy danh sách cảnh báo của người dùng từ MongoDB
 func GetUserAlerts(userID string) ([]alert.Alert, error) {
-	// Tạo bộ lọc để tìm các cảnh báo của người dùng
-	filter := bson.M{"user_id": userID}
+	// Lấy thông tin user từ MongoDB
+	user, err := GetUserByID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find user or decode: %v", err)
+	}
+
+	// Nếu user không có alerts, trả về slice rỗng
+	if len(user.Alerts) == 0 {
+		return []alert.Alert{}, nil
+	}
+
+	// Chuyển đổi các alert IDs từ string sang ObjectID
+	var alertObjectIDs []primitive.ObjectID
+	for _, alertID := range user.Alerts {
+		objID, err := primitive.ObjectIDFromHex(alertID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid alert ID format: %v", err)
+		}
+		alertObjectIDs = append(alertObjectIDs, objID)
+	}
+
+	// Tạo bộ lọc để tìm các alerts trong collection Alert
+	alertFilter := bson.M{"_id": bson.M{"$in": alertObjectIDs}}
 
 	// Tạo một slice để lưu các kết quả
 	var alerts []alert.Alert
 
 	// Truy vấn dữ liệu từ MongoDB
-	cursor, err := config.AlertCollection.Find(context.Background(), filter)
+	cursor, err := config.AlertCollection.Find(context.Background(), alertFilter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find alerts: %v", err)
 	}

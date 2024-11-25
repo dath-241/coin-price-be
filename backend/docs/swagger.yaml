@@ -229,6 +229,7 @@ definitions:
         type: string
     type: object
   models.Alert:
+
     properties:
       alert_id:
         type: string
@@ -302,6 +303,7 @@ definitions:
       user_id:
         description: ID của người dùng đặt cảnh báo
         type: string
+
     type: object
   models.ErrorResponseDataInternalServerError:
     properties:
