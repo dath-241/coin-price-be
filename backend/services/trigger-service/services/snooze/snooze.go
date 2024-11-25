@@ -51,8 +51,22 @@ func CheckPriceCondition(alert *models.Alert) bool {
 	alert.Price = Price
 	SaveAlertNonTime(alert)
 	if alert.Minrange != 0 && alert.Maxrange != 0 {
-		if Price < alert.Minrange || Price > alert.Maxrange {
-			return true
+		if alert.Minrange > alert.Maxrange {
+			log.Printf("Invalid range: Minrange (%v) is greater than Maxrange (%v)", alert.Minrange, alert.Maxrange)
+			return false
+		}
+
+		switch alert.Condition {
+		case ">=":
+			if Price < alert.Minrange || Price > alert.Maxrange {
+				return true
+			}
+		case "<=":
+			if Price >= alert.Minrange && Price <= alert.Maxrange {
+				return true
+			}
+		default:
+			log.Printf("Unknown condition for range: %v", alert.Condition)
 		}
 	}
 	if err != nil {

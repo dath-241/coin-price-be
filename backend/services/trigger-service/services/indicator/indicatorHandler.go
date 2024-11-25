@@ -31,7 +31,7 @@ func SetAdvancedIndicatorAlert(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-
+	
 	if newIndicator.Indicator != "EMA" && newIndicator.Indicator != "BollingerBands" && newIndicator.Indicator != "Custom" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid indicator type"})
 		return

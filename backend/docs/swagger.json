@@ -49,7 +49,7 @@
                     "500": {
                         "description": "Internal server error while fetching payment history",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -94,19 +94,19 @@
                     "400": {
                         "description": "Invalid user ID or missing parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "No payment history found for this user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error during payment history retrieval",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -151,19 +151,19 @@
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error while fetching user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -206,19 +206,19 @@
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error while deleting user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -263,19 +263,19 @@
                     "400": {
                         "description": "Invalid user ID or missing user ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error while activating account",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -320,19 +320,19 @@
                     "400": {
                         "description": "Invalid user ID or missing user ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error while banning account",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -373,7 +373,7 @@
                     "500": {
                         "description": "Internal server error while fetching users",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -408,19 +408,19 @@
                     "200": {
                         "description": "MoMo callback success response",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid JSON payload",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Invalid signature",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -460,19 +460,19 @@
                     "400": {
                         "description": "Invalid order ID or missing parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Order not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error during payment confirmation",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -519,19 +519,19 @@
                     "400": {
                         "description": "Invalid request data or missing parameters",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized: Invalid or missing authorization token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error during payment creation",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -574,25 +574,25 @@
                     "400": {
                         "description": "Bad Request: Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized: invalid token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found: User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error: Failed to fetch user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -643,25 +643,25 @@
                     "400": {
                         "description": "Bad Request: Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized: Authorization header required or invalid token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found: User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error: Failed to update user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -698,25 +698,25 @@
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized or token is invalid",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Failed to delete user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -764,25 +764,25 @@
                     "400": {
                         "description": "Invalid email format",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized or token is invalid",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Email already exists",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -835,25 +835,25 @@
                     "400": {
                         "description": "Bad Request: Password must contain at least 8 characters, including letters, numbers, and special characters.",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized: Current password is incorrect",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found: User not found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -900,13 +900,602 @@
                     "401": {
                         "description": "Unauthorized: Invalid or missing token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error: Failed to fetch payment history",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{id}/alerts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve all alerts for a user by their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user alerts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of user alerts",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseUserAlerts"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve alerts",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/{id}/alerts/notify": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Send a notification email to the user for their alerts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Notify user of alerts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification sent successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseNotificationSent"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to send notification",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip2/alerts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve all alerts, optionally filter by type",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Get all alerts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by alert type (e.g., new_listing, delisting)",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of alerts",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ResponseAlertList"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve alerts",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new alert with the given details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Create an alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Alert details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Alert"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created alert",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAlertCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create alert",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip2/alerts/symbol": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Set a new alert for symbols that are newly listed or delisted",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Set an alert for new or delisted symbols",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Alert details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Alert"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created alert for symbol",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseSetSymbolAlert"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create alert for symbol",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip2/alerts/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve an alert by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Get an alert by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Alert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Alert details",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAlertDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid alert ID",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Alert not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete an alert by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Delete an alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Alert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Alert deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAlertDeleted"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid alert ID",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Alert not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip2/start-alert-checker": {
+            "post": {
+                "description": "Starts the alert checker to monitor for alerts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert Running"
+                ],
+                "summary": "Start alert checker",
+                "responses": {
+                    "200": {
+                        "description": "Alert checker started successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAlertCheckerStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip2/stop-alert-checker": {
+            "post": {
+                "description": "Stops the alert checker from monitoring for alerts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alert Running"
+                ],
+                "summary": "Stop alert checker",
+                "responses": {
+                    "200": {
+                        "description": "Alert checker stopped successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseAlertCheckerStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip2/symbols-alerts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve new and delisted symbols from Binance",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Alerts"
+                ],
+                "summary": "Get new and delisted symbols",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of new and delisted symbols",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseNewDelistedSymbols"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve symbols",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip3/indicators": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create an alert with the given indicator type and settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Indicators"
+                ],
+                "summary": "Create an advanced indicator alert",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Indicator alert details",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Indicator"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Indicator alert created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseIndicatorCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body or invalid indicator type",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create indicator alert",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
                         }
                     }
                 }
@@ -946,19 +1535,19 @@
                     "400": {
                         "description": "Invalid request format",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "User not found with this email",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -996,19 +1585,19 @@
                     "401": {
                         "description": "Unauthorized: Invalid Google ID token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden: User account is banned",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error: Failed to create or retrieve user",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -1048,25 +1637,25 @@
                     "400": {
                         "description": "Invalid request body",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized: Incorrect username or password",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden: Account is inactive",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -1109,19 +1698,19 @@
                     "400": {
                         "description": "No token provided or Refresh Token not provided",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Token has been revoked",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Failed to reset cookies or other server error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -1150,13 +1739,13 @@
                     "401": {
                         "description": "Refresh token is missing, invalid, or blacklisted",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error while generating a new access token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -1196,19 +1785,19 @@
                     "400": {
                         "description": "Bad Request: Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict: Email, username, or phone already exists",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error: Database operation failed",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     }
                 }
@@ -1248,19 +1837,115 @@
                     "400": {
                         "description": "Invalid request format or weak password",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Invalid or expired reset token",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/funding-rate": {
+            "get": {
+                "description": "Retrieves current funding rate information for a specified trading pair from Binance Futures",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Funding Rate"
+                ],
+                "summary": "Get real-time funding rate data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"QTUMUSDT\"",
+                        "description": "Trading pair symbol (e.g., QTUMUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with funding rate data",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid symbol or request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataMissing"
+                        }
+                    },
+                    "404": {
+                        "description": "Symbol not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataNotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/vip1/kline": {
+            "get": {
+                "description": "Fetches Kline data for a specific symbol and interval from Binance API",
+                "tags": [
+                    "Kline"
+                ],
+                "summary": "Get Kline data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Symbol for which to fetch Kline data (e.g., BTCUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interval for Kline data (e.g., 1m, 5m, 1h, 1d)",
+                        "name": "interval",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with Kline data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseKline"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing Data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseInputMissing"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
                         }
                     }
                 }
@@ -1563,11 +2248,147 @@
                 }
             }
         },
-        "models.ErrorResponse": {
+        "github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate": {
+            "type": "object",
+            "properties": {
+                "adjustedFundingRateCap": {
+                    "type": "string",
+                    "example": "0.02000000"
+                },
+                "adjustedFundingRateFloor": {
+                    "type": "string",
+                    "example": "-0.02000000"
+                },
+                "eventTime": {
+                    "type": "string",
+                    "example": "2024-11-21 08:12:13"
+                },
+                "fundingCountDown": {
+                    "type": "string",
+                    "example": "06:47:47"
+                },
+                "fundingIntervalHours": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "fundingRate": {
+                    "type": "string",
+                    "example": "0.00010000"
+                },
+                "symbol": {
+                    "type": "string",
+                    "example": "QTUMUSDT"
+                }
+            }
+        },
+        "github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "An error occurred"
+                }
+            }
+        },
+        "models.Alert": {
+            "type": "object"
+        },
+        "models.ErrorResponseDataInternalServerError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Internal server error"
+                }
+            }
+        },
+        "models.ErrorResponseDataMissing": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Invalid symbol or request parameters"
+                }
+            }
+        },
+        "models.ErrorResponseDataNotFound": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Symbol not found"
+                }
+            }
+        },
+        "models.ErrorResponseInputMissing": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Missing data"
+                }
+            }
+        },
+        "models.Indicator": {
+            "type": "object",
+            "required": [
+                "indicator",
+                "notification_method",
+                "period",
+                "symbol"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "indicator": {
+                    "type": "string"
+                },
+                "notification_method": {
+                    "type": "string"
+                },
+                "period": {
+                    "type": "integer"
+                },
+                "symbol": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.KlineDataPoint": {
+            "type": "object",
+            "properties": {
+                "close": {
+                    "type": "number",
+                    "example": 94645.7
+                },
+                "high": {
+                    "type": "number",
+                    "example": 95000
+                },
+                "low": {
+                    "type": "number",
+                    "example": 94200
+                },
+                "open": {
+                    "type": "number",
+                    "example": 94288
+                },
+                "time": {
+                    "type": "string",
+                    "example": "2024-11-21T00:00:00Z"
+                },
+                "volume": {
+                    "type": "number",
+                    "example": 21752.097
                 }
             }
         },
@@ -1602,6 +2423,191 @@
                     "description": "unique",
                     "type": "string",
                     "example": "+84911123456"
+                }
+            }
+        },
+        "models.ResponseAlertCheckerStatus": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "Alert checker started"
+                }
+            }
+        },
+        "models.ResponseAlertCreated": {
+            "type": "object",
+            "properties": {
+                "alert_id": {
+                    "type": "string",
+                    "example": "647f1f77bcf86cd799439011"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Alert created successfully"
+                }
+            }
+        },
+        "models.ResponseAlertDeleted": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Alert deleted successfully"
+                }
+            }
+        },
+        "models.ResponseAlertDetail": {
+            "type": "object",
+            "properties": {
+                "condition": {
+                    "type": "string",
+                    "example": "\u003e="
+                },
+                "createdAt": {
+                    "type": "string",
+                    "example": "2024-11-21T00:00:00Z"
+                },
+                "frequency": {
+                    "type": "string",
+                    "example": "immediate"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "647f1f77bcf86cd799439011"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "maxRepeatCount": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "price": {
+                    "type": "number",
+                    "example": 50000
+                },
+                "range": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "snoozeCondition": {
+                    "type": "string",
+                    "example": "none"
+                },
+                "symbol": {
+                    "type": "string",
+                    "example": "BTCUSDT"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2024-11-21T00:00:00Z"
+                }
+            }
+        },
+        "models.ResponseAlertList": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResponseAlertDetail"
+                    }
+                }
+            }
+        },
+        "models.ResponseIndicatorCreated": {
+            "type": "object",
+            "properties": {
+                "alert_id": {
+                    "description": "ID của indicator alert vừa tạo",
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResponseKline": {
+            "type": "object",
+            "properties": {
+                "eventTime": {
+                    "type": "string",
+                    "example": "2024-11-21 08:37:58"
+                },
+                "interval": {
+                    "type": "string",
+                    "example": "1m"
+                },
+                "kline_data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.KlineDataPoint"
+                    }
+                },
+                "symbol": {
+                    "type": "string",
+                    "example": "BTCUSDT"
+                }
+            }
+        },
+        "models.ResponseNewDelistedSymbols": {
+            "type": "object",
+            "properties": {
+                "delisted_symbols": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[BNBUSDT]"
+                    ]
+                },
+                "new_symbols": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[BTCUSDT",
+                        " ETHUSDT]"
+                    ]
+                }
+            }
+        },
+        "models.ResponseNotificationSent": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "Notification sent"
+                }
+            }
+        },
+        "models.ResponseSetSymbolAlert": {
+            "type": "object",
+            "properties": {
+                "alert_id": {
+                    "type": "string",
+                    "example": "647f1f77bcf86cd799439011"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Alert created successfully"
+                }
+            }
+        },
+        "models.ResponseUserAlerts": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Alert"
+                    }
                 }
             }
         },
@@ -1653,6 +2659,20 @@
                     "description": "unique",
                     "type": "string",
                     "example": "johndoe"
+                }
+            }
+        },
+        "spot_price.SpotPriceResponse": {
+            "type": "object",
+            "properties": {
+                "eventTime": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
                 }
             }
         }
