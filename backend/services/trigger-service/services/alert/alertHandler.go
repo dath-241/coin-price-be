@@ -101,7 +101,6 @@ func CreateAlert(c *gin.Context) {
 		newAlert.Range = []float64{} // Default range
 	}
 
-	
 	if _, err := config.AlertCollection.InsertOne(ctx, newAlert); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save alert"})
 		return
