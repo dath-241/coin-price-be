@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	_ "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"github.com/gin-gonic/gin"
 )
 

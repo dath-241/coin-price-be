@@ -19,7 +19,7 @@ import (
 // @BasePath        /api
 
 func SetupRoute(route *gin.Engine) {
-	route.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	route.GET("/swagger/trigger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	alerts := route.Group("/api/v1/vip2")
 	{
 		alerts.Use(middlewares.AuthMiddleware("VIP-2", "VIP-3"))
