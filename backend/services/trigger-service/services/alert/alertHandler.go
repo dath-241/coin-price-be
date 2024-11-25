@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"time"
 
+	modelsAD "github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
-	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
+	middlewares "github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 )
 
 // Handler to create an alert
