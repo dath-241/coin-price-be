@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	config "github.com/dath-241/coin-price-be-go/services/admin_service/config"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 )
 
 // Handler to create an alert
@@ -29,7 +30,6 @@ import (
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts [post]
 func CreateAlert(c *gin.Context) {
-
 	var newAlert models.Alert
 	if err := c.ShouldBindJSON(&newAlert); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
@@ -38,9 +38,53 @@ func CreateAlert(c *gin.Context) {
 
 	// Validate required fields
 	// if newAlert.Symbol == "" || newAlert.Price == 0 || (newAlert.Condition != ">=" && newAlert.Condition != "<=" && newAlert.Condition != "==") {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
-	// 	return
+	//     c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
+	//     return
 	// }
+
+	// Lấy token từ header Authorization
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		return
+	}
+
+	// Xác thực token
+	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+
+	// Lấy userID từ claims trong token
+	currentUserID := claims.UserID
+	if currentUserID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		return
+	}
+
+	// Chuyển user_id thành ObjectID
+	objID, err := primitive.ObjectIDFromHex(currentUserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Kiểm tra số lượng alert hiện tại
+	collection := config.DB.Collection("User")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var user modelsAD.User
+	if err := collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if len(user.Alerts) >= 5 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Maximum alert limit reached"})
+		return
+	}
 
 	// Add default or new values for additional fields
 	newAlert.ID = primitive.NewObjectID()
@@ -49,26 +93,31 @@ func CreateAlert(c *gin.Context) {
 	newAlert.CreatedAt = currentTime
 	newAlert.UpdatedAt = currentTime
 
-	// Add default values for new fields
 	if newAlert.Frequency == "" {
-		newAlert.Frequency = "immediate" // Set default frequency if not provided
+		newAlert.Frequency = "immediate" // Default frequency
 	}
 	if newAlert.MaxRepeatCount == 0 {
-		newAlert.MaxRepeatCount = 5 // Set default max repeat count if not provided
+		newAlert.MaxRepeatCount = 5 // Default max repeat count
 	}
 	if newAlert.SnoozeCondition == "" {
-		newAlert.SnoozeCondition = "none" // Set default snooze condition if not provided
+		newAlert.SnoozeCondition = "none" // Default snooze condition
 	}
 	if newAlert.Range == nil {
-		newAlert.Range = []float64{} // Set default range if not provided
+		newAlert.Range = []float64{} // Default range
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// Thêm alert mới vào danh sách alert của user
+	user.Alerts = append(user.Alerts, newAlert)
 
-	_, err := config.AlertCollection.InsertOne(ctx, newAlert)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create alert"})
+	// Cập nhật lại user trong cơ sở dữ liệu
+	update := bson.M{
+		"$set": bson.M{
+			"alerts":     user.Alerts,
+			"updated_at": primitive.NewDateTimeFromTime(time.Now()),
+		},
+	}
+	if _, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
 		return
 	}
 
