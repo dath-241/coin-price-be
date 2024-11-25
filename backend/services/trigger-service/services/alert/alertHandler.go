@@ -37,12 +37,6 @@ func CreateAlert(c *gin.Context) {
 		return
 	}
 
-	// Validate required fields
-	// if newAlert.Symbol == "" || newAlert.Price == 0 || (newAlert.Condition != ">=" && newAlert.Condition != "<=" && newAlert.Condition != "==") {
-	//     c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
-	//     return
-	// }
-
 	// Lấy token từ header Authorization
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" {
@@ -72,12 +66,12 @@ func CreateAlert(c *gin.Context) {
 	}
 
 	// Kiểm tra số lượng alert hiện tại
-	collection := config.DB.Collection("User")
+	userCollection := config.DB.Collection("User")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	var user modelsAD.User
-	if err := collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
+	if err := userCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
@@ -107,8 +101,13 @@ func CreateAlert(c *gin.Context) {
 		newAlert.Range = []float64{} // Default range
 	}
 
-	// Thêm alert mới vào danh sách alert của user
-	user.Alerts = append(user.Alerts, newAlert)
+	if _, err := config.AlertCollection.InsertOne(ctx, newAlert); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save alert"})
+		return
+	}
+
+	// Lưu chỉ ID của alert vào user alerts
+	user.Alerts = append(user.Alerts, newAlert.ID.Hex())
 
 	// Cập nhật lại user trong cơ sở dữ liệu
 	update := bson.M{
@@ -117,7 +116,7 @@ func CreateAlert(c *gin.Context) {
 			"updated_at": primitive.NewDateTimeFromTime(time.Now()),
 		},
 	}
-	if _, err := collection.UpdateOne(ctx, bson.M{"_id": objID}, update); err != nil {
+	if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": objID}, update); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
 		return
 	}

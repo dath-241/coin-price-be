@@ -193,10 +193,178 @@ definitions:
       vip_level:
         type: string
     type: object
-  models.ErrorResponse:
+  github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse:
     properties:
       error:
         type: string
+    type: object
+  github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate:
+    properties:
+      adjustedFundingRateCap:
+        example: "0.02000000"
+        type: string
+      adjustedFundingRateFloor:
+        example: "-0.02000000"
+        type: string
+      eventTime:
+        example: "2024-11-21 08:12:13"
+        type: string
+      fundingCountDown:
+        example: "06:47:47"
+        type: string
+      fundingIntervalHours:
+        example: 8
+        type: integer
+      fundingRate:
+        example: "0.00010000"
+        type: string
+      symbol:
+        example: QTUMUSDT
+        type: string
+    type: object
+  github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse:
+    properties:
+      message:
+        example: An error occurred
+        type: string
+    type: object
+  models.Alert:
+    properties:
+      alert_id:
+        type: string
+      condition:
+        description: Condition for the alert, e.g., ">=", "<=", "==", "in range",
+          "out range"
+        type: string
+      created_at:
+        description: Timestamp for when the alert was created
+        type: integer
+      frequency:
+        description: Frequency of notification, e.g., "immediate", "daily", "weekly"
+        type: string
+      is_active:
+        description: Whether the alert is active
+        type: boolean
+      last_fundingrate_interval:
+        type: string
+      market:
+        description: Market for the alert, e.g., "spot" or "future"
+        type: string
+      max_range:
+        type: number
+      max_repeat_count:
+        description: Số lần lặp lại tối đa
+        type: integer
+      message:
+        description: 'Thông điệp sẽ được gửi trong cảnh báo (ví dụ: "BTC giá đã vượt
+          $20,000")'
+        type: string
+      min_range:
+        type: number
+      next_trigger_time:
+        description: Thời gian kích hoạt tiếp theo
+        type: string
+      notification_method:
+        description: How the user will be notified (email, push, Telegram)
+        type: string
+      price:
+        description: Price threshold for the alert, only applicable for price alerts
+        type: number
+      range:
+        description: Price range for alerts that check if price falls within or outside
+          a range
+        items:
+          type: number
+        type: array
+      repeat_count:
+        description: Số lần đã lặp lại
+        type: integer
+      snooze_condition:
+        description: Loại snooze
+        type: string
+      symbol:
+        description: Symbol for the alert, e.g., "BTCUSDT"
+        type: string
+      symbols:
+        description: List of symbols for symbol alerts
+        items:
+          type: string
+        type: array
+      threshold:
+        description: Threshold for the alert, only applicable for price alerts
+        type: number
+      type:
+        description: Type of symbol alert, e.g., "new_listing" or "delisting"
+        type: string
+      updated_at:
+        description: Timestamp for when the alert was last updated
+        type: integer
+      user_id:
+        description: ID của người dùng đặt cảnh báo
+        type: string
+    type: object
+  models.ErrorResponseDataInternalServerError:
+    properties:
+      message:
+        example: Internal server error
+        type: string
+    type: object
+  models.ErrorResponseDataMissing:
+    properties:
+      message:
+        example: Invalid symbol or request parameters
+        type: string
+    type: object
+  models.ErrorResponseDataNotFound:
+    properties:
+      message:
+        example: Symbol not found
+        type: string
+    type: object
+  models.ErrorResponseInputMissing:
+    properties:
+      message:
+        example: Missing data
+        type: string
+    type: object
+  models.Indicator:
+    properties:
+      id:
+        type: string
+      indicator:
+        type: string
+      notification_method:
+        type: string
+      period:
+        type: integer
+      symbol:
+        type: string
+    required:
+    - indicator
+    - notification_method
+    - period
+    - symbol
+    type: object
+  models.KlineDataPoint:
+    properties:
+      close:
+        example: 94645.7
+        type: number
+      high:
+        example: 95000
+        type: number
+      low:
+        example: 94200
+        type: number
+      open:
+        example: 94288
+        type: number
+      time:
+        example: "2024-11-21T00:00:00Z"
+        type: string
+      volume:
+        example: 21752.097
+        type: number
     type: object
   models.MessageResponse:
     properties:
@@ -221,6 +389,133 @@ definitions:
         description: unique
         example: "+84911123456"
         type: string
+    type: object
+  models.ResponseAlertCheckerStatus:
+    properties:
+      status:
+        example: Alert checker started
+        type: string
+    type: object
+  models.ResponseAlertCreated:
+    properties:
+      alert_id:
+        example: 647f1f77bcf86cd799439011
+        type: string
+      message:
+        example: Alert created successfully
+        type: string
+    type: object
+  models.ResponseAlertDeleted:
+    properties:
+      message:
+        example: Alert deleted successfully
+        type: string
+    type: object
+  models.ResponseAlertDetail:
+    properties:
+      condition:
+        example: '>='
+        type: string
+      createdAt:
+        example: "2024-11-21T00:00:00Z"
+        type: string
+      frequency:
+        example: immediate
+        type: string
+      id:
+        example: 647f1f77bcf86cd799439011
+        type: string
+      isActive:
+        example: true
+        type: boolean
+      maxRepeatCount:
+        example: 5
+        type: integer
+      price:
+        example: 50000
+        type: number
+      range:
+        items:
+          type: number
+        type: array
+      snoozeCondition:
+        example: none
+        type: string
+      symbol:
+        example: BTCUSDT
+        type: string
+      updatedAt:
+        example: "2024-11-21T00:00:00Z"
+        type: string
+    type: object
+  models.ResponseAlertList:
+    properties:
+      alerts:
+        items:
+          $ref: '#/definitions/models.ResponseAlertDetail'
+        type: array
+    type: object
+  models.ResponseIndicatorCreated:
+    properties:
+      alert_id:
+        description: ID của indicator alert vừa tạo
+        type: string
+      message:
+        type: string
+    type: object
+  models.ResponseKline:
+    properties:
+      eventTime:
+        example: "2024-11-21 08:37:58"
+        type: string
+      interval:
+        example: 1m
+        type: string
+      kline_data:
+        items:
+          $ref: '#/definitions/models.KlineDataPoint'
+        type: array
+      symbol:
+        example: BTCUSDT
+        type: string
+    type: object
+  models.ResponseNewDelistedSymbols:
+    properties:
+      delisted_symbols:
+        example:
+        - '[BNBUSDT]'
+        items:
+          type: string
+        type: array
+      new_symbols:
+        example:
+        - '[BTCUSDT'
+        - ' ETHUSDT]'
+        items:
+          type: string
+        type: array
+    type: object
+  models.ResponseNotificationSent:
+    properties:
+      status:
+        example: Notification sent
+        type: string
+    type: object
+  models.ResponseSetSymbolAlert:
+    properties:
+      alert_id:
+        example: 647f1f77bcf86cd799439011
+        type: string
+      message:
+        example: Alert created successfully
+        type: string
+    type: object
+  models.ResponseUserAlerts:
+    properties:
+      alerts:
+        items:
+          $ref: '#/definitions/models.Alert'
+        type: array
     type: object
   models.UserDTO:
     properties:
@@ -259,6 +554,15 @@ definitions:
     - email
     - username
     type: object
+  spot_price.SpotPriceResponse:
+    properties:
+      eventTime:
+        type: string
+      price:
+        type: string
+      symbol:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -295,7 +599,7 @@ paths:
         "500":
           description: Internal server error while fetching payment history
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Get payment history for all users (admin only)
       tags:
       - Admin
@@ -327,15 +631,15 @@ paths:
         "400":
           description: Invalid user ID or missing parameters
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: No payment history found for this user
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error during payment history retrieval
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Retrieve payment history for a specific user (admin access only)
       tags:
       - Admin
@@ -366,15 +670,15 @@ paths:
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error while deleting user
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Delete a user by admin
       tags:
       - Admin
@@ -404,15 +708,15 @@ paths:
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error while fetching user
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Get user details by admin
       tags:
       - Admin
@@ -443,15 +747,15 @@ paths:
         "400":
           description: Invalid user ID or missing user ID
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error while activating account
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Activate a user account
       tags:
       - Admin
@@ -482,15 +786,15 @@ paths:
         "400":
           description: Invalid user ID or missing user ID
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error while banning account
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Ban a user account
       tags:
       - Admin
@@ -518,7 +822,7 @@ paths:
         "500":
           description: Internal server error while fetching users
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Get all users
       tags:
       - Admin
@@ -541,15 +845,15 @@ paths:
         "200":
           description: MoMo callback success response
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "400":
           description: Invalid JSON payload
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: Invalid signature
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: MoMo Payment Callback
       tags:
       - Payment
@@ -576,15 +880,15 @@ paths:
         "400":
           description: Invalid order ID or missing parameters
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: Order not found
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error during payment confirmation
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Check payment status and upgrade user's VIP level if successful
       tags:
       - Payment
@@ -616,15 +920,15 @@ paths:
         "400":
           description: Invalid request data or missing parameters
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: 'Unauthorized: Invalid or missing authorization token'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error during payment creation
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Initiate MoMo payment for VIP upgrade
       tags:
       - Payment
@@ -651,19 +955,19 @@ paths:
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: Unauthorized or token is invalid
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Failed to delete user
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Delete current user account
       tags:
       - Users
@@ -688,19 +992,19 @@ paths:
         "400":
           description: 'Bad Request: Invalid user ID'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: 'Unauthorized: invalid token'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: 'Not Found: User not found'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: 'Internal Server Error: Failed to fetch user'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Retrieve current user information
@@ -734,19 +1038,19 @@ paths:
         "400":
           description: 'Bad Request: Invalid input'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: 'Unauthorized: Authorization header required or invalid token'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: 'Not Found: User not found'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: 'Internal Server Error: Failed to update user'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update current user profile
@@ -781,19 +1085,19 @@ paths:
         "400":
           description: Invalid email format
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: Unauthorized or token is invalid
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "409":
           description: Email already exists
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Change user email
       tags:
       - Users
@@ -827,19 +1131,19 @@ paths:
           description: 'Bad Request: Password must contain at least 8 characters,
             including letters, numbers, and special characters.'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: 'Unauthorized: Current password is incorrect'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: 'Not Found: User not found'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Change user password
@@ -870,16 +1174,395 @@ paths:
         "401":
           description: 'Unauthorized: Invalid or missing token'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: 'Internal Server Error: Failed to fetch payment history'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Retrieve payment history
       tags:
       - Users
+  /api/v1/users/{id}/alerts:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all alerts for a user by their ID
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of user alerts
+          schema:
+            $ref: '#/definitions/models.ResponseUserAlerts'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "500":
+          description: Failed to retrieve alerts
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user alerts
+      tags:
+      - Users
+  /api/v1/users/{id}/alerts/notify:
+    post:
+      consumes:
+      - application/json
+      description: Send a notification email to the user for their alerts
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notification sent successfully
+          schema:
+            $ref: '#/definitions/models.ResponseNotificationSent'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "500":
+          description: Failed to send notification
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Notify user of alerts
+      tags:
+      - Users
+  /api/v1/vip2/alerts:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all alerts, optionally filter by type
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Filter by alert type (e.g., new_listing, delisting)
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of alerts
+          schema:
+            items:
+              $ref: '#/definitions/models.ResponseAlertList'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "500":
+          description: Failed to retrieve alerts
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all alerts
+      tags:
+      - Alerts
+    post:
+      consumes:
+      - application/json
+      description: Create a new alert with the given details
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Alert details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Alert'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created alert
+          schema:
+            $ref: '#/definitions/models.ResponseAlertCreated'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "500":
+          description: Failed to create alert
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create an alert
+      tags:
+      - Alerts
+  /api/v1/vip2/alerts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an alert by its unique identifier
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Alert ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert deleted successfully
+          schema:
+            $ref: '#/definitions/models.ResponseAlertDeleted'
+        "400":
+          description: Invalid alert ID
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "404":
+          description: Alert not found
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete an alert
+      tags:
+      - Alerts
+    get:
+      consumes:
+      - application/json
+      description: Retrieve an alert by its unique identifier
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Alert ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert details
+          schema:
+            $ref: '#/definitions/models.ResponseAlertDetail'
+        "400":
+          description: Invalid alert ID
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "404":
+          description: Alert not found
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get an alert by ID
+      tags:
+      - Alerts
+  /api/v1/vip2/alerts/symbol:
+    post:
+      consumes:
+      - application/json
+      description: Set a new alert for symbols that are newly listed or delisted
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Alert details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Alert'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created alert for symbol
+          schema:
+            $ref: '#/definitions/models.ResponseSetSymbolAlert'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "500":
+          description: Failed to create alert for symbol
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Set an alert for new or delisted symbols
+      tags:
+      - Alerts
+  /api/v1/vip2/start-alert-checker:
+    post:
+      consumes:
+      - application/json
+      description: Starts the alert checker to monitor for alerts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert checker started successfully
+          schema:
+            $ref: '#/definitions/models.ResponseAlertCheckerStatus'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      summary: Start alert checker
+      tags:
+      - Alert Running
+  /api/v1/vip2/stop-alert-checker:
+    post:
+      consumes:
+      - application/json
+      description: Stops the alert checker from monitoring for alerts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Alert checker stopped successfully
+          schema:
+            $ref: '#/definitions/models.ResponseAlertCheckerStatus'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      summary: Stop alert checker
+      tags:
+      - Alert Running
+  /api/v1/vip2/symbols-alerts:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve new and delisted symbols from Binance
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of new and delisted symbols
+          schema:
+            $ref: '#/definitions/models.ResponseNewDelistedSymbols'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "500":
+          description: Failed to retrieve symbols
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get new and delisted symbols
+      tags:
+      - Alerts
+  /api/v1/vip3/indicators:
+    post:
+      consumes:
+      - application/json
+      description: Create an alert with the given indicator type and settings
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Indicator alert details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Indicator'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Indicator alert created successfully
+          schema:
+            $ref: '#/definitions/models.ResponseIndicatorCreated'
+        "400":
+          description: Invalid request body or invalid indicator type
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+        "500":
+          description: Failed to create indicator alert
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create an advanced indicator alert
+      tags:
+      - Indicators
   /auth/forgot-password:
     post:
       consumes:
@@ -903,15 +1586,15 @@ paths:
         "400":
           description: Invalid request format
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found with this email
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Request a password reset link
       tags:
       - Authentication
@@ -938,15 +1621,15 @@ paths:
         "401":
           description: 'Unauthorized: Invalid Google ID token'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "403":
           description: 'Forbidden: User account is banned'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: 'Internal Server Error: Failed to create or retrieve user'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Google Login
       tags:
       - Authentication
@@ -973,19 +1656,19 @@ paths:
         "400":
           description: Invalid request body
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: 'Unauthorized: Incorrect username or password'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "403":
           description: 'Forbidden: Account is inactive'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: User Login
       tags:
       - Authentication
@@ -1011,15 +1694,15 @@ paths:
         "400":
           description: No token provided or Refresh Token not provided
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: Token has been revoked
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Failed to reset cookies or other server error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
       - Bearer: []
       summary: Logout user
@@ -1042,11 +1725,11 @@ paths:
         "401":
           description: Refresh token is missing, invalid, or blacklisted
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error while generating a new access token
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Refresh access token
       tags:
       - Authentication
@@ -1073,15 +1756,15 @@ paths:
         "400":
           description: 'Bad Request: Invalid input'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "409":
           description: 'Conflict: Email, username, or phone already exists'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: 'Internal Server Error: Database operation failed'
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Register a new user
       tags:
       - Authentication
@@ -1109,16 +1792,82 @@ paths:
         "400":
           description: Invalid request format or weak password
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "401":
           description: Invalid or expired reset token
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       summary: Reset user password
       tags:
       - Authentication
+  /v1/funding-rate:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves current funding rate information for a specified trading
+        pair from Binance Futures
+      parameters:
+      - description: Trading pair symbol (e.g., QTUMUSDT)
+        example: '"QTUMUSDT"'
+        in: query
+        name: symbol
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with funding rate data
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate'
+        "400":
+          description: Invalid symbol or request parameters
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataMissing'
+        "404":
+          description: Symbol not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
+      summary: Get real-time funding rate data
+      tags:
+      - Funding Rate
+  /v1/vip1/kline:
+    get:
+      description: Fetches Kline data for a specific symbol and interval from Binance
+        API
+      parameters:
+      - description: Symbol for which to fetch Kline data (e.g., BTCUSDT)
+        in: query
+        name: symbol
+        required: true
+        type: string
+      - description: Interval for Kline data (e.g., 1m, 5m, 1h, 1d)
+        in: query
+        name: interval
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Successful response with Kline data
+          schema:
+            $ref: '#/definitions/models.ResponseKline'
+        "400":
+          description: Missing Data
+          schema:
+            $ref: '#/definitions/models.ErrorResponseInputMissing'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
+      summary: Get Kline data
+      tags:
+      - Kline
 swagger: "2.0"

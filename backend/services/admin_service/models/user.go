@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	models "github.com/dath-241/coin-price-be-go/services/trigger-service/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -25,7 +24,7 @@ type User struct {
 	Profile   Profile            `json:"profile" bson:"profile"`                                                                         // Nested personal info
 	CreatedAt primitive.DateTime `json:"created_at" bson:"created_at" example:"2024-11-01T10:00:00Z"`                                    // Account creation time
 	UpdatedAt primitive.DateTime `json:"updated_at" bson:"updated_at" example:"2024-11-01T10:00:00Z"`
-	Alerts    []models.Alert     `json:"alerts"` // Last update time
+	Alerts    []string           `json:"alerts"` // Last update time
 }
 
 type UserDTO struct {
