@@ -30,6 +30,16 @@ type ResponseFuturePrice struct {
 	Price     string `json:"price"`
 	EventTime string `json:"eventTime"`
 }
+type ResponseBinanceFuture struct {
+	Symbol               string `json:"symbol"`
+	MarkPrice            string `json:"markPrice"`
+	IndexPrice           string `json:"indexPrice"`
+	EstimatedSettlePrice string `json:"estimatedSettlePrice"`
+	LastFundingRate      string `json:"lastFundingRate"`
+	NextFundingTime      int64  `json:"nextFundingTime"`
+	InterestRate         string `json:"interestRate"`
+	Time                 int64  `json:"time"`
+}
 
 func (r *ResponseFuturePrice) UpdateData(symbol, price, eventTime string) {
 	r.Symbol = symbol

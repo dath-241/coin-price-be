@@ -229,7 +229,6 @@ definitions:
         type: string
     type: object
   models.Alert:
-
     properties:
       alert_id:
         type: string
@@ -303,7 +302,6 @@ definitions:
       user_id:
         description: ID của người dùng đặt cảnh báo
         type: string
-
     type: object
   models.ErrorResponseDataInternalServerError:
     properties:
@@ -457,6 +455,15 @@ definitions:
           $ref: '#/definitions/models.ResponseAlertDetail'
         type: array
     type: object
+  models.ResponseFuturePrice:
+    properties:
+      eventTime:
+        type: string
+      price:
+        type: string
+      symbol:
+        type: string
+    type: object
   models.ResponseIndicatorCreated:
     properties:
       alert_id:
@@ -512,6 +519,15 @@ definitions:
         example: Alert created successfully
         type: string
     type: object
+  models.ResponseSpotPrice:
+    properties:
+      eventTime:
+        type: string
+      price:
+        type: string
+      symbol:
+        type: string
+    type: object
   models.ResponseUserAlerts:
     properties:
       alerts:
@@ -555,15 +571,6 @@ definitions:
     required:
     - email
     - username
-    type: object
-  spot_price.SpotPriceResponse:
-    properties:
-      eventTime:
-        type: string
-      price:
-        type: string
-      symbol:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -828,6 +835,74 @@ paths:
       summary: Get all users
       tags:
       - Admin
+  /api/v1/funding-rate:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves current funding rate information for a specified trading
+        pair from Binance Futures
+      parameters:
+      - description: Trading pair symbol (e.g., QTUMUSDT)
+        example: '"QTUMUSDT"'
+        in: query
+        name: symbol
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with funding rate data
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate'
+        "400":
+          description: Invalid symbol or request parameters
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataMissing'
+        "404":
+          description: Symbol not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataNotFound'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
+      summary: Get real-time funding rate data
+      tags:
+      - Funding Rate
+  /api/v1/future-price:
+    get:
+      description: Retrieves current future price information for a specified trading
+        pair from Binance Futures
+      parameters:
+      - description: Trading pair symbol (e.g., BTCUSDT)
+        example: '"BTCUSDT"'
+        in: query
+        name: symbol
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with funding rate data
+          schema:
+            $ref: '#/definitions/models.ResponseFuturePrice'
+        "400":
+          description: Invalid symbol or request parameters
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataMissing'
+        "404":
+          description: Symbol not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataNotFound'
+        "500":
+          description: Failed to fetch price
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
+      summary: Get real-time future price data
+      tags:
+      - Future price
   /api/v1/payment/momo-callback:
     post:
       consumes:
@@ -934,6 +1009,39 @@ paths:
       summary: Initiate MoMo payment for VIP upgrade
       tags:
       - Payment
+  /api/v1/spot-price:
+    get:
+      description: Retrieves current spot price information for a specified trading
+        pair from Binance Spot
+      parameters:
+      - description: Trading pair symbol (e.g., BTCUSDT)
+        example: '"BTCUSDT"'
+        in: query
+        name: symbol
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response with spot price data
+          schema:
+            $ref: '#/definitions/models.ResponseSpotPrice'
+        "400":
+          description: Invalid symbol or request parameters
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataMissing'
+        "404":
+          description: Symbol not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataNotFound'
+        "500":
+          description: Failed to fetch price
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
+      summary: Get real-time spot price data
+      tags:
+      - Spot price
   /api/v1/user/me:
     delete:
       consumes:
@@ -1258,6 +1366,37 @@ paths:
       summary: Notify user of alerts
       tags:
       - Users
+  /api/v1/vip1/kline:
+    get:
+      description: Fetches Kline data for a specific symbol and interval from Binance
+        API
+      parameters:
+      - description: Symbol for which to fetch Kline data (e.g., BTCUSDT)
+        in: query
+        name: symbol
+        required: true
+        type: string
+      - description: Interval for Kline data (e.g., 1m, 5m, 1h, 1d)
+        in: query
+        name: interval
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Successful response with Kline data
+          schema:
+            $ref: '#/definitions/models.ResponseKline'
+        "400":
+          description: Missing Data
+          schema:
+            $ref: '#/definitions/models.ErrorResponseInputMissing'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
+      summary: Get Kline data
+      tags:
+      - Kline
   /api/v1/vip2/alerts:
     get:
       consumes:
@@ -1806,70 +1945,4 @@ paths:
       summary: Reset user password
       tags:
       - Authentication
-  /v1/funding-rate:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves current funding rate information for a specified trading
-        pair from Binance Futures
-      parameters:
-      - description: Trading pair symbol (e.g., QTUMUSDT)
-        example: '"QTUMUSDT"'
-        in: query
-        name: symbol
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successful response with funding rate data
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate'
-        "400":
-          description: Invalid symbol or request parameters
-          schema:
-            $ref: '#/definitions/models.ErrorResponseDataMissing'
-        "404":
-          description: Symbol not found
-          schema:
-            $ref: '#/definitions/models.ErrorResponseDataNotFound'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
-      summary: Get real-time funding rate data
-      tags:
-      - Funding Rate
-  /v1/vip1/kline:
-    get:
-      description: Fetches Kline data for a specific symbol and interval from Binance
-        API
-      parameters:
-      - description: Symbol for which to fetch Kline data (e.g., BTCUSDT)
-        in: query
-        name: symbol
-        required: true
-        type: string
-      - description: Interval for Kline data (e.g., 1m, 5m, 1h, 1d)
-        in: query
-        name: interval
-        required: true
-        type: string
-      responses:
-        "200":
-          description: Successful response with Kline data
-          schema:
-            $ref: '#/definitions/models.ResponseKline'
-        "400":
-          description: Missing Data
-          schema:
-            $ref: '#/definitions/models.ErrorResponseInputMissing'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/models.ErrorResponseDataInternalServerError'
-      summary: Get Kline data
-      tags:
-      - Kline
 swagger: "2.0"

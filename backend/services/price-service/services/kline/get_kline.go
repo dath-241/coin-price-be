@@ -19,7 +19,7 @@ import (
 // @Success 200 {object} models.ResponseKline "Successful response with Kline data"
 // @Failure 400 {object} models.ErrorResponseInputMissing "Missing Data"
 // @Failure 500 {object} models.ErrorResponseDataInternalServerError "Internal server error"
-// @Router /v1/vip1/kline [get]
+// @Router /api/v1/vip1/kline [get]
 func GetKline(context *gin.Context) {
 	symbol := context.Query("symbol")
 	interval := context.Query("interval")

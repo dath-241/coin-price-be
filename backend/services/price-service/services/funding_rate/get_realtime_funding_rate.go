@@ -21,7 +21,7 @@ import (
 // @Failure 400 {object} models.ErrorResponseDataMissing "Invalid symbol or request parameters"
 // @Failure 404 {object} models.ErrorResponseDataNotFound "Symbol not found"
 // @Failure 500 {object} models.ErrorResponseDataInternalServerError "Internal server error"
-// @Router /v1/funding-rate [get]
+// @Router /api/v1/funding-rate [get]
 func GetFundingRateRealTime(symbol string, context *gin.Context) {
 	var responseApi models.ResponseFundingRate
 	// get symbol, funding rate, eventTime, countdown

@@ -79,7 +79,7 @@ func NotifyUserTriggers(userID string) error {
 
 	// Retrieve user alerts
 	alerts, err := repositories.GetUserAlerts(userID)
-	
+
 	log.Println("Email sent successfully")
 	if err != nil {
 		return fmt.Errorf("failed to retrieve alerts")

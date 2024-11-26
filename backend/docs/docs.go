@@ -386,6 +386,105 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/funding-rate": {
+            "get": {
+                "description": "Retrieves current funding rate information for a specified trading pair from Binance Futures",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Funding Rate"
+                ],
+                "summary": "Get real-time funding rate data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"QTUMUSDT\"",
+                        "description": "Trading pair symbol (e.g., QTUMUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with funding rate data",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid symbol or request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataMissing"
+                        }
+                    },
+                    "404": {
+                        "description": "Symbol not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataNotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/future-price": {
+            "get": {
+                "description": "Retrieves current future price information for a specified trading pair from Binance Futures",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Future price"
+                ],
+                "summary": "Get real-time future price data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"BTCUSDT\"",
+                        "description": "Trading pair symbol (e.g., BTCUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with funding rate data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseFuturePrice"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid symbol or request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataMissing"
+                        }
+                    },
+                    "404": {
+                        "description": "Symbol not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataNotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch price",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/payment/momo-callback": {
             "post": {
                 "description": "Handles callback from MoMo after payment is made",
@@ -539,6 +638,54 @@ const docTemplate = `{
                         "description": "Internal server error during payment creation",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/spot-price": {
+            "get": {
+                "description": "Retrieves current spot price information for a specified trading pair from Binance Spot",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Spot price"
+                ],
+                "summary": "Get real-time spot price data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"BTCUSDT\"",
+                        "description": "Trading pair symbol (e.g., BTCUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with spot price data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseSpotPrice"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid symbol or request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataMissing"
+                        }
+                    },
+                    "404": {
+                        "description": "Symbol not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataNotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch price",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
                         }
                     }
                 }
@@ -914,7 +1061,6 @@ const docTemplate = `{
                         "description": "Internal Server Error: Failed to fetch payment history",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-
                         }
                     }
                 }
@@ -958,25 +1104,19 @@ const docTemplate = `{
                     "200": {
                         "description": "List of user alerts",
                         "schema": {
-
                             "$ref": "#/definitions/models.ResponseUserAlerts"
-
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     },
                     "500": {
                         "description": "Failed to retrieve alerts",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     }
                 }
@@ -1026,17 +1166,58 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     },
                     "500": {
                         "description": "Failed to send notification",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/vip1/kline": {
+            "get": {
+                "description": "Fetches Kline data for a specific symbol and interval from Binance API",
+                "tags": [
+                    "Kline"
+                ],
+                "summary": "Get Kline data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Symbol for which to fetch Kline data (e.g., BTCUSDT)",
+                        "name": "symbol",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interval for Kline data (e.g., 1m, 5m, 1h, 1d)",
+                        "name": "interval",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with Kline data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResponseKline"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing Data",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseInputMissing"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
                         }
                     }
                 }
@@ -1079,7 +1260,6 @@ const docTemplate = `{
                     "200": {
                         "description": "List of alerts",
                         "schema": {
-
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/models.ResponseAlertList"
@@ -1090,15 +1270,12 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     },
                     "500": {
                         "description": "Failed to retrieve alerts",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     }
                 }
@@ -1148,25 +1325,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request body",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     },
                     "500": {
                         "description": "Failed to create alert",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     }
                 }
@@ -1224,17 +1395,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     },
                     "500": {
                         "description": "Failed to create alert for symbol",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     }
                 }
@@ -1275,7 +1442,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-
                     "200": {
                         "description": "Alert details",
                         "schema": {
@@ -1325,22 +1491,18 @@ const docTemplate = `{
                         "description": "Bearer Token",
                         "name": "Authorization",
                         "in": "header",
-
                         "required": true
                     },
                     {
                         "type": "string",
-
                         "description": "Alert ID",
                         "name": "id",
                         "in": "path",
-
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-
                         "description": "Alert deleted successfully",
                         "schema": {
                             "$ref": "#/definitions/models.ResponseAlertDeleted"
@@ -1356,15 +1518,12 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     },
                     "404": {
                         "description": "Alert not found",
                         "schema": {
-
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_trigger-service_models.ErrorResponse"
-
                         }
                     }
                 }
@@ -1890,102 +2049,6 @@ const docTemplate = `{
                         "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/funding-rate": {
-            "get": {
-                "description": "Retrieves current funding rate information for a specified trading pair from Binance Futures",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Funding Rate"
-                ],
-                "summary": "Get real-time funding rate data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "\"QTUMUSDT\"",
-                        "description": "Trading pair symbol (e.g., QTUMUSDT)",
-                        "name": "symbol",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response with funding rate data",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid symbol or request parameters",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponseDataMissing"
-                        }
-                    },
-                    "404": {
-                        "description": "Symbol not found",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponseDataNotFound"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/vip1/kline": {
-            "get": {
-                "description": "Fetches Kline data for a specific symbol and interval from Binance API",
-                "tags": [
-                    "Kline"
-                ],
-                "summary": "Get Kline data",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Symbol for which to fetch Kline data (e.g., BTCUSDT)",
-                        "name": "symbol",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Interval for Kline data (e.g., 1m, 5m, 1h, 1d)",
-                        "name": "interval",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successful response with Kline data",
-                        "schema": {
-                            "$ref": "#/definitions/models.ResponseKline"
-                        }
-                    },
-                    "400": {
-                        "description": "Missing Data",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponseInputMissing"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponseDataInternalServerError"
                         }
                     }
                 }
@@ -2655,192 +2718,17 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ResponseIndicatorCreated": {
-            "type": "object",
-            "properties": {
-                "alert_id": {
-                    "description": "ID của indicator alert vừa tạo",
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ResponseKline": {
+        "models.ResponseFuturePrice": {
             "type": "object",
             "properties": {
                 "eventTime": {
-                    "type": "string",
-                    "example": "2024-11-21 08:37:58"
-                },
-                "interval": {
-                    "type": "string",
-                    "example": "1m"
-                },
-                "kline_data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.KlineDataPoint"
-                    }
-                },
-                "symbol": {
-                    "type": "string",
-                    "example": "BTCUSDT"
-                }
-            }
-        },
-
-        "models.ResponseNewDelistedSymbols": {
-
-            "type": "object",
-            "properties": {
-                "delisted_symbols": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "[BNBUSDT]"
-                    ]
-                },
-                "new_symbols": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "[BTCUSDT",
-                        " ETHUSDT]"
-                    ]
-                }
-            }
-        },
-
-        "models.ResponseNotificationSent": {
-
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string",
-                    "example": "Notification sent"
-                }
-            }
-        },
-        "models.ResponseSetSymbolAlert": {
-            "type": "object",
-            "properties": {
-                "alert_id": {
-                    "type": "string",
-                    "example": "647f1f77bcf86cd799439011"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Alert created successfully"
-                }
-            }
-        },
-        "models.ResponseUserAlerts": {
-            "type": "object",
-            "properties": {
-                "alerts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Alert"
-                    }
-                }
-            }
-        },
-        "models.ResponseAlertCheckerStatus": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string",
-                    "example": "Alert checker started"
-                }
-            }
-        },
-        "models.ResponseAlertCreated": {
-            "type": "object",
-            "properties": {
-                "alert_id": {
-                    "type": "string",
-                    "example": "647f1f77bcf86cd799439011"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Alert created successfully"
-                }
-            }
-        },
-        "models.ResponseAlertDeleted": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "Alert deleted successfully"
-                }
-            }
-        },
-        "models.ResponseAlertDetail": {
-            "type": "object",
-            "properties": {
-                "condition": {
-                    "type": "string",
-                    "example": "\u003e="
-                },
-                "createdAt": {
-                    "type": "string",
-                    "example": "2024-11-21T00:00:00Z"
-                },
-                "frequency": {
-                    "type": "string",
-                    "example": "immediate"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "647f1f77bcf86cd799439011"
-                },
-                "isActive": {
-                    "type": "boolean",
-                    "example": true
-                },
-                "maxRepeatCount": {
-                    "type": "integer",
-                    "example": 5
+                    "type": "string"
                 },
                 "price": {
-                    "type": "number",
-                    "example": 50000
-                },
-                "range": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "snoozeCondition": {
-                    "type": "string",
-                    "example": "none"
+                    "type": "string"
                 },
                 "symbol": {
-                    "type": "string",
-                    "example": "BTCUSDT"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2024-11-21T00:00:00Z"
-                }
-            }
-        },
-        "models.ResponseAlertList": {
-            "type": "object",
-            "properties": {
-                "alerts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ResponseAlertDetail"
-                    }
+                    "type": "string"
                 }
             }
         },
@@ -2922,6 +2810,20 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Alert created successfully"
+                }
+            }
+        },
+        "models.ResponseSpotPrice": {
+            "type": "object",
+            "properties": {
+                "eventTime": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
                 }
             }
         },
@@ -2984,20 +2886,6 @@ const docTemplate = `{
                     "description": "unique",
                     "type": "string",
                     "example": "johndoe"
-                }
-            }
-        },
-        "spot_price.SpotPriceResponse": {
-            "type": "object",
-            "properties": {
-                "eventTime": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "string"
-                },
-                "symbol": {
-                    "type": "string"
                 }
             }
         }
