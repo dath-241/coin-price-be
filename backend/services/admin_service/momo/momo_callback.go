@@ -7,8 +7,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
-	"github.com/gin-gonic/gin"
 
+	_ "github.com/dath-241/coin-price-be-go/services/admin_service/models"
+	"github.com/gin-gonic/gin"
 )
 
 // MoMoCallback godoc
@@ -17,7 +18,7 @@ import (
 // @Tags Payment
 // @Accept json
 // @Produce json
-// @Param callbackData body map[string]interface{} true "MoMo Callback Data" 
+// @Param callbackData body map[string]interface{} true "MoMo Callback Data"
 // @Success 200 {object} models.ErrorResponse "MoMo callback success response"
 // @Failure 400 {object} models.ErrorResponse "Invalid JSON payload"
 // @Failure 401 {object} models.ErrorResponse "Invalid signature"
@@ -33,10 +34,9 @@ func MoMoCallback() func(c *gin.Context) {
 			return
 		}
 
-		// Lấy chữ ký từ MoMo gửi về 	
+		// Lấy chữ ký từ MoMo gửi về
 		signature := callbackData["signature"].(string)
 		fmt.Println("Received signature:", signature)
-
 
 		params := getCallbackParams(callbackData)
 
@@ -84,7 +84,7 @@ func MoMoCallback() func(c *gin.Context) {
 			"message":      params["message"],
 			"responseTime": params["responseTime"],
 			"extraData":    params["extraData"],
-			"signature":	calculatedSignatureResponce,
+			"signature":    calculatedSignatureResponce,
 		}
 		c.JSON(http.StatusOK, response)
 	}

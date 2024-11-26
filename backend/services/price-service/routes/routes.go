@@ -20,7 +20,7 @@ func RegisterRoutes(server *gin.Engine) {
 	docs.SwaggerInfo.BasePath = "/api"
 
 	// Move swagger route outside of the authenticated group
-	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	server.GET("/swagger/price/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	authenticated := server.Group("/api")
 	// Funding rate
