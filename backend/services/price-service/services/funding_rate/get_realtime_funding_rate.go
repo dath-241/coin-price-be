@@ -18,7 +18,7 @@ import (
 // @Produce json
 // @Param symbol query string true "Trading pair symbol (e.g., QTUMUSDT)" example("QTUMUSDT")
 // @Success 200 {object} models.ResponseFundingRate "Successful response with funding rate data"
-// @Failure 400 {object} models.ErrorResponseDataMissing "Invalid symbol or request parameters"
+// @Failure 400 {object} models.ErrorResponseDataMissing "Missing symbol"
 // @Failure 404 {object} models.ErrorResponseDataNotFound "Symbol not found"
 // @Failure 500 {object} models.ErrorResponseDataInternalServerError "Internal server error"
 // @Router /v1/funding-rate [get]
