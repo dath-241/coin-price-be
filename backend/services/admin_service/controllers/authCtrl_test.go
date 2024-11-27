@@ -11,7 +11,6 @@ import (
 
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/repository"
-	//"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -109,7 +108,7 @@ func TestSetAuthCookies(t *testing.T) {
 			expectedError:   "",
 			expectedCookies: []http.Cookie{
 				{Name: "accessToken", Value: "access_token_value", Path: "/api/v1", Domain: "example.com", HttpOnly: true, Secure: true},
-				{Name: "refreshToken", Value: "refresh_token_value", Path: "/auth/refresh-token", Domain: "example.com", HttpOnly: true, Secure: true},
+				{Name: "refreshToken", Value: "refresh_token_value", Path: "/api/v1/auth/refresh-token", Domain: "example.com", HttpOnly: true, Secure: true},
 			},
 			setup: func() {
 				os.Setenv("COOKIE_DOMAIN", "example.com")
@@ -154,7 +153,7 @@ func TestSetAuthCookies(t *testing.T) {
 			setRefreshToken: true,
 			expectedError:   "",
 			expectedCookies: []http.Cookie{
-				{Name: "refreshToken", Value: "refresh_token_value", Path: "/auth/refresh-token", Domain: "example.com", HttpOnly: true, Secure: true},
+				{Name: "refreshToken", Value: "refresh_token_value", Path: "/api/v1/auth/refresh-token", Domain: "example.com", HttpOnly: true, Secure: true},
 			},
 			setup: func() {
 				os.Setenv("COOKIE_DOMAIN", "example.com")
@@ -431,8 +430,6 @@ func TestLogin(t *testing.T) {
 	})
 }
 
-
-// Unit Test for Logout
 func TestLogout(t *testing.T) {
 
 	tests := []struct {

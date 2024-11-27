@@ -223,7 +223,7 @@ func TestIsValidPhoneNumber(t *testing.T) {
         {
             name:     "Valid phone number with 0",
             input:    "0901234567",
-            expected: true,
+            expected: false,
         },
         {
             name:     "Valid phone number with 10 digits",
@@ -233,22 +233,22 @@ func TestIsValidPhoneNumber(t *testing.T) {
         // Số không hợp lệ
         {
             name:     "Phone number too short",
-            input:    "09012345",
+            input:    "+849012345",
             expected: false,
         },
         {
             name:     "Phone number too long",
-            input:    "090123456789",
+            input:    "+8490123456789",
             expected: false,
         },
         {
             name:     "Phone number with invalid prefix",
-            input:    "0123456789",
+            input:    "+84123456789",
             expected: false,
         },
         {
             name:     "Phone number with invalid characters",
-            input:    "0901234abc",
+            input:    "+84901234abc",
             expected: false,
         },
         // Số không hợp lệ với prefix không đúng

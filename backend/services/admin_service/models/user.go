@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -44,4 +43,59 @@ type ErrorResponse struct {
 
 type MessageResponse struct {
 	Message string `json:"message"`
+}
+
+type UserResponse  struct {
+    ID       string `json:"id"`
+    Username string `json:"username"`
+    Email    string `json:"email"`
+    VIPLevel string `json:"vip_level"`
+    Status   bool   `json:"status"`
+}
+
+type GetPaymentHistoryResponse struct {
+	PaymentHistory []map[string]interface{} `json:"payment_history"`
+}
+
+type RegisterRequest struct {
+	Username  string             `json:"username" bson:"username" binding:"required" example:"johndoe"`              // unique
+	Email     string             `json:"email" bson:"email" binding:"required,email" example:"user@example.com"` // unique
+	Password  string             `json:"password,omitempty" bson:"password,omitempty" binding:"required" example:"hashed_password_here"`
+	Profile   Profile            `json:"profile" bson:"profile"`                // Nested personal info
+}
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+type RorLResponse struct {
+	Message string `json:"message"`
+	Token 	string `json:"token"`
+}
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type ResetRequest struct {
+	Token       string `json:"token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
+type UpdateUserProfileRequest struct {
+    Name        string `json:"name" example:"John Doe"`
+    Username    string `json:"username" example:"johndoe123"`
+    Phone       string `json:"phone" example:"+1234567890"`
+    Avatar      string `json:"avatar" example:"https://example.com/avatar.jpg"`
+    Bio         string `json:"bio" example:"Software Engineer"`
+    DateOfBirth string `json:"dateOfBirth" example:"2000-01-01"` // Định dạng: YYYY-MM-DD
+}
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required"`
+}
+
+type ChangeMailRequest struct {
+	Email string `json:"email" binding:"required,email"` // email mới cần cập nhật
 }

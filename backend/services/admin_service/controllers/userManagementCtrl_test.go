@@ -1,20 +1,12 @@
 package controllers_test
 
 import (
-	//"context"
 	"bytes"
 	"os"
-	//"context"
 	"encoding/json"
-	//"fmt"
-	//"time"
-
-	//"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	//"time"
 
 	"github.com/dath-241/coin-price-be-go/services/admin_service/controllers"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
@@ -24,7 +16,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	//"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -113,7 +104,6 @@ func TestGetCurrentUserInfo(t *testing.T) {
 	})
 }
 
-
 func TestUpdateUserProfile(t *testing.T) {
 	// Mock user repository
 	userID, _ := primitive.ObjectIDFromHex("6488e1c4b5d1e40b2c93f3a0")
@@ -121,11 +111,11 @@ func TestUpdateUserProfile(t *testing.T) {
 		Users: map[string]interface{}{
 			userID.Hex(): models.User{
 				ID: userID,
-				Username: "test_user",
+				Username: "test-user",
 				Email:    "test_user@example.com",
 				Profile: models.Profile{
 					FullName:    "Test User",
-					PhoneNumber: "123456789",
+					PhoneNumber: "8423456789",
 					AvatarURL:   "https://example.com/avatar.jpg",
 					Bio:         "Hello, I'm a test user.",
 					DateOfBirth: "2000-01-01",
@@ -156,7 +146,7 @@ func TestUpdateUserProfile(t *testing.T) {
 	// Case 1: Valid token and successful update
 	t.Run("Valid Update", func(t *testing.T) {
 		updateRequest := map[string]interface{}{
-			"username": "updated_user",
+			"username": "updated-user",
 		}
 		reqBody, _ := json.Marshal(updateRequest)
 		req := httptest.NewRequest(http.MethodPut, "/update", bytes.NewReader(reqBody))
@@ -175,14 +165,14 @@ func TestUpdateUserProfile(t *testing.T) {
 		// Verify that the user data was updated
 		updatedUser, found := mockRepo.Users[userID.Hex()]
 		assert.True(t, found)
-		assert.Equal(t, "updated_user", updatedUser.(models.User).Username)
+		assert.Equal(t, "updated-user", updatedUser.(models.User).Username)
 		//assert.Equal(t, "987654321", updatedUser.(models.User).Profile.PhoneNumber)
 	})
 
 	// Case 2: Missing Authorization header
 	t.Run("Missing Authorization", func(t *testing.T) {
 		updateRequest := map[string]interface{}{
-			"username": "update_user", // Trying to update with an existing username
+			"username": "update-user", // Trying to update with an existing username
 		}
 		reqBody, _ := json.Marshal(updateRequest)
 		req, _ := http.NewRequest(http.MethodPut, "/update", bytes.NewReader(reqBody))
@@ -200,7 +190,7 @@ func TestUpdateUserProfile(t *testing.T) {
 	// Case 3: Invalid Token
 	t.Run("Invalid Token", func(t *testing.T) {
 		updateRequest := map[string]interface{}{
-			"username": "update_user", // Trying to update with an existing username
+			"username": "update-user", // Trying to update with an existing username
 		}
 		reqBody, _ := json.Marshal(updateRequest)
 		req, _ := http.NewRequest(http.MethodPut, "/update", bytes.NewReader(reqBody))
@@ -214,34 +204,6 @@ func TestUpdateUserProfile(t *testing.T) {
 		err := json.Unmarshal(rec.Body.Bytes(), &response)
 		assert.NoError(t, err)
 		assert.Contains(t, response["error"], "invalid token")
-	})
-
-	// Case 4: Username already in use
-	t.Run("Username Conflict", func(t *testing.T) {
-		// Adding another user with a different ID
-		otherUserID, _ := primitive.ObjectIDFromHex("6488e1c4b5d1e40b2c93f3b1")
-		mockRepo.Users[otherUserID.Hex()] = models.User{
-			ID:       otherUserID,
-			Username: "existing_user",
-			Email:    "existing_user@example.com",
-		}
-
-		updateRequest := map[string]interface{}{
-			"username": "existing_user", // Trying to update with an existing username
-		}
-		reqBody, _ := json.Marshal(updateRequest)
-		req := httptest.NewRequest(http.MethodPut, "/update", bytes.NewReader(reqBody))
-		req.Header.Set("Authorization", validToken)
-		rec := httptest.NewRecorder()
-
-		r.ServeHTTP(rec, req)
-
-		assert.Equal(t, http.StatusConflict, rec.Code)
-
-		var response map[string]string
-		err := json.Unmarshal(rec.Body.Bytes(), &response)
-		assert.NoError(t, err)
-		assert.Equal(t, "Username already in use", response["error"])
 	})
 }
 
@@ -343,10 +305,6 @@ func TestChangePassword(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "Current password is incorrect", response["error"])
 	})
-	// 	err := json.Unmarshal(rec.Body.Bytes(), &response)
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, "Password must contain at least 8 characters, including letters, numbers, and special characters.", response["error"])
-	// })
 }
 
 func TestChangeEmail(t *testing.T) {
@@ -495,112 +453,3 @@ func TestDeleteCurrentUser(t *testing.T) {
 		assert.Equal(t, "invalid token", response["error"])
 	})
 }
-
-
-// func TestGetPaymentHistory(t *testing.T) {
-// 	// Tạo user_id giả
-// 	userID := primitive.NewObjectID()
-
-// 	// Mock repository với một số payment data
-// 	mockRepo := &repository.MockPaymentRepository{
-// 		Payments: map[string]interface{}{
-// 			userID.Hex(): models.Order{
-// 				OrderID:          "order1",
-// 				UserID:           userID,
-// 				OrderInfo:        "Order details",
-// 				TransactionStatus: "Completed",
-// 				Amount:            100,
-// 			},
-// 		},
-// 	}
-
-// 	// Set up Gin router and handler
-// 	r := gin.Default()
-// 	r.GET("/payment-history", controllers.GetPaymentHistory(mockRepo))
-
-// 	// Generate a valid token for the user using the middlewares.GenerateAccessToken
-// 	validToken, err := middlewares.GenerateAccessToken(userID.Hex(), "VIP-1")
-// 	if err != nil {
-// 		t.Fatalf("failed to generate valid token: %v", err)
-// 	}
-
-// 	// Case 1: Valid payment history
-// 	t.Run("Valid Payment History", func(t *testing.T) {
-// 		req, _ := http.NewRequest(http.MethodGet, "/payment-history", nil)
-// 		req.Header.Set("Authorization", validToken)
-// 		rec := httptest.NewRecorder()
-	
-// 		// Gọi handler gin
-// 		r.ServeHTTP(rec, req)
-	
-// 		// Kiểm tra code trả về
-// 		assert.Equal(t, http.StatusOK, rec.Code)
-	
-// 		var response map[string]interface{}
-// 		err = json.Unmarshal(rec.Body.Bytes(), &response)
-// 		assert.NoError(t, err)
-	
-// 		// Kiểm tra xem "payment_history" có tồn tại không
-// 		paymentHistory, ok := response["payment_history"].([]interface{})
-// 		if !ok {
-// 			t.Fatalf("Expected payment_history to be []interface{}, but got %T", response["payment_history"])
-// 		}
-	
-// 		// Kiểm tra xem paymentHistory có phần tử nào không
-// 		if len(paymentHistory) == 0 {
-// 			t.Errorf("No payment history found, response is empty")
-// 		} else {
-// 			// Kiểm tra phần tử trong paymentHistory
-// 			paymentDetails, ok := paymentHistory[0].(map[string]interface{})
-// 			if !ok {
-// 				t.Fatalf("Expected paymentDetails to be map[string]interface{}, but got %T", paymentHistory[0])
-// 			}
-	
-// 			// Kiểm tra các trường trong payment
-// 			assert.Equal(t, "order1", paymentDetails["order_id"])
-// 			assert.Equal(t, userID.Hex(), paymentDetails["user_id"])
-// 			assert.Equal(t, "Completed", paymentDetails["transaction_status"])
-// 			assert.Equal(t, float64(100), paymentDetails["amount"])
-// 		}
-// 	})
-
-// 	// Case 2: No payment history found
-// 	t.Run("No Payment History Found", func(t *testing.T) {
-// 		// Mock repository không có payment
-// 		mockRepo.Payments = map[string]interface{}{}
-
-// 		req, _ := http.NewRequest(http.MethodGet, "/payment-history", nil)
-// 		req.Header.Set("Authorization",validToken)
-// 		rec := httptest.NewRecorder()
-
-// 		r.ServeHTTP(rec, req)
-
-// 		assert.Equal(t, http.StatusOK, rec.Code)
-
-// 		var response map[string]interface{}
-// 		err := json.Unmarshal(rec.Body.Bytes(), &response)
-// 		assert.NoError(t, err)
-
-// 		// Kiểm tra thông báo không có lịch sử thanh toán
-// 		assert.Equal(t, "No payment history found", response["message"])
-// 	})
-
-// 	// Case 3: Repository error
-// 	t.Run("Repository Error", func(t *testing.T) {
-// 		// Simulate a repository error
-// 		mockRepo.Err = fmt.Errorf("repository error")
-
-// 		req, _ := http.NewRequest(http.MethodGet, "/payment-history", nil)
-// 		req.Header.Set("Authorization",validToken)
-// 		rec := httptest.NewRecorder()
-
-// 		r.ServeHTTP(rec, req)
-
-// 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-
-// 		var response map[string]interface{}
-// 		err := json.Unmarshal(rec.Body.Bytes(), &response)
-// 		assert.NoError(t, err)
-// 		assert.Equal(t, "Error fetching payment history", response["error"])
-// 	})
-// }

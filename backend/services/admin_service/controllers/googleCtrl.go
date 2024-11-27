@@ -22,18 +22,17 @@ func generateUniqueUsername() string {
 
 
 // GoogleLogin authenticates the user using their Google ID Token.
-//
 // @Summary Google Login
 // @Description This endpoint allows users to authenticate using their Google account. The frontend sends a Google ID Token, which is verified on the backend to create or authenticate the user.
 // @Tags Authentication
 // @Accept application/x-www-form-urlencoded
 // @Produce json
 // @Param id_token formData string true "Google ID Token"
-// @Success 200 {object} LoginReponse "Success: Login successful with access token"
+// @Success 200 {object} models.RorLResponse "Success: Login successful with access token"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Invalid Google ID token"
 // @Failure 403 {object} models.ErrorResponse "Forbidden: User account is banned"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error: Failed to create or retrieve user"
-// @Router /auth/google-login [post]
+// @Router /api/v1/auth/google-login [post]
 // GoogleLogin xử lý đăng nhập bằng Google ID Token
 func GoogleLogin(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {

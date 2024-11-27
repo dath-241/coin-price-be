@@ -4,11 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
-
 	"go.mongodb.org/mongo-driver/bson"
-	//"go.mongodb.org/mongo-driver/mongo/options"
-
-	//"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -19,7 +15,6 @@ type PaymentRepository interface {
 type MongoPaymentRepository struct {
     Collection *mongo.Collection
 }
-
 
 func (r *MongoPaymentRepository) FindPayments(ctx context.Context, filter bson.M) ([]models.Order, error) {
     fmt.Println("Filter used for finding payments:", filter) // Log filter để xem nó có đúng không

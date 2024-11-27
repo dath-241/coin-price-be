@@ -9,29 +9,20 @@ import (
 	"github.com/dath-241/coin-price-be-go/services/admin_service/repository"
 
 	"github.com/gin-gonic/gin"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type User struct {
-    ID       string `json:"id"`
-    Username string `json:"username"`
-    Email    string `json:"email"`
-    VIPLevel string `json:"vip_level"`
-    Status   bool   `json:"status"`
-}
-
-
 // GetAllUsers godoc
 // @Summary Get all users
 // @Description Admin can retrieve a list of all users in the system. Returns basic information about each user.
 // @Tags Admin
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
-// @Success 200 {array} User "List of users successfully fetched"
+// @Success 200 {array} models.UserResponse "List of users successfully fetched"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while fetching users"
 // @Router /api/v1/admin/users [get]
 func GetAllUsers(repo repository.UserRepository) gin.HandlerFunc {
@@ -66,12 +57,11 @@ func GetAllUsers(repo repository.UserRepository) gin.HandlerFunc {
 	}
 }
 
-
-
 // GetUserByAdmin godoc
 // @Summary Get user details by admin
 // @Description Admin can retrieve user details by providing the user ID. Returns user information such as username, email, VIP level, etc.
 // @Tags Admin
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
@@ -133,6 +123,7 @@ func GetUserByAdmin(repo repository.UserRepository) gin.HandlerFunc {
 // @Summary Delete a user by admin
 // @Description Admin can delete a user from the system by providing the user ID. The user will be permanently removed from the database.
 // @Tags Admin
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
@@ -181,10 +172,11 @@ func DeleteUserByAdmin(repo repository.UserRepository) func(*gin.Context) {
 // @Summary Get payment history for all users (admin only)
 // @Description Retrieves the payment history for all users. Admin can view all payments made by users.
 // @Tags Admin
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
-// @Success 200 {object} GetPaymentHistoryResponse "List of all payment histories"
+// @Success 200 {object} models.GetPaymentHistoryResponse "List of all payment histories"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while fetching payment history"
 // @Router /api/v1/admin/payment-history [get]
 func GetPaymentHistoryForAdmin(repo repository.PaymentRepository) func(*gin.Context) {
@@ -227,24 +219,21 @@ func GetPaymentHistoryForAdmin(repo repository.PaymentRepository) func(*gin.Cont
     }
 }
 
-type GetPaymentHistoryResponse struct {
-	PaymentHistory []map[string]interface{} `json:"payment_history"`
-}
-
 // GetPaymentHistoryForUserByAdmin godoc
 // @Summary Retrieve payment history for a specific user (admin access only)
 // @Description Retrieves the payment history of a specific user based on the provided user ID. This endpoint is restricted to admin access only and returns a list of payment transactions associated with the user.
 // @Tags Admin
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
 // @Param user_id path string true "User ID" 
-// @Success 200 {object} GetPaymentHistoryResponse "List of payment transactions for the user"
+// @Success 200 {object} models.GetPaymentHistoryResponse "List of payment transactions for the user"
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing parameters"
 // @Failure 404 {object} models.ErrorResponse "No payment history found for this user"
 // @Failure 500 {object} models.ErrorResponse "Internal server error during payment history retrieval"
 // @Router /api/v1/admin/payment-history/{user_id} [get]
-func GetPaymentHistoryForUserByAdmin(repo repository.PaymentRepository) func(*gin.Context) {
+func GetPaymentHistoryOfAUserByAdmin(repo repository.PaymentRepository) func(*gin.Context) {
     return func(c *gin.Context) {
         // Lấy user_id từ URL
         userID := c.Param("user_id")
@@ -310,6 +299,7 @@ func GetPaymentHistoryForUserByAdmin(repo repository.PaymentRepository) func(*gi
 // @Summary Ban a user account
 // @Description Ban a user account by setting the account status to inactive. Admin can use this to ban a user account.
 // @Tags Admin
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
@@ -392,6 +382,7 @@ func BanAccount(userRepo repository.UserRepository) func(*gin.Context) {
 // @Summary Activate a user account
 // @Description Activate a user account by setting the account status to active. Admin can use this to activate a banned account.
 // @Tags Admin
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
