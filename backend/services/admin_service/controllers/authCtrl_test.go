@@ -11,7 +11,6 @@ import (
 
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/repository"
-	//"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -431,8 +430,6 @@ func TestLogin(t *testing.T) {
 	})
 }
 
-
-// Unit Test for Logout
 func TestLogout(t *testing.T) {
 
 	tests := []struct {

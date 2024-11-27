@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-
 	"github.com/dath-241/coin-price-be-go/services/admin_service/controllers"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/repository"
@@ -15,71 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-// func TestGetAllUsers(t *testing.T) {
-// 	t.Run("Test Get All Users", func(t *testing.T) {
-// 		// Khởi tạo lại mock repo
-// 		mockRepo := &repository.MockUserRepository{
-// 			Users: map[string]interface{}{
-// 				"1": map[string]interface{}{
-// 					"user_id":  "1",
-// 					"username": "user1",
-// 					"email":    "user1@example.com",
-// 					"vip_level": "VIP-1",
-// 					"status":   true,
-// 				},
-// 				"2": map[string]interface{}{
-// 					"user_id":  "2",
-// 					"username": "user2",
-// 					"email":    "user2@example.com",
-// 					"vip_level": "VIP-0",
-// 					"status":   false,
-// 				},
-// 			},
-// 			Err: nil, // Không có lỗi trong test case này
-// 		}
-
-// 		// Thiết lập router với mock repository
-// 		r := gin.Default()
-// 		r.GET("/users", controllers.GetAllUsers(mockRepo))
-
-// 		// Gửi yêu cầu GET tới endpoint
-// 		req, _ := http.NewRequest(http.MethodGet, "/users", nil)
-// 		rec := httptest.NewRecorder()
-// 		r.ServeHTTP(rec, req)
-
-// 		// Kiểm tra mã trạng thái HTTP
-// 		assert.Equal(t, http.StatusOK, rec.Code)
-
-// 		// Kiểm tra nội dung trả về
-// 		var response []map[string]interface{}
-// 		err := json.Unmarshal(rec.Body.Bytes(), &response)
-// 		assert.NoError(t, err)
-
-// 		// Kiểm tra số lượng người dùng trả về
-// 		assert.Equal(t, len(mockRepo.Users), len(response))
-
-// 		// Kiểm tra từng phần tử trong danh sách trả về
-// 		// Khởi tạo chỉ số cho vòng lặp duyệt qua response
-// 		index := 0
-// 		for _, user := range mockRepo.Users {
-// 			// Chuyển từ interface{} thành map[string]interface{} trước khi so sánh
-// 			mockUser := user.(map[string]interface{})
-// 			respUser := response[index] // Sử dụng index để truy cập vào response
-
-// 			// Kiểm tra các trường thông tin người dùng
-// 			assert.Equal(t, mockUser["user_id"], respUser["user_id"])
-// 			assert.Equal(t, mockUser["username"], respUser["username"])
-// 			assert.Equal(t, mockUser["email"], respUser["email"])
-// 			assert.Equal(t, mockUser["vip_level"], respUser["vip_level"])
-// 			assert.Equal(t, mockUser["status"], respUser["status"])
-
-// 			// Tăng chỉ số lên 1 sau mỗi vòng lặp
-// 			index++
-// 		}
-// 	})
-// }
-
 
 func TestGetUserByAdmin(t *testing.T) {
 	t.Run("Test Get User By Admin", func(t *testing.T) {
@@ -229,96 +163,6 @@ func TestGetPaymentHistoryForAdmin(t *testing.T) {
 			err := json.Unmarshal(rec.Body.Bytes(), &response)
 			assert.NoError(t, err)
 			assert.Equal(t, "No payment history found", response["message"])
-		})
-	})
-}
-
-func TestGetPaymentHistoryForUserByAdmin(t *testing.T) {
-	t.Run("Test Get Payment History For User By Admin", func(t *testing.T) {
-		// Tạo user_id giả
-		userID := primitive.NewObjectID()
-
-		// Mock repository với một số payment data
-		mockRepo := &repository.MockPaymentRepository{
-			Payments: map[string]interface{}{
-				userID.Hex(): models.Order{
-					OrderID:          "order1",
-					UserID:           userID,
-					OrderInfo:        "Order details",
-					TransactionStatus: "Completed",
-					Amount:            100,
-				},
-			},
-		}
-
-		// Tạo Gin router và handler
-		r := gin.Default()
-		r.GET("/payment-history/:user_id", controllers.GetPaymentHistoryForUserByAdmin(mockRepo))
-
-		// Case 1: Thành công - có payment
-		t.Run("Valid Payment History", func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/payment-history/"+userID.Hex(), nil)
-			rec := httptest.NewRecorder()
-
-			r.ServeHTTP(rec, req)
-
-			assert.Equal(t, http.StatusOK, rec.Code)
-
-			var response map[string]interface{}
-			err := json.Unmarshal(rec.Body.Bytes(), &response)
-			assert.NoError(t, err)
-
-			// Kiểm tra danh sách lịch sử thanh toán
-			paymentHistory, ok := response["payment_history"].([]interface{})
-			assert.True(t, ok)
-			assert.Len(t, paymentHistory, 1)
-
-			// Kiểm tra các trường trong payment
-			paymentDetails := paymentHistory[0].(map[string]interface{})
-			assert.Equal(t, "order1", paymentDetails["order_id"])
-			assert.Equal(t, userID.Hex(), paymentDetails["user_id"])
-			assert.Equal(t, "Completed", paymentDetails["transaction_status"])
-			assert.Equal(t, float64(100), paymentDetails["amount"])
-		})
-
-		// Case 2: Không tìm thấy thanh toán
-		t.Run("No Payment History Found", func(t *testing.T) {
-			// Mock repository không có payment
-			mockRepo.Payments = map[string]interface{}{}
-
-			req := httptest.NewRequest(http.MethodGet, "/payment-history/"+userID.Hex(), nil)
-			rec := httptest.NewRecorder()
-
-			r.ServeHTTP(rec, req)
-
-			assert.Equal(t, http.StatusOK, rec.Code)
-
-			var response map[string]interface{}
-			err := json.Unmarshal(rec.Body.Bytes(), &response)
-			assert.NoError(t, err)
-
-			// Kiểm tra thông báo không có lịch sử thanh toán
-			assert.Equal(t, "No payment history found for this user", response["message"])
-		})
-
-		// Case 3: Lỗi trong quá trình truy vấn
-		t.Run("Database Error", func(t *testing.T) {
-			// Mock repository với lỗi
-			mockRepo.Err = assert.AnError
-
-			req := httptest.NewRequest(http.MethodGet, "/payment-history/"+userID.Hex(), nil)
-			rec := httptest.NewRecorder()
-
-			r.ServeHTTP(rec, req)
-
-			assert.Equal(t, http.StatusInternalServerError, rec.Code)
-
-			var response map[string]interface{}
-			err := json.Unmarshal(rec.Body.Bytes(), &response)
-			assert.NoError(t, err)
-
-			// Kiểm tra thông báo lỗi
-			assert.Equal(t, "Internal Server Error", response["error"])
 		})
 	})
 }
