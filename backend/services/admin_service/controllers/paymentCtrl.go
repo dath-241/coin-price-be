@@ -159,7 +159,7 @@ func CreateVIPPayment() func(*gin.Context) {
 }
 
 // Xác nhận thanh toán thành công và cập nhật VIP cho user
-func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string){
+func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string, Role string){
 		
     collection := config.DB.Collection("OrderMoMo")
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -257,6 +257,14 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string){
     // Gửi token dưới dạng cookie
     setAuthCookies(c, accessToken, refreshToken, false, true)
 
+    if Role == "Admin" {
+        c.JSON(http.StatusOK, gin.H{
+            "message": "Payment confirmed and VIP level upgraded",
+            "status": "0",
+        })
+        return
+    }
+
     // Trả về kết quả xác nhận thanh toán thành công
     c.JSON(http.StatusOK, gin.H{
         "message": "Payment confirmed and VIP level upgraded",
@@ -269,8 +277,10 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string){
 // @Summary Check payment status and upgrade user's VIP level if successful
 // @Description Queries the payment status and upgrades the user's VIP level if the payment is successful based on the order details
 // @Tags Payment
+// @Security BearerAuth
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Authorization token"
 // @Param statusRequest body models.QueryPaymentRequest true "Order ID from the payment gateway"
 // @Success 200 {object} models.ReponseQueryPaymentRequest "Payment confirmed and VIP level upgraded"
 // @Failure 400 {object} models.ErrorResponse "Invalid order ID or missing parameters"
@@ -300,6 +310,65 @@ func HandleQueryPaymentStatus() gin.HandlerFunc {
 			return
 		}
 
+		// Lấy token từ header Authorization
+		tokenString := c.GetHeader("Authorization")
+
+		var userIDFromToken, role string
+
+		// Nếu token được cung cấp, xác thực và lấy thông tin user_id, role
+		if tokenString != "" {
+			claims, err := middlewares.VerifyJWT(tokenString, true) // true để chỉ định đây là AccessToken
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"error": "Invalid or expired token",
+				})
+				return
+			}
+			userIDFromToken = claims.UserID
+			role = claims.Role
+		}
+
+		// Nếu không có token và không phải admin, từ chối truy cập
+		if tokenString == "" && role != "Admin" {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Authorization token is required",
+			})
+			return
+		}
+
+        		// Lấy thông tin đơn hàng từ MongoDB bằng OrderID
+		collection := config.DB.Collection("OrderMoMo")
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		var order models.Order
+		err := collection.FindOne(ctx, bson.M{"order_id": req.OrderID}).Decode(&order)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Order not found",
+			})
+			return
+		}
+
+        // Nếu không phải admin, kiểm tra quyền sở hữu đơn hàng
+		if role != "Admin" {
+			// Chuyển userIDFromToken từ string sang ObjectID
+			userIDObj, err := primitive.ObjectIDFromHex(userIDFromToken)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"error": "Invalid user ID in token",
+				})
+				return
+			}
+
+			if order.UserID != userIDObj {
+				c.JSON(http.StatusForbidden, gin.H{
+					"error": "You do not have permission to query this order",
+				})
+				return
+			}
+		}
+
 		// Default language is "vi" if not provided
 		if req.Lang == "" {
 			req.Lang = "vi"
@@ -318,7 +387,7 @@ func HandleQueryPaymentStatus() gin.HandlerFunc {
         // Kiểm tra trạng thái giao dịch từ MoMo
         if result.ResultCode == 0 {
             // Gọi hàm xử lý thành công
-            confirmPaymentHandlerSuccess(c, req.OrderID)
+            confirmPaymentHandlerSuccess(c, req.OrderID, role)
         } else {
             c.JSON(http.StatusOK, gin.H{
                 "message": "Transaction is not successful yet", 
