@@ -18,7 +18,7 @@ func SetupRouter(r *gin.Engine) {
 	// Tạo instance repository
 	repo := &repository.MongoUserRepository{Collection: collection}
 
-	// Kết nối tới collection "User"
+	// Kết nối tới collection "OrderMoMo"
 	collectionpay := config.DB.Collection("OrderMoMo")
 
 	// Tạo instance repository
@@ -39,7 +39,7 @@ func SetupRouter(r *gin.Engine) {
 	}
 
 	// Route cho xác thực
-	authRoutes := r.Group("/auth")
+	authRoutes := r.Group("/api/v1/auth")
 	{
 		authRoutes.POST("/login", controllers.Login(repo)) // Người dùng đăng nhập
 		authRoutes.POST("/google-login", controllers.GoogleLogin(repo))
@@ -62,7 +62,7 @@ func SetupRouter(r *gin.Engine) {
 		adminRoutes.PUT("/user/:user_id/ban", controllers.BanAccount(repo)) //Ban 1 người dùn
 		adminRoutes.PUT("/user/:user_id/active", controllers.ActiveAccount(repo)) //Ban 1 người dùn
 		adminRoutes.GET("/payment-history", controllers.GetPaymentHistoryForAdmin(payrepo))
-		adminRoutes.GET("/payment-history/:user_id", controllers.GetPaymentHistoryForUserByAdmin(payrepo))
+		adminRoutes.GET("/payment-history/:user_id", controllers.GetPaymentHistoryOfAUserByAdmin(payrepo))
 	}
 
 	// Route cho payment
@@ -73,5 +73,4 @@ func SetupRouter(r *gin.Engine) {
 		paymentRoutes.POST("/momo-callback", momo.MoMoCallback())
 	}
 
-	// return r
 }
