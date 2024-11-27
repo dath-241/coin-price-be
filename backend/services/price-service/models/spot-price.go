@@ -32,6 +32,12 @@ type ResponseSpotPrice struct {
 	EventTime string `json:"eventTime"`
 }
 
+type ResponseBinance struct {
+	Symbol string `json:"symbol"`
+	Price  string `json:"price"`
+	Time   int64  `json:"time"`
+}
+
 func (r *ResponseSpotPrice) UpdateData(symbol, price, eventTime string) {
 	r.Symbol = symbol
 	r.Price = price

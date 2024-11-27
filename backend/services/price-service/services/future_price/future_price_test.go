@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/dath-241/coin-price-be-go/services/price-service/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +21,7 @@ func TestGetFuturePrice(t *testing.T) {
 	tests := []struct {
 		name           string
 		symbol         string
-		mockResponse   *BinanceFutureResponse
+		mockResponse   *models.ResponseBinanceFuture
 		mockStatusCode int
 		expectedStatus int
 		expectedError  string
@@ -28,7 +29,7 @@ func TestGetFuturePrice(t *testing.T) {
 		{
 			name:   "successful future price fetch",
 			symbol: "BTCUSDT",
-			mockResponse: &BinanceFutureResponse{
+			mockResponse: &models.ResponseBinanceFuture{
 				Symbol:               "BTCUSDT",
 				MarkPrice:            "50000.00",
 				IndexPrice:           "49990.00",

@@ -1,13 +1,10 @@
 package routes
 
 import (
-	docs "github.com/dath-241/coin-price-be-go/docs"
 	middlewares "github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 	"github.com/dath-241/coin-price-be-go/services/price-service/services/future_price"
 	"github.com/dath-241/coin-price-be-go/services/price-service/services/spot_price"
 	"github.com/gin-gonic/gin"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @title           Your API Title
@@ -17,10 +14,7 @@ import (
 // @BasePath        /api
 func RegisterRoutes(server *gin.Engine) {
 
-	docs.SwaggerInfo.BasePath = "/api"
-
 	// Move swagger route outside of the authenticated group
-	server.GET("/swagger/price/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	authenticated := server.Group("/api")
 	// Funding rate

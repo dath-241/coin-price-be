@@ -6,26 +6,20 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dath-241/coin-price-be-go/services/price-service/models"
 	"github.com/gin-gonic/gin"
 )
 
-type BinanceFutureResponse struct {
-	Symbol               string `json:"symbol"`
-	MarkPrice            string `json:"markPrice"`
-	IndexPrice           string `json:"indexPrice"`
-	EstimatedSettlePrice string `json:"estimatedSettlePrice"`
-	LastFundingRate      string `json:"lastFundingRate"`
-	NextFundingTime      int64  `json:"nextFundingTime"`
-	InterestRate         string `json:"interestRate"`
-	Time                 int64  `json:"time"`
-}
-
-type FuturePriceResponse struct {
-	EventTime string `json:"eventTime"`
-	Price     string `json:"price"`
-	Symbol    string `json:"symbol"`
-}
-
+// @Summary Get real-time future price data
+// @Description Retrieves current future price information for a specified trading pair from Binance Futures
+// @Tags Future price
+// @Produce json
+// @Param symbol query string true "Trading pair symbol (e.g., BTCUSDT)" example("BTCUSDT")
+// @Success 200 {object} models.ResponseFuturePrice "Successful response with funding rate data"
+// @Failure 400 {object} models.ErrorResponseDataMissing "Invalid symbol or request parameters"
+// @Failure 404 {object} models.ErrorResponseDataNotFound "Symbol not found"
+// @Failure 500 {object} models.ErrorResponseDataInternalServerError "Failed to fetch price"
+// @Router /api/v1/future-price [get]
 func GetFuturePrice(ctx *gin.Context) {
 	symbol := ctx.Query("symbol")
 	if symbol == "" {
@@ -51,7 +45,7 @@ func GetFuturePrice(ctx *gin.Context) {
 	}
 
 	// Decode the Binance response
-	var binanceResp BinanceFutureResponse
+	var binanceResp models.ResponseBinanceFuture
 	if err := json.NewDecoder(resp.Body).Decode(&binanceResp); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to decode response: %v", err)})
 		return
@@ -61,7 +55,7 @@ func GetFuturePrice(ctx *gin.Context) {
 	eventTime := time.Unix(binanceResp.Time/1000, 0).Format("2006-01-02 15:04:05")
 
 	// Create our response structure
-	response := &FuturePriceResponse{
+	response := &models.ResponseFuturePrice{
 		EventTime: eventTime,
 		Price:     binanceResp.MarkPrice,
 		Symbol:    binanceResp.Symbol,
