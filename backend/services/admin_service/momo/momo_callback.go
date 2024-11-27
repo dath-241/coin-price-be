@@ -19,7 +19,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param callbackData body map[string]interface{} true "MoMo Callback Data"
-// @Success 200 {object} models.ErrorResponse "MoMo callback success response"
+// @Success 200 {object} models.MoMoResponse "MoMo callback success response"
 // @Failure 400 {object} models.ErrorResponse "Invalid JSON payload"
 // @Failure 401 {object} models.ErrorResponse "Invalid signature"
 // @Router /api/v1/payment/momo-callback [post]
