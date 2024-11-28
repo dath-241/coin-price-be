@@ -63,14 +63,14 @@ func setAuthCookies(c *gin.Context, accessToken, refreshToken string, setAccessT
 
 	// Nếu set accessToken là true thì thiết lập cookie accessToken
 	if setAccessToken {
-		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)      // chỉ dành cho /api/v1
+		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true) // chỉ dành cho /api/v1
 		//c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1/auth/logout", cookieDomain, true, true) // chỉ dành cho /auth/logout
 	}
 
 	// Nếu set refreshToken là true thì thiết lập cookie refreshToken
 	if setRefreshToken {
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/refresh-token", cookieDomain, true, true)     // chỉ dành cho /auth/refresh-token
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/logout", cookieDomain, true, true)            // chỉ dành cho /auth/logout
+		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/refresh-token", cookieDomain, true, true) // chỉ dành cho /auth/refresh-token
+		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/logout", cookieDomain, true, true)        // chỉ dành cho /auth/logout
 		//c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
 	}
 
@@ -301,7 +301,7 @@ func Login(userRepo repository.UserRepository) func(*gin.Context) {
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param Authorization header string true "Bearer <JWT Token>" 
+// @Param Authorization header string true "Bearer <JWT Token>"
 // @Success 200 {object} models.MessageResponse "Logout successful"
 // @Failure 400 {object} models.ErrorResponse "No token provided or Refresh Token not provided"
 // @Failure 401 {object} models.ErrorResponse "Token has been revoked"
@@ -434,7 +434,7 @@ func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 		resetLink := fmt.Sprintf("%s/reset-password?token=%s", baseURL, rawToken)
 
 		// Chuẩn bị email template
-		emailTemplatePath := "services/admin_service/templates/password_reset_email.html"
+		emailTemplatePath := "password_reset_email.html"
 		htmlBody, err := os.ReadFile(emailTemplatePath)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read email template"})
