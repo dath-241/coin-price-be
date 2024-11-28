@@ -15,7 +15,7 @@ import (
 // @Tags Future price
 // @Produce json
 // @Param symbol query string true "Trading pair symbol (e.g., BTCUSDT)" example("BTCUSDT")
-// @Success 200 {object} models.ResponseFuturePrice "Successful response with funding rate data"
+// @Success 200 {object} models.ResponseFuturePrice "Successful response with future price data"
 // @Failure 400 {object} models.ErrorResponseDataMissing "Invalid symbol or request parameters"
 // @Failure 404 {object} models.ErrorResponseDataNotFound "Symbol not found"
 // @Failure 500 {object} models.ErrorResponseDataInternalServerError "Failed to fetch price"
