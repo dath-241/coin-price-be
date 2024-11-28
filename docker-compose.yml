@@ -1,24 +1,19 @@
 services:
   api:
+    container_name: go-api
     depends_on:
       - db
     build:  ./backend
     ports:
       - 8080:8080
-    env_file:
-      - backend/.env
-    develop:
-      watch:
-        - path: ./backend/go.mod
-          action: rebuild
-        - path: ./backend
-          target: /app
-          action: sync
+    volumes:
+      - .env:/app/.env
   db:
+    container_name: go-mongodb
     image: mongo:latest
     ports:
       - 27017:27017
-    volumes:
+    volumes:  
       - coin-price:/data/db
 
 volumes:
