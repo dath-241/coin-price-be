@@ -8,6 +8,7 @@ services:
       - 8080:8080
     volumes:
       - .env:/app/.env
+      - ./backend/services/admin_service/templates/password_reset_email.html:/app/password_reset_email.html
   db:
     container_name: go-mongodb
     image: mongo:latest
