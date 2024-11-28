@@ -14,6 +14,7 @@ import (
 // @Summary Get Kline data
 // @Description Fetches Kline data for a specific symbol and interval from Binance API
 // @Tags Kline
+// @Param Authorization header string true "Authorization token"
 // @Param symbol query string true "Symbol for which to fetch Kline data (e.g., BTCUSDT)"
 // @Param interval query string true "Interval for Kline data (e.g., 1m, 5m, 1h, 1d)"
 // @Success 200 {object} models.ResponseKline "Successful response with Kline data"

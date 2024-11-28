@@ -18,9 +18,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-
 // GetCurrentUserInfo retrieves the information of the currently authenticated user.
-//
 // @Summary Retrieve current user information
 // @Description This endpoint fetches details of the currently authenticated user using the JWT token provided in the Authorization header.
 // @Tags Users
@@ -121,22 +119,7 @@ func GetCurrentUserInfo(repo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-
-type UpdateUserProfileRequest struct {
-    Name        string `json:"name" example:"John Doe"`
-    Username    string `json:"username" example:"johndoe123"`
-    Phone       string `json:"phone" example:"+1234567890"`
-    Avatar      string `json:"avatar" example:"https://example.com/avatar.jpg"`
-    Bio         string `json:"bio" example:"Software Engineer"`
-    DateOfBirth string `json:"dateOfBirth" example:"2000-01-01"` // Định dạng: YYYY-MM-DD
-}
-
-type UpdateUserProfileResponse struct {
-	 Message string `json:"message"`
-}
-
 // UpdateUserProfile updates the information of the currently authenticated user.
-//
 // @Summary Update current user profile
 // @Description This endpoint allows the user to update their profile information such as name, username, phone, avatar, bio, and date of birth.
 // @Tags Users
@@ -144,8 +127,8 @@ type UpdateUserProfileResponse struct {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token" Format("Bearer {token}")
-// @Param UpdateUserProfileRequest body UpdateUserProfileRequest true "Update UserProfile Request body"
-// @Success 200 {object} UpdateUserProfileResponse
+// @Param UpdateUserProfileRequest body models.UpdateUserProfileRequest true "Update UserProfile Request body"
+// @Success 200 {object} models.MessageResponse
 // @Failure 400 {object} models.ErrorResponse "Bad Request: Invalid input"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Authorization header required or invalid token"
 // @Failure 404 {object} models.ErrorResponse "Not Found: User not found"
@@ -168,6 +151,23 @@ func UpdateUserProfile(repo repository.UserRepository) func(*gin.Context) {
 				"error": "Invalid input",
 			})
 			return
+		}
+
+		if updateRequest.Username != "" {
+			if !(utils.IsValidUsername(updateRequest.Username)){
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Invalid username",
+				})
+				return
+			}
+		}
+		if updateRequest.Phone != "" {
+			if !(utils.IsValidPhoneNumber(updateRequest.Phone)){
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Invalid phone number",
+				})
+				return
+			}
 		}
 
 		tokenString := c.GetHeader("Authorization")
@@ -286,17 +286,6 @@ func UpdateUserProfile(repo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-
-type ChangePasswordRequest struct {
-	CurrentPassword string `json:"current_password" binding:"required"`
-	NewPassword     string `json:"new_password" binding:"required"`
-}
-
-type ChangePasswordResponse struct {
-	Message string `json:"message"`
-}
-
-
 // ChangePassword godoc
 // @Summary Change user password
 // @Description This endpoint allows an authenticated user to change their password by providing the current and new passwords.
@@ -305,8 +294,8 @@ type ChangePasswordResponse struct {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token" Format("Bearer {token}")
-// @Param ChangePasswordRequest body ChangePasswordRequest true "Change Password Request body"
-// @Success 200 {object} ChangePasswordResponse
+// @Param ChangePasswordRequest body models.ChangePasswordRequest true "Change Password Request body"
+// @Success 200 {object} models.MessageResponse
 // @Failure 400 {object} models.ErrorResponse "Bad Request: Password must contain at least 8 characters, including letters, numbers, and special characters."
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Authorization header required or invalid token"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Current password is incorrect"
@@ -364,16 +353,6 @@ func ChangePassword(repo repository.UserRepository) func(*gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		// Lấy thông tin người dùng từ repo
-		// user, err := repo.FindOne(c, bson.M{"_id": objID})
-		// if err != nil {
-		// 	if err == mongo.ErrNoDocuments {
-		// 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		// 	} else {
-		// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user"})
-		// 	}
-		// 	return
-		// }
 		var user models.User
 		err = repo.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
 		if err != nil {
@@ -424,24 +403,16 @@ func ChangePassword(repo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-
-type ChangeMailRequest struct {
-	Email string `json:"email" binding:"required,email"` // email mới cần cập nhật
-}
-
-type ChangeMailResponse struct {
-	Message string `json:"message"`
-}
-
 // ChangeEmail godoc
 // @Summary Change user email
 // @Description This endpoint allows an authenticated user to change their email address.
 // @Tags Users
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token" Format("Bearer {token}")
-// @Param ChangeMailRequest body ChangeMailRequest true "Change Mail Request body"
-// @Success 200 {object} ChangeMailResponse
+// @Param ChangeMailRequest body models.ChangeMailRequest true "Change Mail Request body"
+// @Success 200 {object} models.MessageResponse
 // @Failure 400 {object} models.ErrorResponse "Invalid email format"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized or token is invalid"
 // @Failure 409 {object} models.ErrorResponse "Email already exists"
@@ -543,18 +514,15 @@ func ChangeEmail(userRepo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-type DeleteResponse struct {
-	Message string `json:"message"`
-}
-
 // DeleteCurrentUser godoc
 // @Summary Delete current user account
 // @Description This endpoint allows the user to Delete the account of the currently authenticated user based on the access token.
 // @Tags Users
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer token" Format("Bearer {token}")
-// @Success 200 {object} DeleteResponse
+// @Success 200 {object} models.MessageResponse
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized or token is invalid"
 // @Failure 404 {object} models.ErrorResponse "User not found"
@@ -624,10 +592,7 @@ func DeleteCurrentUser(repo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-
-
 // GetPaymentHistory retrieves the payment history of the authenticated user.
-//
 // @Summary Retrieve payment history
 // @Description This endpoint returns the payment history of the currently authenticated user using their JWT token.
 // @Tags Users

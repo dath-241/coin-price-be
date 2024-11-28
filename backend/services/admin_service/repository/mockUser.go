@@ -31,61 +31,6 @@ func (m *MockUserRepository) Find(ctx context.Context, filter bson.M) ([]models.
     return results, nil
 }
 
-// FindOne: Tìm một người dùng dựa trên filter.
-// func (m *MockUserRepository) FindOne(ctx context.Context, filter bson.M) *mongo.SingleResult {
-//     userID, ok := filter["_id"].(primitive.ObjectID)
-//     if !ok {
-//         return mongo.NewSingleResultFromDocument(nil, fmt.Errorf("invalid filter format"), bson.NewRegistry())
-//     }
-
-//     user, found := m.Users[userID.Hex()]
-//     registry := bson.NewRegistry()
-//     if !found {
-//         return mongo.NewSingleResultFromDocument(nil, mongo.ErrNoDocuments, registry)
-//     }
-
-//     return mongo.NewSingleResultFromDocument(user, nil, registry)
-// }
-
-// func (m *MockUserRepository) FindOne(ctx context.Context, filter bson.M) *mongo.SingleResult {
-//     var userFound interface{}
-
-//     for _, user := range m.Users {
-//         userMap := user.(models.User) // Ép kiểu sang models.User
-
-//         // Kiểm tra điều kiện tìm kiếm
-//         match := true
-//         for key, value := range filter {
-//             switch key {
-//             case "_id":
-//                 if userMap.ID.Hex() != value.(primitive.ObjectID).Hex() {
-//                     match = false
-//                 }
-//             case "username":
-//                 if userMap.Username != value {
-//                     match = false
-//                 }
-//             case "email":
-//                 if userMap.Email != value {
-//                     match = false
-//                 }
-//             }
-//         }
-
-//         if match {
-//             userFound = user
-//             break
-//         }
-//     }
-
-//     registry := bson.NewRegistry()
-//     if userFound == nil {
-//         return mongo.NewSingleResultFromDocument(nil, mongo.ErrNoDocuments, registry)
-//     }
-
-//     return mongo.NewSingleResultFromDocument(userFound, nil, registry)
-// }
-
 func (m *MockUserRepository) FindOne(ctx context.Context, filter bson.M) *mongo.SingleResult {
     var userFound interface{}
 
@@ -128,7 +73,6 @@ func (m *MockUserRepository) FindOne(ctx context.Context, filter bson.M) *mongo.
     return mongo.NewSingleResultFromDocument(userFound, nil, registry)
 }
 
-
 // DeleteOne: Xóa một người dùng dựa trên filter.
 func (m *MockUserRepository) DeleteOne(ctx context.Context, filter bson.M) (*mongo.DeleteResult, error) {
     userID, ok := filter["_id"].(primitive.ObjectID)
@@ -143,6 +87,7 @@ func (m *MockUserRepository) DeleteOne(ctx context.Context, filter bson.M) (*mon
 
     return &mongo.DeleteResult{DeletedCount: 0}, nil
 }
+
 func (m *MockUserRepository) UpdateOne(ctx context.Context, filter bson.M, update bson.M) (*mongo.UpdateResult, error) {
 	if m.Err != nil {
 		return nil, m.Err
@@ -195,7 +140,6 @@ func (m *MockUserRepository) UpdateOne(ctx context.Context, filter bson.M, updat
 
 	return &mongo.UpdateResult{MatchedCount: 1}, nil
 }
-
 
 // ExistsByFilter: Kiểm tra xem có user nào khớp với filter không.
 func (m *MockUserRepository) ExistsByFilter(ctx context.Context, filter bson.M) (bool, error) {

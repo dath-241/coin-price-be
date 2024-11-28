@@ -16,7 +16,6 @@ import (
 	"github.com/dath-241/coin-price-be-go/services/admin_service/utils"
 
 	"github.com/gin-gonic/gin"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -65,14 +64,14 @@ func setAuthCookies(c *gin.Context, accessToken, refreshToken string, setAccessT
 	// Nếu set accessToken là true thì thiết lập cookie accessToken
 	if setAccessToken {
 		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true)      // chỉ dành cho /api/v1
-		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/auth/logout", cookieDomain, true, true) // chỉ dành cho /auth/logout
+		//c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1/auth/logout", cookieDomain, true, true) // chỉ dành cho /auth/logout
 	}
 
 	// Nếu set refreshToken là true thì thiết lập cookie refreshToken
 	if setRefreshToken {
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/refresh-token", cookieDomain, true, true)     // chỉ dành cho /auth/refresh-token
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/auth/logout", cookieDomain, true, true)            // chỉ dành cho /auth/logout
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
+		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/refresh-token", cookieDomain, true, true)     // chỉ dành cho /auth/refresh-token
+		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/logout", cookieDomain, true, true)            // chỉ dành cho /auth/logout
+		//c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
 	}
 
 	return nil
@@ -93,29 +92,17 @@ func resetAuthCookies(c *gin.Context) error {
 	return nil
 }
 
-type RegisterRequest struct {
-	Username  string             `json:"username" bson:"username" binding:"required" example:"johndoe"`              // unique
-	Email     string             `json:"email" bson:"email" binding:"required,email" example:"user@example.com"` // unique
-	Password  string             `json:"password,omitempty" bson:"password,omitempty" binding:"required" example:"hashed_password_here"`
-	Profile   models.Profile            `json:"profile" bson:"profile"`                // Nested personal info
-}
-
-type RegisterReponse struct {
-	Message string `json:"message"`
-}
-// Register creates a new user account.
-//
 // @Summary Register a new user
 // @Description This endpoint allows a new user to register by providing a username, password, email, and optional phone number,...
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param RegisterRequest body RegisterRequest true "Register request body"
-// @Success 201 {object}  RegisterReponse "User registered successfully"
+// @Param RegisterRequest body models.RegisterRequest true "Register request body"
+// @Success 201 {object}  models.MessageResponse "User registered successfully"
 // @Failure 400 {object} models.ErrorResponse "Bad Request: Invalid input"
 // @Failure 409 {object} models.ErrorResponse "Conflict: Email, username, or phone already exists"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error: Database operation failed"
-// @Router /auth/register [post]
+// @Router /api/v1/auth/register [post]
 func Register(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var user models.User
@@ -206,31 +193,22 @@ func Register(userRepo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-type LoginReponse struct {
-	Message string `json:"message"`
-	Token 	string `json:"token"`
-}
-
 // Login godoc
 // @Summary User Login
 // @Description Authenticates a user by username or email and returns an access token
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param loginRequest body LoginRequest true "Login request body"
-// @Success 200 {object} LoginReponse "Login successful"
+// @Param loginRequest body models.LoginRequest true "Login request body"
+// @Success 200 {object} models.RorLResponse "Login successful"
 // @Failure 400 {object} models.ErrorResponse "Invalid request body"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Incorrect username or password"
 // @Failure 403 {object} models.ErrorResponse "Forbidden: Account is inactive"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
-// @Router /auth/login [post]
+// @Router /api/v1/auth/login [post]
 func Login(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
-		var loginRequest LoginRequest
+		var loginRequest models.LoginRequest
 
 		// Kiểm tra input
 		if err := c.ShouldBindJSON(&loginRequest); err != nil {
@@ -317,25 +295,19 @@ func Login(userRepo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-
-type LogoutResponse struct {
-	Message string `json:"message"`
-}
 // Logout logs out the user by invalidating their access and refresh tokens.
-//
 // @Summary Logout user
 // @Description This API allows a user to log out by blacklisting their access and refresh tokens and clearing their authentication cookies.
 // @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer <JWT Token>" 
-// @Success 200 {object} LogoutResponse "Logout successful"
+// @Success 200 {object} models.MessageResponse "Logout successful"
 // @Failure 400 {object} models.ErrorResponse "No token provided or Refresh Token not provided"
 // @Failure 401 {object} models.ErrorResponse "Token has been revoked"
 // @Failure 500 {object} models.ErrorResponse "Failed to reset cookies or other server error"
-// @Router /auth/logout [post]
+// @Router /api/v1/auth/logout [post]
 // @Security Bearer
-// Đăng xuất
 func Logout() func(*gin.Context) {
 	return func(c *gin.Context) {
 		// Lấy token từ header
@@ -393,30 +365,18 @@ func Logout() func(*gin.Context) {
 	}
 }
 
-
-type ForgotPasswordRequest struct {
-	Email string `json:"email" binding:"required,email"`
-}
-
-
-type ForgotPasswordReponse struct {
-	Message string `json:"message"`
-}
-
 // ForgotPassword send reset link to email.
-//
 // @Summary Request a password reset link
 // @Description This API allows user can forgotPassword by sends a password reset link to the user's email address.
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param ForgotPasswordRequest body ForgotPasswordRequest true "Forgot Password Request body"
-// @Success 200 {object} ForgotPasswordReponse
+// @Param ForgotPasswordRequest body models.ForgotPasswordRequest true "Forgot Password Request body"
+// @Success 200 {object} models.MessageResponse
 // @Failure 400 {object} models.ErrorResponse "Invalid request format"
 // @Failure 404 {object} models.ErrorResponse "User not found with this email"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
-// @Router /auth/forgot-password [post]
-// Quên mật khẩu
+// @Router /api/v1/auth/forgot-password [post]
 func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var request struct {
@@ -509,28 +469,18 @@ func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-type ResetRequest struct {
-	Token       string `json:"token" binding:"required"`
-	NewPassword string `json:"new_password" binding:"required"`
-}
-
-type ResetReponse struct {
-	Message string `json:"message"`
-}
 // ResetPassword updates user's password using the provided token.
-//
 // @Summary Reset user password
 // @Description This API allows users to reset their password using a valid reset token and a new password. The token is validated for authenticity and expiry before updating the password.
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param ResetRequest body ResetRequest true "Reset Password Request body"
-// @Success 200 {object} ResetReponse
+// @Param ResetRequest body models.ResetRequest true "Reset Password Request body"
+// @Success 200 {object} models.MessageResponse
 // @Failure 400 {object} models.ErrorResponse "Invalid request format or weak password"
 // @Failure 401 {object} models.ErrorResponse "Invalid or expired reset token"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
-// @Router /auth/reset-password [post]
-// Đặt lại mật khẩu
+// @Router /api/v1/auth/reset-password [post]
 func ResetPassword(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var request struct {
@@ -598,22 +548,16 @@ func ResetPassword(userRepo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-type RefreshResponse struct {
-	Message string `json:"message"`
-	Token string `json:"token"`
-}
 // RefreshToken generates a new access token using the provided refresh token.
-//
 // @Summary Refresh access token
 // @Description This API allows users to refresh their access token using a valid refresh token stored in cookies. If the refresh token is valid and not blacklisted, a new access token is generated.
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Success 200 {object} RefreshResponse "New access token generated successfully"
+// @Success 200 {object} models.RorLResponse "New access token generated successfully"
 // @Failure 401 {object} models.ErrorResponse "Refresh token is missing, invalid, or blacklisted"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while generating a new access token"
-// @Router /auth/refresh-token [post]
-// RefreshToken
+// @Router /api/v1/auth/refresh-token [post]
 func RefreshToken() func(*gin.Context) {
 	return func(c *gin.Context) {
 		// Lấy token từ header Authorization
