@@ -3,18 +3,24 @@ services:
     container_name: go-api
     depends_on:
       - db
-    build:  ./backend
+    image: hienle2004/coin-price-be-go-241
     ports:
-      - 8080:8080
+      - 24380:8080
     volumes:
       - .env:/app/.env
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"  # Enable Watchtower for this container
   db:
     container_name: go-mongodb
     image: mongo:latest
     ports:
       - 27017:27017
-    volumes:  
+    volumes:
       - coin-price:/data/db
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"  # Enable Watchtower for this container
 
 volumes:
   coin-price:
