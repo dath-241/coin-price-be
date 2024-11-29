@@ -8,6 +8,7 @@ services:
       - 24380:8080
     volumes:
       - .env:/app/.env
+      - ./backend/services/admin_service/templates/password_reset_email.html:/app/password_reset_email.html
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"  # Enable Watchtower for this container
