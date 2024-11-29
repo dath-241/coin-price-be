@@ -37,7 +37,7 @@ jobs:
     - name: Build and push the Docker image
       run: |
         echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_ACCESS_USER }}" --password-stdin
-        docker build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_HUB_ACCESS_USER }}/coin-price-be-go-241 ./backend/
+        docker build --platform linux/arm64 -t ${{ secrets.DOCKER_HUB_ACCESS_USER }}/coin-price-be-go-241 ./backend/
         docker push ${{ secrets.DOCKER_HUB_ACCESS_USER }}/coin-price-be-go-241
     - name: Remove Docker image
       run: |
