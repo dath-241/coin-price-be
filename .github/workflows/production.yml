@@ -40,7 +40,7 @@ jobs:
         key: ${{ secrets.VPS_PASSWORD }}
         script: |
           cd server
-          git pull origin production
+          git pull origin develop
           > .env
           touch .env
 
