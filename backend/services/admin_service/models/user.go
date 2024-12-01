@@ -38,7 +38,7 @@ type UserDTO struct {
 }
 
 type ErrorResponse struct {
-	Error string `json:"error"`
+	Error string `json:"error" example:"An error occurred"`
 }
 
 type MessageResponse struct {
@@ -53,15 +53,12 @@ type UserResponse  struct {
     Status   bool   `json:"status"`
 }
 
-type GetPaymentHistoryResponse struct {
-	PaymentHistory []map[string]interface{} `json:"payment_history"`
-}
 
 type RegisterRequest struct {
-	Username  string             `json:"username" bson:"username" binding:"required" example:"johndoe"`              // unique
-	Email     string             `json:"email" bson:"email" binding:"required,email" example:"user@example.com"` // unique
-	Password  string             `json:"password,omitempty" bson:"password,omitempty" binding:"required" example:"hashed_password_here"`
-	Profile   Profile            `json:"profile" bson:"profile"`                // Nested personal info
+	Username  string      `json:"username" bson:"username" binding:"required" example:"johndoe"`              // unique
+	Email     string      `json:"email" bson:"email" binding:"required,email" example:"user@example.com"` // unique
+	Password  string      `json:"password,omitempty" bson:"password,omitempty" binding:"required" example:"hashed_password_here"`
+	Profile   Profile     `json:"profile" bson:"profile"`                // Nested personal info
 }
 
 type LoginRequest struct {
@@ -78,7 +75,7 @@ type ForgotPasswordRequest struct {
 }
 
 type ResetRequest struct {
-	Token       string `json:"token" binding:"required"`
+	OTP       	string `json:"otp" binding:"required"`
 	NewPassword string `json:"new_password" binding:"required"`
 }
 
