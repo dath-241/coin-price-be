@@ -1,201 +1,8 @@
 definitions:
-  controllers.ChangeMailRequest:
-    properties:
-      email:
-        description: email mới cần cập nhật
-        type: string
-    required:
-    - email
-    type: object
-  controllers.ChangeMailResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.ChangePasswordRequest:
-    properties:
-      current_password:
-        type: string
-      new_password:
-        type: string
-    required:
-    - current_password
-    - new_password
-    type: object
-  controllers.ChangePasswordResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.CreateVIPPaymentReponse:
-    properties:
-      order_id:
-        type: string
-      payment_url:
-        type: string
-    type: object
-  controllers.CreateVIPPaymentRequest:
-    properties:
-      amount:
-        type: integer
-      vip_level:
-        type: string
-    type: object
-  controllers.DeleteResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.ForgotPasswordReponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.ForgotPasswordRequest:
-    properties:
-      email:
-        type: string
-    required:
-    - email
-    type: object
-  controllers.GetPaymentHistoryResponse:
-    properties:
-      payment_history:
-        items:
-          additionalProperties: true
-          type: object
-        type: array
-    type: object
-  controllers.LoginReponse:
-    properties:
-      message:
-        type: string
-      token:
-        type: string
-    type: object
-  controllers.LoginRequest:
-    properties:
-      password:
-        type: string
-      username:
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  controllers.LogoutResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.QueryPaymentRequest:
-    properties:
-      lang:
-        type: string
-      orderId:
-        type: string
-      requestId:
-        type: string
-    type: object
-  controllers.RefreshResponse:
-    properties:
-      message:
-        type: string
-      token:
-        type: string
-    type: object
-  controllers.RegisterReponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.RegisterRequest:
-    properties:
-      email:
-        description: unique
-        example: user@example.com
-        type: string
-      password:
-        example: hashed_password_here
-        type: string
-      profile:
-        allOf:
-        - $ref: '#/definitions/models.Profile'
-        description: Nested personal info
-      username:
-        description: unique
-        example: johndoe
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
-  controllers.ReponseQueryPaymentRequest:
-    properties:
-      message:
-        type: string
-      status:
-        type: string
-    type: object
-  controllers.ResetReponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.ResetRequest:
-    properties:
-      new_password:
-        type: string
-      token:
-        type: string
-    required:
-    - new_password
-    - token
-    type: object
-  controllers.UpdateUserProfileRequest:
-    properties:
-      avatar:
-        example: https://example.com/avatar.jpg
-        type: string
-      bio:
-        example: Software Engineer
-        type: string
-      dateOfBirth:
-        description: 'Định dạng: YYYY-MM-DD'
-        example: "2000-01-01"
-        type: string
-      name:
-        example: John Doe
-        type: string
-      phone:
-        example: "+1234567890"
-        type: string
-      username:
-        example: johndoe123
-        type: string
-    type: object
-  controllers.UpdateUserProfileResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  controllers.User:
-    properties:
-      email:
-        type: string
-      id:
-        type: string
-      status:
-        type: boolean
-      username:
-        type: string
-      vip_level:
-        type: string
-    type: object
   github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse:
     properties:
       error:
+        example: An error occurred
         type: string
     type: object
   github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate:
@@ -230,6 +37,38 @@ definitions:
     type: object
   models.Alert:
     type: object
+  models.ChangeMailRequest:
+    properties:
+      email:
+        description: email mới cần cập nhật
+        type: string
+    required:
+    - email
+    type: object
+  models.ChangePasswordRequest:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        type: string
+    required:
+    - current_password
+    - new_password
+    type: object
+  models.CreateVIPPaymentReponse:
+    properties:
+      order_id:
+        type: string
+      payment_url:
+        type: string
+    type: object
+  models.CreateVIPPaymentRequest:
+    properties:
+      amount:
+        type: integer
+      vip_level:
+        type: string
+    type: object
   models.ErrorResponseDataInternalServerError:
     properties:
       message:
@@ -253,6 +92,13 @@ definitions:
       message:
         example: Missing data
         type: string
+    type: object
+  models.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
     type: object
   models.Indicator:
     properties:
@@ -293,10 +139,121 @@ definitions:
         example: 21752.097
         type: number
     type: object
+  models.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
   models.MessageResponse:
     properties:
       message:
         type: string
+    type: object
+  models.MoMoResponse:
+    properties:
+      extraData:
+        type: string
+      message:
+        type: string
+      orderId:
+        type: string
+      partnerCode:
+        type: string
+      requestId:
+        type: string
+      responseTime:
+        type: string
+      resultCode:
+        type: string
+      signature:
+        type: string
+    type: object
+  models.PaymentAdmin:
+    properties:
+      amount:
+        description: Số tiền thanh toán
+        type: number
+      order_id:
+        description: Thông tin đơn hàng
+        type: string
+      order_info:
+        type: string
+      transaction_status:
+        description: Trạng thái giao dịch
+        type: string
+      userID:
+        type: string
+    type: object
+  models.PaymentDetailsAdmin:
+    properties:
+      amount:
+        description: Số tiền thanh toán
+        type: number
+      created_at:
+        description: Ngày tạo đơn hàng
+        type: string
+      order_id:
+        description: Thông tin đơn hàng
+        type: string
+      order_info:
+        type: string
+      payment_url:
+        description: URL thanh toán MoMo
+        type: string
+      transaction_status:
+        description: Trạng thái giao dịch
+        type: string
+      updated_at:
+        type: string
+      vip_level:
+        type: string
+    type: object
+  models.PaymentDetailsUser:
+    properties:
+      amount:
+        description: Số tiền thanh toán
+        type: number
+      created_at:
+        description: Thời gian tạo
+        type: string
+      order_info:
+        description: Thông tin đơn hàng
+        type: string
+      transaction_status:
+        description: Trạng thái giao dịch
+        type: string
+      updated_at:
+        description: Thời gian cập nhật
+        type: string
+    type: object
+  models.PaymentHisDetailsAdminResponse:
+    properties:
+      payment_history:
+        description: Danh sách lịch sử thanh toán
+        items:
+          $ref: '#/definitions/models.PaymentDetailsAdmin'
+        type: array
+    type: object
+  models.PaymentHistoryAdminResponse:
+    properties:
+      payment_history:
+        description: Danh sách lịch sử thanh toán
+        items:
+          $ref: '#/definitions/models.PaymentAdmin'
+        type: array
+    type: object
+  models.PaymentHistoryUserResponse:
+    properties:
+      payment_history:
+        description: Danh sách lịch sử thanh toán
+        items:
+          $ref: '#/definitions/models.PaymentDetailsUser'
+        type: array
     type: object
   models.Profile:
     properties:
@@ -316,6 +273,54 @@ definitions:
         description: unique
         example: "+84911123456"
         type: string
+    type: object
+  models.QueryPaymentRequest:
+    properties:
+      lang:
+        type: string
+      orderId:
+        type: string
+      requestId:
+        type: string
+    type: object
+  models.RegisterRequest:
+    properties:
+      email:
+        description: unique
+        example: user@example.com
+        type: string
+      password:
+        example: hashed_password_here
+        type: string
+      profile:
+        allOf:
+        - $ref: '#/definitions/models.Profile'
+        description: Nested personal info
+      username:
+        description: unique
+        example: johndoe
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  models.ReponseQueryPaymentRequest:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  models.ResetRequest:
+    properties:
+      new_password:
+        type: string
+      otp:
+        type: string
+    required:
+    - new_password
+    - otp
     type: object
   models.ResponseAlertCheckerStatus:
     properties:
@@ -462,6 +467,35 @@ definitions:
           $ref: '#/definitions/models.Alert'
         type: array
     type: object
+  models.RorLResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  models.UpdateUserProfileRequest:
+    properties:
+      avatar:
+        example: https://example.com/avatar.jpg
+        type: string
+      bio:
+        example: Software Engineer
+        type: string
+      dateOfBirth:
+        description: 'Định dạng: YYYY-MM-DD'
+        example: "2000-01-01"
+        type: string
+      name:
+        example: John Doe
+        type: string
+      phone:
+        example: "+1234567890"
+        type: string
+      username:
+        example: johndoe123
+        type: string
+    type: object
   models.UserDTO:
     properties:
       created_at:
@@ -499,6 +533,19 @@ definitions:
     - email
     - username
     type: object
+  models.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      status:
+        type: boolean
+      username:
+        type: string
+      vip_level:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -531,11 +578,13 @@ paths:
         "200":
           description: List of all payment histories
           schema:
-            $ref: '#/definitions/controllers.GetPaymentHistoryResponse'
+            $ref: '#/definitions/models.PaymentHistoryAdminResponse'
         "500":
           description: Internal server error while fetching payment history
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get payment history for all users (admin only)
       tags:
       - Admin
@@ -563,7 +612,7 @@ paths:
         "200":
           description: List of payment transactions for the user
           schema:
-            $ref: '#/definitions/controllers.GetPaymentHistoryResponse'
+            $ref: '#/definitions/models.PaymentHisDetailsAdminResponse'
         "400":
           description: Invalid user ID or missing parameters
           schema:
@@ -576,6 +625,8 @@ paths:
           description: Internal server error during payment history retrieval
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Retrieve payment history for a specific user (admin access only)
       tags:
       - Admin
@@ -615,6 +666,8 @@ paths:
           description: Internal server error while deleting user
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete a user by admin
       tags:
       - Admin
@@ -653,6 +706,8 @@ paths:
           description: Internal server error while fetching user
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get user details by admin
       tags:
       - Admin
@@ -692,6 +747,8 @@ paths:
           description: Internal server error while activating account
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Activate a user account
       tags:
       - Admin
@@ -731,6 +788,8 @@ paths:
           description: Internal server error while banning account
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Ban a user account
       tags:
       - Admin
@@ -753,15 +812,247 @@ paths:
           description: List of users successfully fetched
           schema:
             items:
-              $ref: '#/definitions/controllers.User'
+              $ref: '#/definitions/models.UserResponse'
             type: array
         "500":
           description: Internal server error while fetching users
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get all users
       tags:
       - Admin
+  /api/v1/auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: This API allows user can forgotPassword by sends a password reset
+        OTP to the user's email address.
+      parameters:
+      - description: Forgot Password Request body
+        in: body
+        name: ForgotPasswordRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Invalid request format
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "404":
+          description: User not found with this email
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      summary: Request a password reset OTP
+      tags:
+      - Authentication
+  /api/v1/auth/google-login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: This endpoint allows users to authenticate using their Google account.
+        The frontend sends a Google ID Token, which is verified on the backend to
+        create or authenticate the user.
+      parameters:
+      - description: Google ID Token
+        in: formData
+        name: id_token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'Success: Login successful with token'
+          schema:
+            $ref: '#/definitions/models.RorLResponse'
+        "401":
+          description: 'Unauthorized: Invalid Google ID token'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: 'Forbidden: User account is banned'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "500":
+          description: 'Internal Server Error: Failed to create or retrieve user'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      summary: Google Login
+      tags:
+      - Authentication
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user by username or email and returns an token
+      parameters:
+      - description: Login request body
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/models.RorLResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "401":
+          description: 'Unauthorized: Incorrect username or password'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: 'Forbidden: Account is inactive'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      summary: User Login
+      tags:
+      - Authentication
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: This API allows a user to log out by blacklisting their token.
+      parameters:
+      - description: Bearer <JWT Token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: No token provided
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Logout user
+      tags:
+      - Authentication
+  /api/v1/auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: This API allows users to refresh their token using a valid old
+        token. If the old token is valid and not blacklisted, a new token is generated.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token refreshed successfully
+          schema:
+            $ref: '#/definitions/models.RorLResponse'
+        "401":
+          description: Token is missing, invalid, or blacklisted
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      summary: Refresh token
+      tags:
+      - Authentication
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint allows a new user to register by providing a username,
+        password, email, and optional phone number,...
+      parameters:
+      - description: Register request body
+        in: body
+        name: RegisterRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: 'Bad Request: Invalid input'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "409":
+          description: 'Conflict: Email, username, or phone already exists'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "500":
+          description: 'Internal Server Error: Database operation failed'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Authentication
+  /api/v1/auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: This API allows users to reset their password using a valid OTP
+        and a new password. The OTP is validated for authenticity and expiry before
+        updating the password.
+      parameters:
+      - description: Reset Password Request body
+        in: body
+        name: ResetRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Invalid request format or weak password
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "401":
+          description: Invalid or expired OTP
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      summary: Reset user password
+      tags:
+      - Authentication
   /api/v1/funding-rate:
     get:
       consumes:
@@ -783,7 +1074,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_price-service_models.ResponseFundingRate'
         "400":
-          description: Invalid symbol or request parameters
+          description: Missing symbol
           schema:
             $ref: '#/definitions/models.ErrorResponseDataMissing'
         "404":
@@ -812,7 +1103,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successful response with funding rate data
+          description: Successful response with future price data
           schema:
             $ref: '#/definitions/models.ResponseFuturePrice'
         "400":
@@ -849,7 +1140,7 @@ paths:
         "200":
           description: MoMo callback success response
           schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+            $ref: '#/definitions/models.MoMoResponse'
         "400":
           description: Invalid JSON payload
           schema:
@@ -868,19 +1159,24 @@ paths:
       description: Queries the payment status and upgrades the user's VIP level if
         the payment is successful based on the order details
       parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Order ID from the payment gateway
         in: body
         name: statusRequest
         required: true
         schema:
-          $ref: '#/definitions/controllers.QueryPaymentRequest'
+          $ref: '#/definitions/models.QueryPaymentRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Payment confirmed and VIP level upgraded
           schema:
-            $ref: '#/definitions/controllers.ReponseQueryPaymentRequest'
+            $ref: '#/definitions/models.ReponseQueryPaymentRequest'
         "400":
           description: Invalid order ID or missing parameters
           schema:
@@ -893,6 +1189,8 @@ paths:
           description: Internal server error during payment confirmation
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Check payment status and upgrade user's VIP level if successful
       tags:
       - Payment
@@ -913,14 +1211,14 @@ paths:
         name: paymentRequest
         required: true
         schema:
-          $ref: '#/definitions/controllers.CreateVIPPaymentRequest'
+          $ref: '#/definitions/models.CreateVIPPaymentRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Payment URL and Order ID
           schema:
-            $ref: '#/definitions/controllers.CreateVIPPaymentReponse'
+            $ref: '#/definitions/models.CreateVIPPaymentReponse'
         "400":
           description: Invalid request data or missing parameters
           schema:
@@ -933,6 +1231,8 @@ paths:
           description: Internal server error during payment creation
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Initiate MoMo payment for VIP upgrade
       tags:
       - Payment
@@ -988,7 +1288,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.DeleteResponse'
+            $ref: '#/definitions/models.MessageResponse'
         "400":
           description: Invalid user ID
           schema:
@@ -1002,9 +1302,11 @@ paths:
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
-          description: Failed to delete user
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete current user account
       tags:
       - Users
@@ -1039,7 +1341,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
-          description: 'Internal Server Error: Failed to fetch user'
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
@@ -1064,14 +1366,14 @@ paths:
         name: UpdateUserProfileRequest
         required: true
         schema:
-          $ref: '#/definitions/controllers.UpdateUserProfileRequest'
+          $ref: '#/definitions/models.UpdateUserProfileRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.UpdateUserProfileResponse'
+            $ref: '#/definitions/models.MessageResponse'
         "400":
           description: 'Bad Request: Invalid input'
           schema:
@@ -1085,7 +1387,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
-          description: 'Internal Server Error: Failed to update user'
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
@@ -1111,14 +1413,14 @@ paths:
         name: ChangeMailRequest
         required: true
         schema:
-          $ref: '#/definitions/controllers.ChangeMailRequest'
+          $ref: '#/definitions/models.ChangeMailRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.ChangeMailResponse'
+            $ref: '#/definitions/models.MessageResponse'
         "400":
           description: Invalid email format
           schema:
@@ -1135,6 +1437,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Change user email
       tags:
       - Users
@@ -1156,14 +1460,14 @@ paths:
         name: ChangePasswordRequest
         required: true
         schema:
-          $ref: '#/definitions/controllers.ChangePasswordRequest'
+          $ref: '#/definitions/models.ChangePasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.ChangePasswordResponse'
+            $ref: '#/definitions/models.MessageResponse'
         "400":
           description: 'Bad Request: Password must contain at least 8 characters,
             including letters, numbers, and special characters.'
@@ -1204,16 +1508,13 @@ paths:
         "200":
           description: 'Success: Returns the user''s payment history'
           schema:
-            items:
-              additionalProperties: true
-              type: object
-            type: array
+            $ref: '#/definitions/models.PaymentHistoryUserResponse'
         "401":
           description: 'Unauthorized: Invalid or missing token'
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
-          description: 'Internal Server Error: Failed to fetch payment history'
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
       security:
@@ -1298,6 +1599,11 @@ paths:
       description: Fetches Kline data for a specific symbol and interval from Binance
         API
       parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Symbol for which to fetch Kline data (e.g., BTCUSDT)
         in: query
         name: symbol
@@ -1631,245 +1937,4 @@ paths:
       summary: Create an advanced indicator alert
       tags:
       - Indicators
-  /auth/forgot-password:
-    post:
-      consumes:
-      - application/json
-      description: This API allows user can forgotPassword by sends a password reset
-        link to the user's email address.
-      parameters:
-      - description: Forgot Password Request body
-        in: body
-        name: ForgotPasswordRequest
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.ForgotPasswordRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.ForgotPasswordReponse'
-        "400":
-          description: Invalid request format
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "404":
-          description: User not found with this email
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-      summary: Request a password reset link
-      tags:
-      - Authentication
-  /auth/google-login:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: This endpoint allows users to authenticate using their Google account.
-        The frontend sends a Google ID Token, which is verified on the backend to
-        create or authenticate the user.
-      parameters:
-      - description: Google ID Token
-        in: formData
-        name: id_token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'Success: Login successful with access token'
-          schema:
-            $ref: '#/definitions/controllers.LoginReponse'
-        "401":
-          description: 'Unauthorized: Invalid Google ID token'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "403":
-          description: 'Forbidden: User account is banned'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "500":
-          description: 'Internal Server Error: Failed to create or retrieve user'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-      summary: Google Login
-      tags:
-      - Authentication
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticates a user by username or email and returns an access
-        token
-      parameters:
-      - description: Login request body
-        in: body
-        name: loginRequest
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Login successful
-          schema:
-            $ref: '#/definitions/controllers.LoginReponse'
-        "400":
-          description: Invalid request body
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "401":
-          description: 'Unauthorized: Incorrect username or password'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "403":
-          description: 'Forbidden: Account is inactive'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-      summary: User Login
-      tags:
-      - Authentication
-  /auth/logout:
-    post:
-      consumes:
-      - application/json
-      description: This API allows a user to log out by blacklisting their access
-        and refresh tokens and clearing their authentication cookies.
-      parameters:
-      - description: Bearer <JWT Token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Logout successful
-          schema:
-            $ref: '#/definitions/controllers.LogoutResponse'
-        "400":
-          description: No token provided or Refresh Token not provided
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "401":
-          description: Token has been revoked
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "500":
-          description: Failed to reset cookies or other server error
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-      security:
-      - Bearer: []
-      summary: Logout user
-      tags:
-      - Authentication
-  /auth/refresh-token:
-    post:
-      consumes:
-      - application/json
-      description: This API allows users to refresh their access token using a valid
-        refresh token stored in cookies. If the refresh token is valid and not blacklisted,
-        a new access token is generated.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: New access token generated successfully
-          schema:
-            $ref: '#/definitions/controllers.RefreshResponse'
-        "401":
-          description: Refresh token is missing, invalid, or blacklisted
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "500":
-          description: Internal server error while generating a new access token
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-      summary: Refresh access token
-      tags:
-      - Authentication
-  /auth/register:
-    post:
-      consumes:
-      - application/json
-      description: This endpoint allows a new user to register by providing a username,
-        password, email, and optional phone number,...
-      parameters:
-      - description: Register request body
-        in: body
-        name: RegisterRequest
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.RegisterRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: User registered successfully
-          schema:
-            $ref: '#/definitions/controllers.RegisterReponse'
-        "400":
-          description: 'Bad Request: Invalid input'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "409":
-          description: 'Conflict: Email, username, or phone already exists'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "500":
-          description: 'Internal Server Error: Database operation failed'
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-      summary: Register a new user
-      tags:
-      - Authentication
-  /auth/reset-password:
-    post:
-      consumes:
-      - application/json
-      description: This API allows users to reset their password using a valid reset
-        token and a new password. The token is validated for authenticity and expiry
-        before updating the password.
-      parameters:
-      - description: Reset Password Request body
-        in: body
-        name: ResetRequest
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.ResetRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.ResetReponse'
-        "400":
-          description: Invalid request format or weak password
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "401":
-          description: Invalid or expired reset token
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
-      summary: Reset user password
-      tags:
-      - Authentication
 swagger: "2.0"
