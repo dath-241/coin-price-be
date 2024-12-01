@@ -36,7 +36,7 @@ func MoMoCallback() func(c *gin.Context) {
 
 		// Lấy chữ ký từ MoMo gửi về
 		signature := callbackData["signature"].(string)
-		fmt.Println("Received signature:", signature)
+		//fmt.Println("Received signature:", signature)
 
 		params := getCallbackParams(callbackData)
 
@@ -44,13 +44,13 @@ func MoMoCallback() func(c *gin.Context) {
 		rawSignature := buildRawSignature(accessKeyEnv, params)
 
 		// In raw signature để kiểm tra
-		fmt.Println("Raw signature string:", rawSignature)
+		//fmt.Println("Raw signature string:", rawSignature)
 
 		// Tính toán chữ ký HMAC_SHA256
 		calculatedSignature := calculateSignature(rawSignature, secretKeyEnv)
 
 		// In chữ ký tính toán để so sánh
-		fmt.Println("Calculated signature:", calculatedSignature)
+		//fmt.Println("Calculated signature:", calculatedSignature)
 
 		// So sánh chữ ký nhận được và chữ ký đã tính toán
 		if calculatedSignature != signature {
@@ -61,15 +61,15 @@ func MoMoCallback() func(c *gin.Context) {
 		}
 
 		// Kiểm tra kết quả thanh toán
-		if params["resultCode"] == "0" {
-			// Thanh toán thành công
-			fmt.Println("Thanh toan thanh cong.")
-			// Cap nhat VIP cho user dua tren orderID
-			//controllers.ConfirmPaymentHandlerSuccess()
-		} else {
-			// Thanh toán thất bại
-			fmt.Println("Thanh toan that bai.")
-		}
+		// if params["resultCode"] == "0" {
+		// 	// Thanh toán thành công
+		// 	//fmt.Println("Thanh toan thanh cong.")
+		// 	// Cap nhat VIP cho user dua tren orderID
+		// 	//controllers.ConfirmPaymentHandlerSuccess()
+		// } else {
+		// 	// Thanh toán thất bại
+		// 	//fmt.Println("Thanh toan that bai.")
+		// }
 
 		// Gửi phản hồi về momo
 		// Xây dựng chuỗi raw signature responce theo thứ tự a-z
