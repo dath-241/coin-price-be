@@ -53,6 +53,7 @@ func CreateAlert(c *gin.Context) {
 
 	// Lấy userID từ claims trong token
 	currentUserID := claims.UserID
+	log.Println(currentUserID)
 	if currentUserID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
@@ -88,18 +89,11 @@ func CreateAlert(c *gin.Context) {
 	newAlert.CreatedAt = currentTime
 	newAlert.UpdatedAt = currentTime
 
-	if newAlert.Frequency == "" {
-		newAlert.Frequency = "immediate" // Default frequency
-	}
 	if newAlert.MaxRepeatCount == 0 {
-		newAlert.MaxRepeatCount = 5 // Default max repeat count
+		newAlert.MaxRepeatCount = 5 
 	}
-	if newAlert.SnoozeCondition == "" {
-		newAlert.SnoozeCondition = "none" // Default snooze condition
-	}
-	if newAlert.Range == nil {
-		newAlert.Range = []float64{} // Default range
-	}
+	newAlert.UserID = currentUserID
+
 
 	if _, err := config.AlertCollection.InsertOne(ctx, newAlert); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save alert"})
@@ -108,7 +102,6 @@ func CreateAlert(c *gin.Context) {
 
 	// Lưu chỉ ID của alert vào user alerts
 	user.Alerts = append(user.Alerts, newAlert.ID.Hex())
-
 	// Cập nhật lại user trong cơ sở dữ liệu
 	update := bson.M{
 		"$set": bson.M{
@@ -304,7 +297,7 @@ func DeleteAlert(c *gin.Context) {
 	// Cập nhật mảng alerts của user để loại bỏ alert đã xoá
 	userCollection := config.DB.Collection("User")
 	update := bson.M{
-		"$pull": bson.M{"alerts": id},
+		"$pull": bson.M{"alerts": id}, // Xoá id khỏi mảng alerts
 	}
 	if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": objID}, update); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
