@@ -24,22 +24,12 @@ var (
 func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
     return func(c *gin.Context) {
         tokenString := c.GetHeader("Authorization")
-		fmt.Println(tokenString)
+
         if tokenString == "" {
             c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
             c.Abort()
             return
         }
-
-        // tokenString, err := c.Cookie("accessToken")
-		// fmt.Println("cookie", tokenString)
-		// if err != nil || tokenString == "" {
-		// 	c.JSON(http.StatusUnauthorized, gin.H{
-        //         "error": "Authorization token is required in cookies",
-        //     })
-		// 	c.Abort()
-        //     return
-		// }
 
         // Kiểm tra xem token có trong danh sách từ chối và hết hạn chưa
         if expTime, found := BlacklistedTokens[tokenString]; found {
@@ -55,7 +45,7 @@ func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
         }
 
         token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-            return []byte(os.Getenv("ACCESS_SECRET")), nil // JWT_SECRET
+            return []byte(os.Getenv("JWT_SECRET")), nil // JWT_SECRET
         })
 
         if err != nil || !token.Valid {
@@ -101,14 +91,9 @@ func AuthMiddleware(allowedRoles ...string) gin.HandlerFunc {
 }
 
 // VerifyJWT sẽ xác thực JWT và trả về các claims nếu token hợp lệ
-func VerifyJWT(tokenString string, isAccessToken bool) (*models.CustomClaims, error) {
+func VerifyJWT(tokenString string) (*models.CustomClaims, error) {
     // Lấy secret key từ environment
-    var jwtKey []byte
-    if isAccessToken {
-        jwtKey = []byte(os.Getenv("ACCESS_SECRET"))
-    } else {
-        jwtKey = []byte(os.Getenv("REFRESH_SECRET"))
-    }
+    var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
     // Parse và kiểm tra token
     token, err := jwt.ParseWithClaims(tokenString, &models.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -134,52 +119,28 @@ func VerifyJWT(tokenString string, isAccessToken bool) (*models.CustomClaims, er
     return nil, errors.New("invalid token claims")
 }
 
-// Hàm tạo Access Token
-func GenerateAccessToken(userID, role string) (string, error) {
-    accessSecret := []byte(os.Getenv("ACCESS_SECRET")) // Lấy khóa bí mật từ biến môi trường
+
+
+func GenerateToken(userID, role string) (string, error) {
+    tokenSecret := []byte(os.Getenv("JWT_SECRET")) // Lấy khóa bí mật từ biến môi trường
     
     // Load biến môi trường cho thời gian sống của access token
-    accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL")
-    if accessTokenTTL == "" {
-        return "", fmt.Errorf("environment variable ACCESS_TOKEN_TTL is not set")
+    tokenTTL := os.Getenv("JWT_TOKEN_TTL")
+    if tokenTTL == "" {
+        return "", fmt.Errorf("environment variable JWT_TOKEN_TTL is not set")
     }
 
-    accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
+    tokenTTLInt, err := strconv.Atoi(tokenTTL)
     if err != nil {
-        return "", fmt.Errorf("invalid ACCESS_TOKEN_TTL format: %v", err)
+        return "", fmt.Errorf("invalid JWT_TOKEN_TTL format: %v", err)
     }
 
     claims := jwt.MapClaims{
         "user_id":  userID,
         "role":     role,
-        "exp":      time.Now().Add(time.Duration(accessTokenTTLInt) * time.Second).Unix(),
+        "exp":      time.Now().Add(time.Duration(tokenTTLInt) * time.Second).Unix(),
     }
 
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    return token.SignedString(accessSecret)
-}
-
-// Hàm tạo Refresh Token
-func GenerateRefreshToken(userID, role string) (string, error) {
-    refreshSecret := []byte(os.Getenv("REFRESH_SECRET")) // Lấy khóa bí mật từ biến môi trường
-    
-    // Load biến môi trường cho thời gian sống của access token
-    refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
-    if refreshTokenTTL == "" {
-        return "", fmt.Errorf("environment variable REFRESH_TOKEN_TTL is not set")
-    }
-
-    refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
-    if err != nil {
-        return "", fmt.Errorf("invalid REFRESH_TOKEN_TTL format: %v", err)
-    }
-    
-    claims := jwt.MapClaims{
-        "user_id":  userID,
-        "role":     role,
-        "exp":      time.Now().Add(time.Duration(refreshTokenTTLInt) * time.Second).Unix(),
-    }
-
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    return token.SignedString(refreshSecret)
+    return token.SignedString(tokenSecret)
 }

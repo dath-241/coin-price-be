@@ -15,8 +15,8 @@ import (
 )
 
 func TestAuthMiddleware(t *testing.T) {
-	// Mock ACCESS_SECRET
-	os.Setenv("ACCESS_SECRET", "mocksecret")
+	// Mock JWT_SECRET
+	os.Setenv("JWT_SECRET", "mocksecret")
 
 	// Tạo gin router để kiểm tra middleware
 	gin.SetMode(gin.TestMode)
@@ -35,7 +35,7 @@ func TestAuthMiddleware(t *testing.T) {
 			"exp":     time.Now().Add(time.Hour).Unix(),
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		tokenString, _ := token.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
+		tokenString, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 		return tokenString
 	}
 
@@ -89,8 +89,7 @@ func TestAuthMiddleware(t *testing.T) {
 
 func TestVerifyJWT(t *testing.T) {
 	// Mock environment variables
-	os.Setenv("ACCESS_SECRET", "mockaccesssecret")
-	os.Setenv("REFRESH_SECRET", "mockrefreshsecret")
+	os.Setenv("JWT_SECRET", "mockrefreshsecret")
 
 	// Helper function to generate token
 	createToken := func(secret string, isExpired bool) string {
@@ -110,10 +109,10 @@ func TestVerifyJWT(t *testing.T) {
 		return tokenString
 	}
 
-	// Test case 1: Token hợp lệ (Access Token)
+	// Test case 1: Token hợp lệ (Token)
 	t.Run("Valid Access Token", func(t *testing.T) {
-		token := createToken(os.Getenv("ACCESS_SECRET"), false)
-		claims, err := VerifyJWT(token, true)
+		token := createToken(os.Getenv("JWT_SECRET"), false)
+		claims, err := VerifyJWT(token)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, claims)
@@ -123,7 +122,7 @@ func TestVerifyJWT(t *testing.T) {
 	// Test case 2: Token không hợp lệ (sai cấu trúc)
 	t.Run("Invalid Token", func(t *testing.T) {
 		token := "invalidTokenString"
-		claims, err := VerifyJWT(token, true)
+		claims, err := VerifyJWT(token)
 
 		assert.Nil(t, claims)
 		assert.EqualError(t, err, "invalid token")
@@ -131,8 +130,8 @@ func TestVerifyJWT(t *testing.T) {
 
 	// Test case 3: Token hết hạn
 	t.Run("Expired Token", func(t *testing.T) {
-    	token := createToken(os.Getenv("ACCESS_SECRET"), true)
-    	claims, err := VerifyJWT(token, true)
+    	token := createToken(os.Getenv("JWT_SECRET"), true)
+    	claims, err := VerifyJWT(token)
 
 	    assert.Nil(t, claims)
     	assert.EqualError(t, err, "invalid token") // Thay đổi kỳ vọng thành "invalid token"
@@ -147,40 +146,31 @@ func TestVerifyJWT(t *testing.T) {
 			},
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims) // Sai signing method
-		tokenString, _ := token.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
+		tokenString, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
-		result, err := VerifyJWT(tokenString, true)
+		result, err := VerifyJWT(tokenString)
 
 		assert.Nil(t, result)
 		assert.EqualError(t, err, "invalid token")
-	})
-
-	// Test case 5: Valid Refresh Token
-	t.Run("Valid Refresh Token", func(t *testing.T) {
-		token := createToken(os.Getenv("REFRESH_SECRET"), false)
-		claims, err := VerifyJWT(token, false)
-
-		assert.NoError(t, err)
-		assert.NotNil(t, claims)
 	})
 }
 
 
 
-func TestGenerateAccessToken(t *testing.T) {
+func TestGenerateToken(t *testing.T) {
 	// Thiết lập giá trị mặc định cho biến môi trường
-	originalAccessSecret := os.Getenv("ACCESS_SECRET")
-	originalAccessTTL := os.Getenv("ACCESS_TOKEN_TTL")
+	originalAccessSecret := os.Getenv("JWT_SECRET")
+	originalAccessTTL := os.Getenv("JWT_TOKEN_TTL")
 	defer func() {
-		os.Setenv("ACCESS_SECRET", originalAccessSecret)
-		os.Setenv("ACCESS_TOKEN_TTL", originalAccessTTL)
+		os.Setenv("JWT_SECRET", originalAccessSecret)
+		os.Setenv("JWT_TOKEN_TTL", originalAccessTTL)
 	}()
 
-	os.Setenv("ACCESS_SECRET", "testsecret") // Set secret key cho test
+	os.Setenv("JWT_SECRET", "testsecret") // Set secret key cho test
 
 	t.Run("Success - Generate token", func(t *testing.T) {
-		os.Setenv("ACCESS_TOKEN_TTL", "3600") // 1 giờ
-		token, err := GenerateAccessToken("12345", "admin")
+		os.Setenv("JWT_TOKEN_TTL", "3600") // 1 giờ
+		token, err := GenerateToken("12345", "admin")
 		assert.NoError(t, err)
 		assert.NotEmpty(t, token)
 
@@ -200,31 +190,31 @@ func TestGenerateAccessToken(t *testing.T) {
 		assert.WithinDuration(t, time.Unix(exp, 0), time.Now().Add(3600*time.Second), time.Minute)
 	})
 
-	t.Run("Error - ACCESS_TOKEN_TTL not set", func(t *testing.T) {
-		os.Unsetenv("ACCESS_TOKEN_TTL") // Xóa biến môi trường
-		token, err := GenerateAccessToken("12345", "admin")
+	t.Run("Error - JWT_TOKEN_TTL not set", func(t *testing.T) {
+		os.Unsetenv("JWT_TOKEN_TTL") // Xóa biến môi trường
+		token, err := GenerateToken("12345", "admin")
 		assert.Error(t, err)
 		assert.Empty(t, token)
-		assert.Contains(t, err.Error(), "environment variable ACCESS_TOKEN_TTL is not set")
+		assert.Contains(t, err.Error(), "environment variable JWT_TOKEN_TTL is not set")
 	})
 
-	t.Run("Error - ACCESS_TOKEN_TTL invalid format", func(t *testing.T) {
-		os.Setenv("ACCESS_TOKEN_TTL", "invalid")
-		token, err := GenerateAccessToken("12345", "admin")
+	t.Run("Error - JWT_TOKEN_TTL invalid format", func(t *testing.T) {
+		os.Setenv("JWT_TOKEN_TTL", "invalid")
+		token, err := GenerateToken("12345", "admin")
 		assert.Error(t, err)
 		assert.Empty(t, token)
-		assert.Contains(t, err.Error(), "invalid ACCESS_TOKEN_TTL format")
+		assert.Contains(t, err.Error(), "invalid JWT_TOKEN_TTL format")
 	})
 
 	t.Run("Error - Expired TTL", func(t *testing.T) {
-		os.Setenv("ACCESS_TOKEN_TTL", strconv.Itoa(-10)) // TTL âm để token đã hết hạn
-		token, err := GenerateAccessToken("12345", "admin")
+		os.Setenv("JWT_TOKEN_TTL", strconv.Itoa(-10)) // TTL âm để token đã hết hạn
+		token, err := GenerateToken("12345", "admin")
 		assert.NoError(t, err)  // Token vẫn được tạo ra thành công
 		assert.NotEmpty(t, token)
 	
 		// Parse token và kiểm tra lỗi expired
 		_, err = jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("ACCESS_SECRET")), nil
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 	
 		assert.Error(t, err) // Phải có lỗi
@@ -234,58 +224,3 @@ func TestGenerateAccessToken(t *testing.T) {
 	
 }
 
-
-func TestGenerateRefreshToken(t *testing.T) {
-	// Thiết lập các biến môi trường cần thiết
-	os.Setenv("REFRESH_SECRET", "testrefreshsecret")
-
-	t.Run("Success - Generate token", func(t *testing.T) {
-		os.Setenv("REFRESH_TOKEN_TTL", "3600") // TTL 1 giờ
-		token, err := GenerateRefreshToken("12345", "user")
-		assert.NoError(t, err)
-		assert.NotEmpty(t, token)
-
-		// Parse token để kiểm tra nội dung
-		parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-			return []byte("testrefreshsecret"), nil
-		})
-		assert.NoError(t, err)
-		assert.True(t, parsedToken.Valid)
-
-		claims, ok := parsedToken.Claims.(jwt.MapClaims)
-		assert.True(t, ok)
-		assert.Equal(t, "12345", claims["user_id"])
-		assert.Equal(t, "user", claims["role"])
-		assert.NotEmpty(t, claims["exp"])
-	})
-
-	t.Run("Error - REFRESH_TOKEN_TTL not set", func(t *testing.T) {
-		os.Unsetenv("REFRESH_TOKEN_TTL") // Xóa biến môi trường
-		token, err := GenerateRefreshToken("12345", "user")
-		assert.Error(t, err)
-		assert.Equal(t, "", token)
-		assert.Contains(t, err.Error(), "REFRESH_TOKEN_TTL is not set")
-	})
-
-	t.Run("Error - REFRESH_TOKEN_TTL invalid format", func(t *testing.T) {
-		os.Setenv("REFRESH_TOKEN_TTL", "invalid") // TTL không hợp lệ
-		token, err := GenerateRefreshToken("12345", "user")
-		assert.Error(t, err)
-		assert.Equal(t, "", token)
-		assert.Contains(t, err.Error(), "invalid REFRESH_TOKEN_TTL format")
-	})
-
-	t.Run("Error - Expired TTL", func(t *testing.T) {
-		os.Setenv("REFRESH_TOKEN_TTL", strconv.Itoa(-10)) // TTL âm để token hết hạn
-		token, err := GenerateRefreshToken("12345", "user")
-		assert.NoError(t, err) // Token vẫn được tạo thành công
-		assert.NotEmpty(t, token)
-
-		// Parse token để kiểm tra lỗi expired
-		_, err = jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-			return []byte("testrefreshsecret"), nil
-		})
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "expired")
-	})
-}
