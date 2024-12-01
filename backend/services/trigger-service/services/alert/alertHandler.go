@@ -45,7 +45,7 @@ func CreateAlert(c *gin.Context) {
 	}
 
 	// Xác thực token
-	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	claims, err := middlewares.VerifyJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
@@ -142,7 +142,7 @@ func GetAlerts(c *gin.Context) {
 	}
 
 	// Xác thực token
-	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	claims, err := middlewares.VerifyJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
@@ -203,7 +203,7 @@ func GetAlert(c *gin.Context) {
 	}
 
 	// Xác thực token
-	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	claims, err := middlewares.VerifyJWT(tokenString) 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
@@ -257,7 +257,7 @@ func DeleteAlert(c *gin.Context) {
 	}
 
 	// Xác thực token
-	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	claims, err := middlewares.VerifyJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
@@ -328,7 +328,7 @@ func GetSymbolAlerts(c *gin.Context) {
 	}
 
 	// Xác thực token
-	claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+	claims, err := middlewares.VerifyJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return

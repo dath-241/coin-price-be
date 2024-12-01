@@ -176,7 +176,7 @@ func DeleteUserByAdmin(repo repository.UserRepository) func(*gin.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Authorization token"
-// @Success 200 {object} models.GetPaymentHistoryResponse "List of all payment histories"
+// @Success 200 {object} models.PaymentHistoryAdminResponse "List of all payment histories"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while fetching payment history"
 // @Router /api/v1/admin/payment-history [get]
 func GetPaymentHistoryForAdmin(repo repository.PaymentRepository) func(*gin.Context) {
@@ -228,7 +228,7 @@ func GetPaymentHistoryForAdmin(repo repository.PaymentRepository) func(*gin.Cont
 // @Produce json
 // @Param Authorization header string true "Authorization token"
 // @Param user_id path string true "User ID" 
-// @Success 200 {object} models.GetPaymentHistoryResponse "List of payment transactions for the user"
+// @Success 200 {object} models.PaymentHisDetailsAdminResponse "List of payment transactions for the user"
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing parameters"
 // @Failure 404 {object} models.ErrorResponse "No payment history found for this user"
 // @Failure 500 {object} models.ErrorResponse "Internal server error during payment history retrieval"
@@ -243,15 +243,6 @@ func GetPaymentHistoryOfAUserByAdmin(repo repository.PaymentRepository) func(*gi
             })
             return
         }
-
-        // Kiểm tra tính hợp lệ của ObjectID
-        // objectID, err := primitive.ObjectIDFromHex(userID)
-        // if err != nil {
-        //     c.JSON(http.StatusBadRequest, gin.H{
-        //         "error": "Invalid user ID",
-        //     })
-        //     return
-        // }
 
         // Lấy lịch sử thanh toán từ repository thay vì MongoDB trực tiếp
         ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -283,7 +274,7 @@ func GetPaymentHistoryOfAUserByAdmin(repo repository.PaymentRepository) func(*gi
                 "amount":            	payment.Amount,              // Số tiền thanh toán
 				"vip_level":			payment.VipLevel,
 				"payment_url":			payment.PaymentURL,
-				"created_at":			payment.PaymentURL,	
+				"created_at":			payment.CreatedAt,	
 				"updated_at":			payment.UpdatedAt,
             }
             paymentHistory = append(paymentHistory, paymentDetails)
@@ -359,7 +350,7 @@ func BanAccount(userRepo repository.UserRepository) func(*gin.Context) {
 		updateResult, err := userRepo.UpdateOne(c, bson.M{"_id": objID}, update)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to ban account", // Thất bại khi cập nhật trạng thái tài khoản
+				"error": "Internal Server Error", // Thất bại khi cập nhật trạng thái tài khoản
 			})
 			return
 		}
@@ -442,7 +433,7 @@ func ActiveAccount(userRepo repository.UserRepository) func(*gin.Context) {
 		updateResult, err := userRepo.UpdateOne(c, bson.M{"_id": objID}, update)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to active account", // Thất bại khi cập nhật trạng thái tài khoản
+				"error": "Internal Server Error", // Thất bại khi cập nhật trạng thái tài khoản
 			})
 			return
 		}

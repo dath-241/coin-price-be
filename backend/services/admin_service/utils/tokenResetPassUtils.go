@@ -1,10 +1,12 @@
 package utils
 
 import (
-    "crypto/rand"
-    "crypto/sha256"
-    "encoding/hex"
-    "errors"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"math/big"
 )
 
 func GenerateRandomString(length int) (string, error) {
@@ -23,4 +25,25 @@ func GenerateRandomString(length int) (string, error) {
 func HashString(input string) string {
     hash := sha256.Sum256([]byte(input))
     return hex.EncodeToString(hash[:])
+}
+
+
+// GenerateOTP generates a secure numeric OTP of the given length
+func GenerateOTP(length int) (string, error) {
+	if length <= 0 {
+		return "", fmt.Errorf("invalid OTP length")
+	}
+
+	const digits = "0123456789"
+	otp := make([]byte, length)
+
+	for i := 0; i < length; i++ {
+		index, err := rand.Int(rand.Reader, big.NewInt(int64(len(digits))))
+		if err != nil {
+			return "", fmt.Errorf("failed to generate random number: %v", err)
+		}
+		otp[i] = digits[index.Int64()]
+	}
+
+	return string(otp), nil
 }

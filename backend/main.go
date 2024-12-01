@@ -56,7 +56,7 @@ func main() {
 	defer adminConfig.DisconnectDatabase()
 
 	// Bắt đầu routine dọn dẹp token hết hạn
-	adminUtils.StartCleanupRoutine(1 * time.Minute)
+	adminUtils.StartCleanupRoutine(10 * time.Minute)
 	adminRoutes.SetupRouter(server)
 	// Gọi hàm init trong package momo để khởi tạo các giá trị cần thiết
 	adminMomo.Init()

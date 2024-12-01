@@ -41,17 +41,8 @@ func CreateVIPPayment() func(*gin.Context) {
             return
         }
 
-        // // Lấy token từ cookie
-        // tokenString, err := c.Cookie("accessToken")
-        // if err != nil || tokenString == "" {
-        //     c.JSON(http.StatusUnauthorized, gin.H{
-        //         "error": "Authorization token is required in cookies",
-        //     })
-        //     return
-        // }
-
         // Kiểm tra tính hợp lệ của token
-        claims, err := middlewares.VerifyJWT(tokenString, true) // true để chỉ định đây là AccessToken
+        claims, err := middlewares.VerifyJWT(tokenString) // true để chỉ định đây là AccessToken
         if err != nil {
             c.JSON(http.StatusUnauthorized, gin.H{
                 "error": err.Error(),
@@ -120,7 +111,7 @@ func CreateVIPPayment() func(*gin.Context) {
 		if err != nil {
 			log.Println("Error creating MoMo payment:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Failed to create payment request",
+                "error": "Internal Server Error",
             })
 			return
 		}
@@ -145,7 +136,7 @@ func CreateVIPPayment() func(*gin.Context) {
 		_, err = collection.InsertOne(ctx, order)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Failed to create user",
+                "error": "Internal Server Error",
             })
             return
         }
@@ -186,7 +177,7 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string, Role string){
     _, err = collection.UpdateOne(ctx, bson.M{"order_id": OrderID}, update)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Failed to update transaction status",
+            "error": "Internal Server Error",
         })
         return
     }
@@ -204,7 +195,7 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string, Role string){
     if err != nil {
         log.Println("Error updating user role:", err)
         c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Failed to update user role",
+            "error": "Internal Server Error",
         })
         return
     }
@@ -212,50 +203,15 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string, Role string){
     // Chuyển đổi userID từ ObjectID sang string
     userIDString := userID.Hex()
 
-    // Tạo lại Access Token và Refresh Token với role mới
-    accessToken, err := middlewares.GenerateAccessToken(userIDString, newVIP)
+    // Tạo lại Token với role mới
+    token, err := middlewares.GenerateToken(userIDString, newVIP)
     if err != nil {
         log.Println("Error generating new access token:", err)
         c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Failed to generate access token",
+            "error": "Internal Server Error",
         })
         return
     }
-
-    refreshToken, err := middlewares.GenerateRefreshToken(userIDString, newVIP)
-    if err != nil {
-        log.Println("Error generating new refresh token:", err)
-        c.JSON(http.StatusInternalServerError, gin.H{
-            "error": "Failed to generate refresh token",
-        })
-        return
-    }
-
-    // Lấy token cũ từ cookie hoặc header
-    oldAccessToken, err := c.Cookie("accessToken")
-    if err != nil {
-        log.Println("Error retrieving old access token:", err)
-    } else {
-        // Xác thực Access Token cũ và thêm vào blacklist nếu hợp lệ
-        accessClaims, err := middlewares.VerifyJWT(oldAccessToken, true)
-        if err == nil {
-            middlewares.BlacklistedTokens[oldAccessToken] = accessClaims.ExpiresAt.Time
-        }
-    }
-
-    oldRefreshToken, err := c.Cookie("refreshToken")
-    if err != nil {
-        log.Println("Error retrieving old refresh token:", err)
-    } else {
-        // Xác thực Refresh Token cũ và thêm vào blacklist nếu hợp lệ
-        refreshClaims, err := middlewares.VerifyJWT(oldRefreshToken, false)
-        if err == nil {
-            middlewares.BlacklistedTokens[oldRefreshToken] = refreshClaims.ExpiresAt.Time
-        }
-    }
-
-    // Gửi token dưới dạng cookie
-    setAuthCookies(c, accessToken, refreshToken, false, true)
 
     if Role == "Admin" {
         c.JSON(http.StatusOK, gin.H{
@@ -264,12 +220,12 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string, Role string){
         })
         return
     }
-
+ 
     // Trả về kết quả xác nhận thanh toán thành công
     c.JSON(http.StatusOK, gin.H{
         "message": "Payment confirmed and VIP level upgraded",
         "status": "0",
-        "token": accessToken,
+        "token": token,
     })
 }
 
@@ -317,7 +273,7 @@ func HandleQueryPaymentStatus() gin.HandlerFunc {
 
 		// Nếu token được cung cấp, xác thực và lấy thông tin user_id, role
 		if tokenString != "" {
-			claims, err := middlewares.VerifyJWT(tokenString, true) // true để chỉ định đây là AccessToken
+			claims, err := middlewares.VerifyJWT(tokenString) // true để chỉ định đây là AccessToken
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{
 					"error": "Invalid or expired token",
@@ -379,7 +335,7 @@ func HandleQueryPaymentStatus() gin.HandlerFunc {
 		if err != nil {
 			log.Println("Error querying payment status:", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
-                "error": err.Error(),
+                "error": "Internal Server Error",
             })
 			return
 		}

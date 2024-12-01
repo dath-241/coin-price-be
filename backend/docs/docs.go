@@ -26,6 +26,11 @@ const docTemplate = `{
     "paths": {
         "/api/v1/admin/payment-history": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves the payment history for all users. Admin can view all payments made by users.",
                 "consumes": [
                     "application/json"
@@ -50,7 +55,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of all payment histories",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GetPaymentHistoryResponse"
+                            "$ref": "#/definitions/models.PaymentHistoryAdminResponse"
                         }
                     },
                     "500": {
@@ -64,6 +69,11 @@ const docTemplate = `{
         },
         "/api/v1/admin/payment-history/{user_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves the payment history of a specific user based on the provided user ID. This endpoint is restricted to admin access only and returns a list of payment transactions associated with the user.",
                 "consumes": [
                     "application/json"
@@ -95,7 +105,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of payment transactions for the user",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GetPaymentHistoryResponse"
+                            "$ref": "#/definitions/models.PaymentHisDetailsAdminResponse"
                         }
                     },
                     "400": {
@@ -121,6 +131,11 @@ const docTemplate = `{
         },
         "/api/v1/admin/user/{user_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Admin can retrieve user details by providing the user ID. Returns user information such as username, email, VIP level, etc.",
                 "consumes": [
                     "application/json"
@@ -176,6 +191,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Admin can delete a user from the system by providing the user ID. The user will be permanently removed from the database.",
                 "consumes": [
                     "application/json"
@@ -233,6 +253,11 @@ const docTemplate = `{
         },
         "/api/v1/admin/user/{user_id}/active": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Activate a user account by setting the account status to active. Admin can use this to activate a banned account.",
                 "consumes": [
                     "application/json"
@@ -290,6 +315,11 @@ const docTemplate = `{
         },
         "/api/v1/admin/user/{user_id}/ban": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Ban a user account by setting the account status to inactive. Admin can use this to ban a user account.",
                 "consumes": [
                     "application/json"
@@ -347,6 +377,11 @@ const docTemplate = `{
         },
         "/api/v1/admin/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Admin can retrieve a list of all users in the system. Returns basic information about each user.",
                 "consumes": [
                     "application/json"
@@ -373,12 +408,354 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.User"
+                                "$ref": "#/definitions/models.UserResponse"
                             }
                         }
                     },
                     "500": {
                         "description": "Internal server error while fetching users",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/forgot-password": {
+            "post": {
+                "description": "This API allows user can forgotPassword by sends a password reset OTP to the user's email address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Request a password reset OTP",
+                "parameters": [
+                    {
+                        "description": "Forgot Password Request body",
+                        "name": "ForgotPasswordRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ForgotPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found with this email",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/google-login": {
+            "post": {
+                "description": "This endpoint allows users to authenticate using their Google account. The frontend sends a Google ID Token, which is verified on the backend to create or authenticate the user.",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Google Login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Google ID Token",
+                        "name": "id_token",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success: Login successful with token",
+                        "schema": {
+                            "$ref": "#/definitions/models.RorLResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized: Invalid Google ID token",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden: User account is banned",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Failed to create or retrieve user",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "description": "Authenticates a user by username or email and returns an token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User Login",
+                "parameters": [
+                    {
+                        "description": "Login request body",
+                        "name": "loginRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "schema": {
+                            "$ref": "#/definitions/models.RorLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized: Incorrect username or password",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden: Account is inactive",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "This API allows a user to log out by blacklisting their token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003cJWT Token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "No token provided",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/refresh-token": {
+            "post": {
+                "description": "This API allows users to refresh their token using a valid old token. If the old token is valid and not blacklisted, a new token is generated.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh token",
+                "responses": {
+                    "200": {
+                        "description": "Token refreshed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.RorLResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Token is missing, invalid, or blacklisted",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "description": "This endpoint allows a new user to register by providing a username, password, email, and optional phone number,...",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Register request body",
+                        "name": "RegisterRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: Email, username, or phone already exists",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Database operation failed",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/reset-password": {
+            "post": {
+                "description": "This API allows users to reset their password using a valid OTP and a new password. The OTP is validated for authenticity and expiry before updating the password.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reset user password",
+                "parameters": [
+                    {
+                        "description": "Reset Password Request body",
+                        "name": "ResetRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ResetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format or weak password",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired OTP",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
@@ -417,7 +794,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid symbol or request parameters",
+                        "description": "Missing symbol",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponseDataMissing"
                         }
@@ -459,7 +836,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successful response with funding rate data",
+                        "description": "Successful response with future price data",
                         "schema": {
                             "$ref": "#/definitions/models.ResponseFuturePrice"
                         }
@@ -514,7 +891,7 @@ const docTemplate = `{
                     "200": {
                         "description": "MoMo callback success response",
                         "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                            "$ref": "#/definitions/models.MoMoResponse"
                         }
                     },
                     "400": {
@@ -534,6 +911,11 @@ const docTemplate = `{
         },
         "/api/v1/payment/status": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Queries the payment status and upgrades the user's VIP level if the payment is successful based on the order details",
                 "consumes": [
                     "application/json"
@@ -547,12 +929,19 @@ const docTemplate = `{
                 "summary": "Check payment status and upgrade user's VIP level if successful",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Order ID from the payment gateway",
                         "name": "statusRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.QueryPaymentRequest"
+                            "$ref": "#/definitions/models.QueryPaymentRequest"
                         }
                     }
                 ],
@@ -560,7 +949,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Payment confirmed and VIP level upgraded",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ReponseQueryPaymentRequest"
+                            "$ref": "#/definitions/models.ReponseQueryPaymentRequest"
                         }
                     },
                     "400": {
@@ -586,6 +975,11 @@ const docTemplate = `{
         },
         "/api/v1/payment/vip-upgrade": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Creates a MoMo payment request for upgrading the user's VIP level, validates the token, and stores the order details in the database",
                 "consumes": [
                     "application/json"
@@ -611,7 +1005,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreateVIPPaymentRequest"
+                            "$ref": "#/definitions/models.CreateVIPPaymentRequest"
                         }
                     }
                 ],
@@ -619,7 +1013,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Payment URL and Order ID",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreateVIPPaymentReponse"
+                            "$ref": "#/definitions/models.CreateVIPPaymentReponse"
                         }
                     },
                     "400": {
@@ -744,7 +1138,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error: Failed to fetch user",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
@@ -783,7 +1177,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.UpdateUserProfileRequest"
+                            "$ref": "#/definitions/models.UpdateUserProfileRequest"
                         }
                     }
                 ],
@@ -791,7 +1185,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.UpdateUserProfileResponse"
+                            "$ref": "#/definitions/models.MessageResponse"
                         }
                     },
                     "400": {
@@ -813,7 +1207,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error: Failed to update user",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
@@ -821,6 +1215,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "This endpoint allows the user to Delete the account of the currently authenticated user based on the access token.",
                 "consumes": [
                     "application/json"
@@ -846,7 +1245,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.DeleteResponse"
+                            "$ref": "#/definitions/models.MessageResponse"
                         }
                     },
                     "400": {
@@ -868,7 +1267,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to delete user",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
@@ -878,6 +1277,11 @@ const docTemplate = `{
         },
         "/api/v1/user/me/change_email": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "This endpoint allows an authenticated user to change their email address.",
                 "consumes": [
                     "application/json"
@@ -904,7 +1308,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.ChangeMailRequest"
+                            "$ref": "#/definitions/models.ChangeMailRequest"
                         }
                     }
                 ],
@@ -912,7 +1316,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ChangeMailResponse"
+                            "$ref": "#/definitions/models.MessageResponse"
                         }
                     },
                     "400": {
@@ -975,7 +1379,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.ChangePasswordRequest"
+                            "$ref": "#/definitions/models.ChangePasswordRequest"
                         }
                     }
                 ],
@@ -983,7 +1387,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ChangePasswordResponse"
+                            "$ref": "#/definitions/models.MessageResponse"
                         }
                     },
                     "400": {
@@ -1044,11 +1448,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Success: Returns the user's payment history",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "additionalProperties": true
-                            }
+                            "$ref": "#/definitions/models.PaymentHistoryUserResponse"
                         }
                     },
                     "401": {
@@ -1058,7 +1458,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error: Failed to fetch payment history",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
@@ -1186,6 +1586,13 @@ const docTemplate = `{
                 ],
                 "summary": "Get Kline data",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Symbol for which to fetch Kline data (e.g., BTCUSDT)",
@@ -1699,663 +2106,15 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/auth/forgot-password": {
-            "post": {
-                "description": "This API allows user can forgotPassword by sends a password reset link to the user's email address.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Request a password reset link",
-                "parameters": [
-                    {
-                        "description": "Forgot Password Request body",
-                        "name": "ForgotPasswordRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.ForgotPasswordRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.ForgotPasswordReponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "User not found with this email",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/google-login": {
-            "post": {
-                "description": "This endpoint allows users to authenticate using their Google account. The frontend sends a Google ID Token, which is verified on the backend to create or authenticate the user.",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Google Login",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Google ID Token",
-                        "name": "id_token",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success: Login successful with access token",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.LoginReponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized: Invalid Google ID token",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden: User account is banned",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error: Failed to create or retrieve user",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/login": {
-            "post": {
-                "description": "Authenticates a user by username or email and returns an access token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "User Login",
-                "parameters": [
-                    {
-                        "description": "Login request body",
-                        "name": "loginRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.LoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Login successful",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.LoginReponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request body",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized: Incorrect username or password",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden: Account is inactive",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "This API allows a user to log out by blacklisting their access and refresh tokens and clearing their authentication cookies.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Logout user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003cJWT Token\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Logout successful",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.LogoutResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "No token provided or Refresh Token not provided",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Token has been revoked",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to reset cookies or other server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/refresh-token": {
-            "post": {
-                "description": "This API allows users to refresh their access token using a valid refresh token stored in cookies. If the refresh token is valid and not blacklisted, a new access token is generated.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Refresh access token",
-                "responses": {
-                    "200": {
-                        "description": "New access token generated successfully",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.RefreshResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Refresh token is missing, invalid, or blacklisted",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error while generating a new access token",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/register": {
-            "post": {
-                "description": "This endpoint allows a new user to register by providing a username, password, email, and optional phone number,...",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "Register request body",
-                        "name": "RegisterRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.RegisterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "User registered successfully",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.RegisterReponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request: Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict: Email, username, or phone already exists",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error: Database operation failed",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/reset-password": {
-            "post": {
-                "description": "This API allows users to reset their password using a valid reset token and a new password. The token is validated for authenticity and expiry before updating the password.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Reset user password",
-                "parameters": [
-                    {
-                        "description": "Reset Password Request body",
-                        "name": "ResetRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controllers.ResetRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.ResetReponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format or weak password",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Invalid or expired reset token",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "controllers.ChangeMailRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "description": "email mới cần cập nhật",
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ChangeMailResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ChangePasswordRequest": {
-            "type": "object",
-            "required": [
-                "current_password",
-                "new_password"
-            ],
-            "properties": {
-                "current_password": {
-                    "type": "string"
-                },
-                "new_password": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ChangePasswordResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.CreateVIPPaymentReponse": {
-            "type": "object",
-            "properties": {
-                "order_id": {
-                    "type": "string"
-                },
-                "payment_url": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.CreateVIPPaymentRequest": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "integer"
-                },
-                "vip_level": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.DeleteResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ForgotPasswordReponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ForgotPasswordRequest": {
-            "type": "object",
-            "required": [
-                "email"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.GetPaymentHistoryResponse": {
-            "type": "object",
-            "properties": {
-                "payment_history": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                    }
-                }
-            }
-        },
-        "controllers.LoginReponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.LoginRequest": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.LogoutResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.QueryPaymentRequest": {
-            "type": "object",
-            "properties": {
-                "lang": {
-                    "type": "string"
-                },
-                "orderId": {
-                    "type": "string"
-                },
-                "requestId": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.RefreshResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.RegisterReponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.RegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "description": "unique",
-                    "type": "string",
-                    "example": "user@example.com"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "hashed_password_here"
-                },
-                "profile": {
-                    "description": "Nested personal info",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.Profile"
-                        }
-                    ]
-                },
-                "username": {
-                    "description": "unique",
-                    "type": "string",
-                    "example": "johndoe"
-                }
-            }
-        },
-        "controllers.ReponseQueryPaymentRequest": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ResetReponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ResetRequest": {
-            "type": "object",
-            "required": [
-                "new_password",
-                "token"
-            ],
-            "properties": {
-                "new_password": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.UpdateUserProfileRequest": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string",
-                    "example": "https://example.com/avatar.jpg"
-                },
-                "bio": {
-                    "type": "string",
-                    "example": "Software Engineer"
-                },
-                "dateOfBirth": {
-                    "description": "Định dạng: YYYY-MM-DD",
-                    "type": "string",
-                    "example": "2000-01-01"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "John Doe"
-                },
-                "phone": {
-                    "type": "string",
-                    "example": "+1234567890"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "johndoe123"
-                }
-            }
-        },
-        "controllers.UpdateUserProfileResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.User": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "boolean"
-                },
-                "username": {
-                    "type": "string"
-                },
-                "vip_level": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "An error occurred"
                 }
             }
         },
@@ -2404,6 +2163,55 @@ const docTemplate = `{
         "models.Alert": {
             "type": "object"
         },
+        "models.ChangeMailRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "description": "email mới cần cập nhật",
+                    "type": "string"
+                }
+            }
+        },
+        "models.ChangePasswordRequest": {
+            "type": "object",
+            "required": [
+                "current_password",
+                "new_password"
+            ],
+            "properties": {
+                "current_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateVIPPaymentReponse": {
+            "type": "object",
+            "properties": {
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateVIPPaymentRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "vip_level": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ErrorResponseDataInternalServerError": {
             "type": "object",
             "properties": {
@@ -2437,6 +2245,17 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Missing data"
+                }
+            }
+        },
+        "models.ForgotPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
                 }
             }
         },
@@ -2495,11 +2314,173 @@ const docTemplate = `{
                 }
             }
         },
+        "models.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "models.MessageResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "models.MoMoResponse": {
+            "type": "object",
+            "properties": {
+                "extraData": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "orderId": {
+                    "type": "string"
+                },
+                "partnerCode": {
+                    "type": "string"
+                },
+                "requestId": {
+                    "type": "string"
+                },
+                "responseTime": {
+                    "type": "string"
+                },
+                "resultCode": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentAdmin": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Số tiền thanh toán",
+                    "type": "number"
+                },
+                "order_id": {
+                    "description": "Thông tin đơn hàng",
+                    "type": "string"
+                },
+                "order_info": {
+                    "type": "string"
+                },
+                "transaction_status": {
+                    "description": "Trạng thái giao dịch",
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentDetailsAdmin": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Số tiền thanh toán",
+                    "type": "number"
+                },
+                "created_at": {
+                    "description": "Ngày tạo đơn hàng",
+                    "type": "string"
+                },
+                "order_id": {
+                    "description": "Thông tin đơn hàng",
+                    "type": "string"
+                },
+                "order_info": {
+                    "type": "string"
+                },
+                "payment_url": {
+                    "description": "URL thanh toán MoMo",
+                    "type": "string"
+                },
+                "transaction_status": {
+                    "description": "Trạng thái giao dịch",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "vip_level": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentDetailsUser": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Số tiền thanh toán",
+                    "type": "number"
+                },
+                "created_at": {
+                    "description": "Thời gian tạo",
+                    "type": "string"
+                },
+                "order_info": {
+                    "description": "Thông tin đơn hàng",
+                    "type": "string"
+                },
+                "transaction_status": {
+                    "description": "Trạng thái giao dịch",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "Thời gian cập nhật",
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentHisDetailsAdminResponse": {
+            "type": "object",
+            "properties": {
+                "payment_history": {
+                    "description": "Danh sách lịch sử thanh toán",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PaymentDetailsAdmin"
+                    }
+                }
+            }
+        },
+        "models.PaymentHistoryAdminResponse": {
+            "type": "object",
+            "properties": {
+                "payment_history": {
+                    "description": "Danh sách lịch sử thanh toán",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PaymentAdmin"
+                    }
+                }
+            }
+        },
+        "models.PaymentHistoryUserResponse": {
+            "type": "object",
+            "properties": {
+                "payment_history": {
+                    "description": "Danh sách lịch sử thanh toán",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PaymentDetailsUser"
+                    }
                 }
             }
         },
@@ -2526,6 +2507,78 @@ const docTemplate = `{
                     "description": "unique",
                     "type": "string",
                     "example": "+84911123456"
+                }
+            }
+        },
+        "models.QueryPaymentRequest": {
+            "type": "object",
+            "properties": {
+                "lang": {
+                    "type": "string"
+                },
+                "orderId": {
+                    "type": "string"
+                },
+                "requestId": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "description": "unique",
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "hashed_password_here"
+                },
+                "profile": {
+                    "description": "Nested personal info",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Profile"
+                        }
+                    ]
+                },
+                "username": {
+                    "description": "unique",
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
+        },
+        "models.ReponseQueryPaymentRequest": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResetRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "otp"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "otp": {
+                    "type": "string"
                 }
             }
         },
@@ -2742,6 +2795,47 @@ const docTemplate = `{
                 }
             }
         },
+        "models.RorLResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateUserProfileRequest": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.jpg"
+                },
+                "bio": {
+                    "type": "string",
+                    "example": "Software Engineer"
+                },
+                "dateOfBirth": {
+                    "description": "Định dạng: YYYY-MM-DD",
+                    "type": "string",
+                    "example": "2000-01-01"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+1234567890"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe123"
+                }
+            }
+        },
         "models.UserDTO": {
             "type": "object",
             "required": [
@@ -2790,6 +2884,26 @@ const docTemplate = `{
                     "description": "unique",
                     "type": "string",
                     "example": "johndoe"
+                }
+            }
+        },
+        "models.UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "vip_level": {
+                    "type": "string"
                 }
             }
         }
