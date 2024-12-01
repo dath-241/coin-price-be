@@ -53,6 +53,7 @@ func CreateAlert(c *gin.Context) {
 
 	// Lấy userID từ claims trong token
 	currentUserID := claims.UserID
+	log.Println(currentUserID)
 	if currentUserID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
@@ -88,18 +89,11 @@ func CreateAlert(c *gin.Context) {
 	newAlert.CreatedAt = currentTime
 	newAlert.UpdatedAt = currentTime
 
-	if newAlert.Frequency == "" {
-		newAlert.Frequency = "immediate" // Default frequency
-	}
 	if newAlert.MaxRepeatCount == 0 {
-		newAlert.MaxRepeatCount = 5 // Default max repeat count
+		newAlert.MaxRepeatCount = 5 
 	}
-	if newAlert.SnoozeCondition == "" {
-		newAlert.SnoozeCondition = "none" // Default snooze condition
-	}
-	if newAlert.Range == nil {
-		newAlert.Range = []float64{} // Default range
-	}
+	newAlert.UserID = currentUserID
+
 
 	if _, err := config.AlertCollection.InsertOne(ctx, newAlert); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save alert"})
@@ -108,7 +102,6 @@ func CreateAlert(c *gin.Context) {
 
 	// Lưu chỉ ID của alert vào user alerts
 	user.Alerts = append(user.Alerts, newAlert.ID.Hex())
-
 	// Cập nhật lại user trong cơ sở dữ liệu
 	update := bson.M{
 		"$set": bson.M{
@@ -126,7 +119,6 @@ func CreateAlert(c *gin.Context) {
 		"alert_id": newAlert.ID.Hex(),
 	})
 }
-
 
 // Handler to retrieve all alerts
 // @Summary Get all alerts
@@ -277,6 +269,7 @@ func DeleteAlert(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
 	}
+
 	id := c.Param("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -287,9 +280,27 @@ func DeleteAlert(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// Xoá alert từ AlertCollection
 	result, err := config.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
 	if err != nil || result.DeletedCount == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
+		return
+	}
+
+	// Chuyển userID thành ObjectID
+	objID, err := primitive.ObjectIDFromHex(currentUserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Cập nhật mảng alerts của user để loại bỏ alert đã xoá
+	userCollection := config.DB.Collection("User")
+	update := bson.M{
+		"$pull": bson.M{"alerts": id}, // Xoá id khỏi mảng alerts
+	}
+	if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": objID}, update); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
 		return
 	}
 
@@ -366,13 +377,12 @@ func GetSymbolAlerts(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/symbol [post]
 func SetSymbolAlert(c *gin.Context) {
-	
+
 	var newAlert models.Alert
 	if err := c.ShouldBindJSON(&newAlert); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	
 
 	// if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
 	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
