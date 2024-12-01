@@ -127,7 +127,6 @@ func CreateAlert(c *gin.Context) {
 	})
 }
 
-
 // Handler to retrieve all alerts
 // @Summary Get all alerts
 // @Description Retrieve all alerts, optionally filter by type
@@ -277,6 +276,7 @@ func DeleteAlert(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
 	}
+
 	id := c.Param("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -287,9 +287,27 @@ func DeleteAlert(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	// Xoá alert từ AlertCollection
 	result, err := config.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
 	if err != nil || result.DeletedCount == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
+		return
+	}
+
+	// Chuyển userID thành ObjectID
+	objID, err := primitive.ObjectIDFromHex(currentUserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Cập nhật mảng alerts của user để loại bỏ alert đã xoá
+	userCollection := config.DB.Collection("User")
+	update := bson.M{
+		"$pull": bson.M{"alerts": id},
+	}
+	if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": objID}, update); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
 		return
 	}
 
@@ -366,13 +384,12 @@ func GetSymbolAlerts(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/symbol [post]
 func SetSymbolAlert(c *gin.Context) {
-	
+
 	var newAlert models.Alert
 	if err := c.ShouldBindJSON(&newAlert); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	
 
 	// if (newAlert.Type != "new_listing" && newAlert.Type != "delisting") || newAlert.NotificationMethod == "" || len(newAlert.Symbols) == 0 || newAlert.Frequency == "" {
 	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Missing or invalid fields"})
