@@ -50,6 +50,10 @@ jobs:
           echo 'REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}' >> .env 
           echo 'ACCESS_TOKEN_TTL=${{ secrets.ACCESS_TOKEN_TTL }}' >> .env 
           echo 'REFRESH_TOKEN_TTL=${{ secrets.REFRESH_TOKEN_TTL }}' >> .env 
+          echo 'JWT_SECRET=${{ secrets.JWT_SECRET }}' >> .env 
+          echo 'JWT_TOKEN_TTL=${{ secrets.JWT_TOKEN_TTL }}' >> .env 
+          echo 'EMAIL_RESET_TEMPLATE_PATH=${{ secrets.EMAIL_RESET_TEMPLATE_PATH }}' >> .env 
+
           echo 'MAILJET_API_KEY=${{ secrets.MAILJET_API_KEY }}' >> .env 
           echo 'MAILJET_SECRET_KEY=${{ secrets.MAILJET_SECRET_KEY }}' >> .env 
           echo 'EMAIL_SENDER=${{ secrets.EMAIL_SENDER }}' >> .env 
