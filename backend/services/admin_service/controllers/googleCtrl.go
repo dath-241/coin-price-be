@@ -28,7 +28,7 @@ func generateUniqueUsername() string {
 // @Accept application/x-www-form-urlencoded
 // @Produce json
 // @Param id_token formData string true "Google ID Token"
-// @Success 200 {object} models.RorLResponse "Success: Login successful with access token"
+// @Success 200 {object} models.RorLResponse "Success: Login successful with token"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Invalid Google ID token"
 // @Failure 403 {object} models.ErrorResponse "Forbidden: User account is banned"
 // @Failure 500 {object} models.ErrorResponse "Internal Server Error: Failed to create or retrieve user"
@@ -69,7 +69,7 @@ func GoogleLogin(userRepo repository.UserRepository) func(*gin.Context) {
 			insertResult, insertErr := userRepo.InsertOne(context.Background(), user)
 			if insertErr != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": "Failed to create new user",
+					"error": "Internal Server Error",
 				})
 				return
 			}
@@ -77,7 +77,7 @@ func GoogleLogin(userRepo repository.UserRepository) func(*gin.Context) {
 		} else if err != nil {
 			// Lỗi khi truy xuất database
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Error retrieving user from database",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -90,29 +90,11 @@ func GoogleLogin(userRepo repository.UserRepository) func(*gin.Context) {
 			return
 		}
 
-		// Tạo JWT Refresh token
-		refreshToken, err := middlewares.GenerateRefreshToken(user.ID.Hex(), user.Role)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to generate refresh token",
-			})
-			return
-		}
-
 		// Tạo JWT Access token 
-		accessToken, err := middlewares.GenerateAccessToken(user.ID.Hex(), user.Role)
+		token, err := middlewares.GenerateToken(user.ID.Hex(), user.Role)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to generate access token",
-			})
-			return
-		}
-
-		// Thiết lập cookies cho người dùng
-		err = setAuthCookies(c, accessToken, refreshToken, false, true)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -120,7 +102,7 @@ func GoogleLogin(userRepo repository.UserRepository) func(*gin.Context) {
 		// Phản hồi thành công
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Login successful",
-			"token":   accessToken,
+			"token":   token,
 		})
 	}
 }

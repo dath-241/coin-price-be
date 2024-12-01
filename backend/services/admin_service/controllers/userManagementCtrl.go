@@ -30,7 +30,7 @@ import (
 // @Failure 400 {object} models.ErrorResponse "Bad Request: Invalid user ID"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: invalid token"
 // @Failure 404 {object} models.ErrorResponse "Not Found: User not found"
-// @Failure 500 {object} models.ErrorResponse "Internal Server Error: Failed to fetch user"
+// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
 // @Router /api/v1/user/me [get]
 // Lấy thông tin tài khoản người dùng hiện tại.
 func GetCurrentUserInfo(repo repository.UserRepository) func(*gin.Context) {
@@ -40,16 +40,10 @@ func GetCurrentUserInfo(repo repository.UserRepository) func(*gin.Context) {
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
 			return
-
-			// // Lỗi 401: Unauthorized
-			// c.JSON(http.StatusUnauthorized, models.ErrorResponse{
-    		// 	Error: "Authorization header required",
-			// })
-			// return 
 		}
 
 		// Xác thực token
-		claims, err := middlewares.VerifyJWT(tokenString, true) // true indicates AccessToken
+		claims, err := middlewares.VerifyJWT(tokenString) 
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "invalid token",
@@ -90,7 +84,7 @@ func GetCurrentUserInfo(repo repository.UserRepository) func(*gin.Context) {
 				})
 			} else {
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": "Failed to fetch user",
+					"error": "Internal Server Error",
 				})
 			}
 			return
@@ -100,7 +94,7 @@ func GetCurrentUserInfo(repo repository.UserRepository) func(*gin.Context) {
 		var user models.User
 		if err := result.Decode(&user); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Error decoding user data",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -132,7 +126,7 @@ func GetCurrentUserInfo(repo repository.UserRepository) func(*gin.Context) {
 // @Failure 400 {object} models.ErrorResponse "Bad Request: Invalid input"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Authorization header required or invalid token"
 // @Failure 404 {object} models.ErrorResponse "Not Found: User not found"
-// @Failure 500 {object} models.ErrorResponse "Internal Server Error: Failed to update user"
+// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
 // @Router /api/v1/user/me [put]
 // Chỉnh sửa thông tin tài khoản người dùng.
 func UpdateUserProfile(repo repository.UserRepository) func(*gin.Context) {
@@ -176,7 +170,7 @@ func UpdateUserProfile(repo repository.UserRepository) func(*gin.Context) {
 			return
 		}
 
-		claims, err := middlewares.VerifyJWT(tokenString, true)
+		claims, err := middlewares.VerifyJWT(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": err.Error(),
@@ -214,7 +208,7 @@ func UpdateUserProfile(repo repository.UserRepository) func(*gin.Context) {
 			users, err := repo.Find(c, filter)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": "Error checking username or phone",
+					"error": "Internal Server Error",
 				})
 				return
 			}
@@ -268,7 +262,7 @@ func UpdateUserProfile(repo repository.UserRepository) func(*gin.Context) {
 		updateResult, err := repo.UpdateOne(c, bson.M{"_id": objID}, update)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to update user",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -332,7 +326,7 @@ func ChangePassword(repo repository.UserRepository) func(*gin.Context) {
 		}
 
 		// Xác thực token
-		claims, err := middlewares.VerifyJWT(tokenString, true)
+		claims, err := middlewares.VerifyJWT(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
@@ -376,7 +370,7 @@ func ChangePassword(repo repository.UserRepository) func(*gin.Context) {
 		// Hash mật khẩu mới
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash new password"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 			return
 		}
 
@@ -389,7 +383,7 @@ func ChangePassword(repo repository.UserRepository) func(*gin.Context) {
 		}
 		result, err := repo.UpdateOne(c, bson.M{"_id": objID}, update)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 			return
 		}
 
@@ -441,7 +435,7 @@ func ChangeEmail(userRepo repository.UserRepository) func(*gin.Context) {
 		}
 
 		// Xác thực token
-		claims, err := middlewares.VerifyJWT(tokenString, true) // true chỉ định đây là AccessToken
+		claims, err := middlewares.VerifyJWT(tokenString) // true chỉ định đây là AccessToken
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": err.Error(),
@@ -495,7 +489,7 @@ func ChangeEmail(userRepo repository.UserRepository) func(*gin.Context) {
 		updateResult, err := userRepo.UpdateOne(c, bson.M{"_id": objID}, update)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to update email",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -526,7 +520,7 @@ func ChangeEmail(userRepo repository.UserRepository) func(*gin.Context) {
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized or token is invalid"
 // @Failure 404 {object} models.ErrorResponse "User not found"
-// @Failure 500 {object} models.ErrorResponse "Failed to delete user"
+// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
 // @Router /api/v1/user/me [delete]
 // Xóa tài khoản người dùng hiện tại.
 func DeleteCurrentUser(repo repository.UserRepository) func(*gin.Context) {
@@ -541,7 +535,7 @@ func DeleteCurrentUser(repo repository.UserRepository) func(*gin.Context) {
 		}
 
 		// Xác thực token
-		claims, err := middlewares.VerifyJWT(tokenString, true) // true chỉ định đây là AccessToken
+		claims, err := middlewares.VerifyJWT(tokenString) // true chỉ định đây là AccessToken
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": err.Error(),
@@ -574,7 +568,7 @@ func DeleteCurrentUser(repo repository.UserRepository) func(*gin.Context) {
 		result, err := repo.DeleteOne(ctx, bson.M{"_id": objID})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to delete user",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -600,9 +594,9 @@ func DeleteCurrentUser(repo repository.UserRepository) func(*gin.Context) {
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer <JWT Token>"
-// @Success 200 {object} []map[string]interface{} "Success: Returns the user's payment history"
+// @Success 200 {object} models.PaymentHistoryUserResponse "Success: Returns the user's payment history"
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Invalid or missing token"
-// @Failure 500 {object} models.ErrorResponse "Internal Server Error: Failed to fetch payment history"
+// @Failure 500 {object} models.ErrorResponse "Internal Server Error"
 // @Router /api/v1/user/me/payment-history [get]
 // Xem lịch sử thanh toán của người dùng
 func GetPaymentHistory(repo repository.PaymentRepository) func(*gin.Context) {
@@ -615,7 +609,7 @@ func GetPaymentHistory(repo repository.PaymentRepository) func(*gin.Context) {
         }
 
         // Kiểm tra tính hợp lệ của token
-        claims, err := middlewares.VerifyJWT(tokenString, true) // true để chỉ định đây là AccessToken
+        claims, err := middlewares.VerifyJWT(tokenString) // true để chỉ định đây là AccessToken
         if err != nil {
             c.JSON(http.StatusUnauthorized, gin.H{
                 "error": err.Error(),
@@ -639,7 +633,7 @@ func GetPaymentHistory(repo repository.PaymentRepository) func(*gin.Context) {
         payments, err := repo.FindPayments(ctx, bson.M{"user_id": userID})
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
-                "error": "Error fetching payment history",
+                "error": "Internal Server Error",
             })
             return
         }

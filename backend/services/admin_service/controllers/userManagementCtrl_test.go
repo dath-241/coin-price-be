@@ -45,17 +45,17 @@ func TestGetCurrentUserInfo(t *testing.T) {
 
 	os.Setenv("MONGO_URI", "mongodb://localhost:27017")
 	os.Setenv("MONGO_DB_NAME", "test_db")
-	os.Setenv("ACCESS_TOKEN_TTL", "3600")
+	os.Setenv("JWT_TOKEN_TTL", "3600")
 	
 	// Tạo token hợp lệ
-	validToken, err := middlewares.GenerateAccessToken("6488e1c4b5d1e40b2c93f3a0","VIP-1")
+	validToken, err := middlewares.GenerateToken("6488e1c4b5d1e40b2c93f3a0","VIP-1")
 	if err != nil {
 		t.Fatalf("failed to generate valid token: %v", err)
 	}
 
 	defer os.Unsetenv("MONGO_URI")
 	defer os.Unsetenv("MONGO_DB_NAME")
-	defer os.Unsetenv("ACCESS_TOKEN_TTL") // Dọn dẹp biến môi trường
+	defer os.Unsetenv("JWT_TOKEN_TTL") // Dọn dẹp biến môi trường
 
 	// Case 1: Successful retrieval of user info
 	t.Run("Success", func(t *testing.T) {
@@ -131,17 +131,17 @@ func TestUpdateUserProfile(t *testing.T) {
 
 	os.Setenv("MONGO_URI", "mongodb://localhost:27017")
 	os.Setenv("MONGO_DB_NAME", "test_db")
-	os.Setenv("ACCESS_TOKEN_TTL", "3600")
+	os.Setenv("JWT_TOKEN_TTL", "3600")
 
 	// Generate a valid token for the user
-	validToken, err := middlewares.GenerateAccessToken(userID.Hex(), "VIP-1")
+	validToken, err := middlewares.GenerateToken(userID.Hex(), "VIP-1")
 	if err != nil {
 		t.Fatalf("failed to generate valid token: %v", err)
 	}
 
 	defer os.Unsetenv("MONGO_URI")
 	defer os.Unsetenv("MONGO_DB_NAME")
-	defer os.Unsetenv("ACCESS_TOKEN_TTL") // Dọn dẹp biến môi trường
+	defer os.Unsetenv("JWT_TOKEN_TTL") // Dọn dẹp biến môi trường
 
 	// Case 1: Valid token and successful update
 	t.Run("Valid Update", func(t *testing.T) {
@@ -228,17 +228,17 @@ func TestChangePassword(t *testing.T) {
 
 	os.Setenv("MONGO_URI", "mongodb://localhost:27017")
 	os.Setenv("MONGO_DB_NAME", "test_db")
-	os.Setenv("ACCESS_TOKEN_TTL", "3600")
+	os.Setenv("JWT_TOKEN_TTL", "3600")
 
 	// Generate a valid token for the user
-	validToken, err := middlewares.GenerateAccessToken(userID.Hex(), "VIP-1")
+	validToken, err := middlewares.GenerateToken(userID.Hex(), "VIP-1")
 	if err != nil {
 		t.Fatalf("failed to generate valid token: %v", err)
 	}
 
 	defer os.Unsetenv("MONGO_URI")
 	defer os.Unsetenv("MONGO_DB_NAME")
-	defer os.Unsetenv("ACCESS_TOKEN_TTL") // Dọn dẹp biến môi trường
+	defer os.Unsetenv("JWT_TOKEN_TTL") // Dọn dẹp biến môi trường
 
 	// Case 1: Valid token and successful password change
 	t.Run("Valid Password Change", func(t *testing.T) {
@@ -327,17 +327,17 @@ func TestChangeEmail(t *testing.T) {
 
 	os.Setenv("MONGO_URI", "mongodb://localhost:27017")
 	os.Setenv("MONGO_DB_NAME", "test_db")
-	os.Setenv("ACCESS_TOKEN_TTL", "3600")
+	os.Setenv("JWT_TOKEN_TTL", "3600")
 
 	// Generate a valid token for the user
-	validToken, err := middlewares.GenerateAccessToken(userID.Hex(), "VIP-1")
+	validToken, err := middlewares.GenerateToken(userID.Hex(), "VIP-1")
 	if err != nil {
 		t.Fatalf("failed to generate valid token: %v", err)
 	}
 
 	defer os.Unsetenv("MONGO_URI")
 	defer os.Unsetenv("MONGO_DB_NAME")
-	defer os.Unsetenv("ACCESS_TOKEN_TTL") // Dọn dẹp biến môi trường
+	defer os.Unsetenv("JWT_TOKEN_TTL") // Dọn dẹp biến môi trường
 
 	// Case 1: Valid email update
 	t.Run("Valid Email Update", func(t *testing.T) {
@@ -382,17 +382,17 @@ func TestDeleteCurrentUser(t *testing.T) {
 
 	os.Setenv("MONGO_URI", "mongodb://localhost:27017")
 	os.Setenv("MONGO_DB_NAME", "test_db")
-	os.Setenv("ACCESS_TOKEN_TTL", "3600")
+	os.Setenv("JWT_TOKEN_TTL", "3600")
 
 	// Generate a valid token for the user
-	validToken, err := middlewares.GenerateAccessToken(userID.Hex(), "VIP-1")
+	validToken, err := middlewares.GenerateToken(userID.Hex(), "VIP-1")
 	if err != nil {
 		t.Fatalf("failed to generate valid token: %v", err)
 	}
 
 	defer os.Unsetenv("MONGO_URI")
 	defer os.Unsetenv("MONGO_DB_NAME")
-	defer os.Unsetenv("ACCESS_TOKEN_TTL") // Dọn dẹp biến môi trường
+	defer os.Unsetenv("JWT_TOKEN_TTL") // Dọn dẹp biến môi trường
 
 	// Case 1: Valid user deletion
 	t.Run("Valid User Deletion", func(t *testing.T) {

@@ -3,11 +3,9 @@ package controllers
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"html/template"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
@@ -40,57 +38,6 @@ func newUser(user models.User) models.User {
 	return user // Bạn có thể thay đổi giá trị trả về dựa trên logic của bạn
 }
 
-// setAuthCookies sẽ thiết lập các cookie cho accessToken và refreshToken nếu được yêu cầu
-func setAuthCookies(c *gin.Context, accessToken, refreshToken string, setAccessToken, setRefreshToken bool) error {
-	// Load biến môi trường cho tên miền cookie và thời gian sống
-	cookieDomain := os.Getenv("COOKIE_DOMAIN")
-	accessTokenTTL := os.Getenv("ACCESS_TOKEN_TTL") // Thời gian sống token
-	refreshTokenTTL := os.Getenv("REFRESH_TOKEN_TTL")
-
-	if cookieDomain == "" || accessTokenTTL == "" || refreshTokenTTL == "" {
-		return fmt.Errorf("environment variables are not set")
-	}
-
-	accessTokenTTLInt, err := strconv.Atoi(accessTokenTTL)
-	if err != nil {
-		return fmt.Errorf("invalid ACCESS_TOKEN_TTL format")
-	}
-
-	refreshTokenTTLInt, err := strconv.Atoi(refreshTokenTTL)
-	if err != nil {
-		return fmt.Errorf("invalid REFRESH_TOKEN_TTL format")
-	}
-
-	// Nếu set accessToken là true thì thiết lập cookie accessToken
-	if setAccessToken {
-		c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1", cookieDomain, true, true) // chỉ dành cho /api/v1
-		//c.SetCookie("accessToken", accessToken, accessTokenTTLInt, "/api/v1/auth/logout", cookieDomain, true, true) // chỉ dành cho /auth/logout
-	}
-
-	// Nếu set refreshToken là true thì thiết lập cookie refreshToken
-	if setRefreshToken {
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/refresh-token", cookieDomain, true, true) // chỉ dành cho /auth/refresh-token
-		c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/auth/logout", cookieDomain, true, true)        // chỉ dành cho /auth/logout
-		//c.SetCookie("refreshToken", refreshToken, refreshTokenTTLInt, "/api/v1/payment/confirm", cookieDomain, true, true) // dành cho /api/v1/payment/confirm
-	}
-
-	return nil
-}
-
-// resetAuthCookies sẽ xóa các cookie cho accessToken và refreshToken
-func resetAuthCookies(c *gin.Context) error {
-	// Load biến môi trường cho tên miền cookie và thời gian sống
-	cookieDomain := os.Getenv("COOKIE_DOMAIN")
-	if cookieDomain == "" {
-		return fmt.Errorf("environment variables are not set")
-	}
-
-	// Xóa cookie Access Token và Refresh Token
-	c.SetCookie("accessToken", "", 0, "/", cookieDomain, true, true)
-	c.SetCookie("refreshToken", "", 0, "/", cookieDomain, true, true)
-
-	return nil
-}
 
 // @Summary Register a new user
 // @Description This endpoint allows a new user to register by providing a username, password, email, and optional phone number,...
@@ -153,7 +100,7 @@ func Register(userRepo repository.UserRepository) func(*gin.Context) {
 		exists, err := userRepo.ExistsByFilter(context.Background(), filter)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Error checking user existence",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -168,7 +115,7 @@ func Register(userRepo repository.UserRepository) func(*gin.Context) {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to hash password",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -181,7 +128,7 @@ func Register(userRepo repository.UserRepository) func(*gin.Context) {
 		_, err = userRepo.InsertOne(context.Background(), user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to create user",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -195,7 +142,7 @@ func Register(userRepo repository.UserRepository) func(*gin.Context) {
 
 // Login godoc
 // @Summary User Login
-// @Description Authenticates a user by username or email and returns an access token
+// @Description Authenticates a user by username or email and returns an token
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -237,7 +184,7 @@ func Login(userRepo repository.UserRepository) func(*gin.Context) {
 				})
 			} else {
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"error": "Failed to find user",
+					"error": "Internal Server Error",
 				})
 			}
 			return
@@ -260,29 +207,11 @@ func Login(userRepo repository.UserRepository) func(*gin.Context) {
 			return
 		}
 
-		// Tạo JWT Refresh token
-		refreshToken, err := middlewares.GenerateRefreshToken(user.ID.Hex(), user.Role)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to generate refresh token",
-			})
-			return
-		}
-
 		// Tạo JWT Access token
-		accessToken, err := middlewares.GenerateAccessToken(user.ID.Hex(), user.Role)
+		token, err := middlewares.GenerateToken(user.ID.Hex(), user.Role)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to generate access token",
-			})
-			return
-		}
-
-		// Gọi hàm set cookie để thiết lập cookies cho người dùng
-		err = setAuthCookies(c, accessToken, refreshToken, false, true)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -290,72 +219,36 @@ func Login(userRepo repository.UserRepository) func(*gin.Context) {
 		// Trả về đăng nhập thành công và token
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Login successful",
-			"token":   accessToken,
+			"token":   token,
 		})
 	}
 }
 
-// Logout logs out the user by invalidating their access and refresh tokens.
+// Logout logs out the user by invalidating their token.
 // @Summary Logout user
-// @Description This API allows a user to log out by blacklisting their access and refresh tokens and clearing their authentication cookies.
+// @Description This API allows a user to log out by blacklisting their token.
 // @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param Authorization header string true "Bearer <JWT Token>"
 // @Success 200 {object} models.MessageResponse "Logout successful"
-// @Failure 400 {object} models.ErrorResponse "No token provided or Refresh Token not provided"
-// @Failure 401 {object} models.ErrorResponse "Token has been revoked"
-// @Failure 500 {object} models.ErrorResponse "Failed to reset cookies or other server error"
+// @Failure 400 {object} models.ErrorResponse "No token provided"
 // @Router /api/v1/auth/logout [post]
 // @Security Bearer
 func Logout() func(*gin.Context) {
 	return func(c *gin.Context) {
 		// Lấy token từ header
-		accessToken := c.GetHeader("Authorization")
-		if accessToken == "" {
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "No token provided"})
 			return
 		}
 
-		// // Lấy Access Token từ cookie
-		// accessToken, err := c.Cookie("accessToken")
-		// if err != nil {
-		// 	c.JSON(http.StatusBadRequest, gin.H{
-		// 		"error": "Access Token not provided",
-		// 	})
-		// 	return
-		// }
-
-		// Lấy Refresh Token từ cookie
-		refreshToken, err := c.Cookie("refreshToken")
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Refresh Token not provided",
-			})
-			return
-		}
-
-		// Xác thực Access Token
-		accessClaims, err := middlewares.VerifyJWT(accessToken, true)
+		// Xác thực Token
+		accessClaims, err := middlewares.VerifyJWT(tokenString)
 		if err == nil { // Token hợp lệ
-			// Lấy thời gian hết hạn và thêm Access Token vào blacklist
-			middlewares.BlacklistedTokens[accessToken] = accessClaims.ExpiresAt.Time
-		}
-
-		// Xác thực Refresh Token
-		refreshClaims, err := middlewares.VerifyJWT(refreshToken, false)
-		if err == nil { // Token hợp lệ
-			// Lấy thời gian hết hạn và thêm Refresh Token vào blacklist
-			middlewares.BlacklistedTokens[refreshToken] = refreshClaims.ExpiresAt.Time
-		}
-
-		// Gọi hàm reset cookie để xóa cookies
-		err = resetAuthCookies(c)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
-			return
+			// Lấy thời gian hết hạn và thêm Token vào blacklist
+			middlewares.BlacklistedTokens[tokenString] = accessClaims.ExpiresAt.Time
 		}
 
 		// Trả về thông báo thành công
@@ -365,9 +258,9 @@ func Logout() func(*gin.Context) {
 	}
 }
 
-// ForgotPassword send reset link to email.
-// @Summary Request a password reset link
-// @Description This API allows user can forgotPassword by sends a password reset link to the user's email address.
+// ForgotPassword send reset OTP to email.
+// @Summary Request a password reset OTP
+// @Description This API allows user can forgotPassword by sends a password reset OTP to the user's email address.
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -396,95 +289,112 @@ func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 		var user models.User
 		err := userResult.Decode(&user)
 		if err == mongo.ErrNoDocuments {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found with this email"})
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found with this email",
+			})
 			return
 		} else if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
-		// Tạo token ngẫu nhiên
-		rawToken, err := utils.GenerateRandomString(32)
+		// Tạo otp ngẫu nhiên
+		otp, err := utils.GenerateOTP(6)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reset token"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
-		hashedToken := utils.HashString(rawToken)
-		expiresAt := time.Now().Add(15 * time.Minute)
+		hashedOTP := utils.HashString(otp)
+		expiresAt := time.Now().Add(5 * time.Minute)
 
 		// Cập nhật token vào database
 		update := bson.M{
 			"$set": bson.M{
-				"reset_password_token":   hashedToken,
+				"reset_password_otp":   hashedOTP,
 				"reset_password_expires": expiresAt,
 			},
 		}
 		_, err = userRepo.UpdateOne(context.Background(), bson.M{"_id": user.ID}, update)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save reset token"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
-
-		// Tạo link reset password
-		baseURL := os.Getenv("BASE_URL")
-		if baseURL == "" {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Base URL for reset password is missing"})
-			return
-		}
-		resetLink := fmt.Sprintf("%s/reset-password?token=%s", baseURL, rawToken)
 
 		// Chuẩn bị email template
-		emailTemplatePath := "password_reset_email.html"
+		// Lấy đường dẫn template từ biến môi trường
+        emailTemplatePath := os.Getenv("EMAIL_RESET_TEMPLATE_PATH")
+        if emailTemplatePath == "" {
+            c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
+            return
+        }
+		
 		htmlBody, err := os.ReadFile(emailTemplatePath)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read email template"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
-		t, err := template.New("reset-email").Parse(string(htmlBody))
+		t, err := template.New("OTP-email").Parse(string(htmlBody))
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse email template"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
 		var bodyBuffer bytes.Buffer
 		err = t.Execute(&bodyBuffer, map[string]interface{}{
-			"Name":      user.Username,
-			"ResetLink": resetLink,
+			"Name":      	user.Username,
+			"OTP": 			otp,
+			"ExpirationTime": 5,
 		})
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to execute email template"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
 		// Gửi email
 		htmlBodyString := bodyBuffer.String()
 		if err := utils.SendEmail(request.Email, "Password Reset Request", htmlBodyString); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
 		// Phản hồi thành công
-		c.JSON(http.StatusOK, gin.H{"message": "Password reset link sent to your email"})
+		c.JSON(http.StatusOK, gin.H{"message": "Password reset OTP sent to your email"})
 	}
 }
 
-// ResetPassword updates user's password using the provided token.
+// ResetPassword updates user's password using the provided OTP.
 // @Summary Reset user password
-// @Description This API allows users to reset their password using a valid reset token and a new password. The token is validated for authenticity and expiry before updating the password.
+// @Description This API allows users to reset their password using a valid OTP and a new password. The OTP is validated for authenticity and expiry before updating the password.
 // @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param ResetRequest body models.ResetRequest true "Reset Password Request body"
 // @Success 200 {object} models.MessageResponse
 // @Failure 400 {object} models.ErrorResponse "Invalid request format or weak password"
-// @Failure 401 {object} models.ErrorResponse "Invalid or expired reset token"
+// @Failure 401 {object} models.ErrorResponse "Invalid or expired OTP"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/v1/auth/reset-password [post]
 func ResetPassword(userRepo repository.UserRepository) func(*gin.Context) {
 	return func(c *gin.Context) {
 		var request struct {
-			Token       string `json:"token" binding:"required"`
+			OTP         string `json:"otp" binding:"required"`
 			NewPassword string `json:"new_password" binding:"required"`
 		}
 
@@ -502,44 +412,50 @@ func ResetPassword(userRepo repository.UserRepository) func(*gin.Context) {
 			return
 		}
 
-		// Hash token từ request
-		hashedToken := utils.HashString(request.Token)
+		// Hash OTP từ request
+		hashedOTP := utils.HashString(request.OTP)
 
-		// Tìm người dùng dựa trên token reset
+		// Tìm người dùng dựa trên OTP
 		filter := bson.M{
-			"reset_password_token":   hashedToken,
-			"reset_password_expires": bson.M{"$gt": time.Now()}, // Token còn hiệu lực
+			"reset_password_otp":   hashedOTP,
+			"reset_password_expires": bson.M{"$gt": time.Now()}, // OTP còn hiệu lực
 		}
 		userResult := userRepo.FindOne(context.Background(), filter)
 
 		var user models.User
 		err := userResult.Decode(&user)
 		if err == mongo.ErrNoDocuments {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired reset token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired OTP"})
 			return
 		} else if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
 		// Hash mật khẩu mới
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.NewPassword), bcrypt.DefaultCost)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
-		// Cập nhật mật khẩu và xóa token reset
+		// Cập nhật mật khẩu và xóa OTP
 		update := bson.M{
 			"$set": bson.M{"password": hashedPassword},
 			"$unset": bson.M{
-				"reset_password_token":   "",
+				"reset_password_otp":   "",
 				"reset_password_expires": "",
 			},
 		}
 		_, err = userRepo.UpdateOne(context.Background(), bson.M{"_id": user.ID}, update)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Internal Server Error",
+			})
 			return
 		}
 
@@ -548,73 +464,59 @@ func ResetPassword(userRepo repository.UserRepository) func(*gin.Context) {
 	}
 }
 
-// RefreshToken generates a new access token using the provided refresh token.
-// @Summary Refresh access token
-// @Description This API allows users to refresh their access token using a valid refresh token stored in cookies. If the refresh token is valid and not blacklisted, a new access token is generated.
+
+// RefreshToken generates a new token using the provided token.
+// @Summary Refresh token
+// @Description This API allows users to refresh their token using a valid old token. If the old token is valid and not blacklisted, a new token is generated.
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.RorLResponse "New access token generated successfully"
-// @Failure 401 {object} models.ErrorResponse "Refresh token is missing, invalid, or blacklisted"
-// @Failure 500 {object} models.ErrorResponse "Internal server error while generating a new access token"
+// @Success 200 {object} models.RorLResponse "Token refreshed successfully"
+// @Failure 401 {object} models.ErrorResponse "Token is missing, invalid, or blacklisted"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
 // @Router /api/v1/auth/refresh-token [post]
 func RefreshToken() func(*gin.Context) {
 	return func(c *gin.Context) {
-		// Lấy token từ header Authorization
-		// tokenString := c.GetHeader("Authorization")
-		// if tokenString == "" {
-		//     c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
-		//     return
-		// }
+		// Lấy token từ header
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+			return
+		}
 
-		// Lấy refresh token từ cookie
-		refreshToken, err := c.Cookie("refreshToken")
-		if err != nil || refreshToken == "" {
+		// Kiểm tra xem token có trong blacklist không
+		if _, found := middlewares.BlacklistedTokens[tokenString]; found {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Refresh token is missing or invalid",
+				"error": "Token has been blacklisted",
 			})
 			return
 		}
 
-		// Kiểm tra xem Refresh Token có trong blacklist không
-		if _, found := middlewares.BlacklistedTokens[refreshToken]; found {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Refresh token has been blacklisted",
-			})
-			return
-		}
-
-		// Xác thực Refresh Token và cấp lại Access Token nếu hợp lệ
-		refreshClaims, err := middlewares.VerifyJWT(refreshToken, false)
+		// Xác thực token và cấp lại token mới nếu hợp lệ
+		tokenClaims, err := middlewares.VerifyJWT(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Invalid refresh token",
+				"error": "Invalid token",
 			})
 			return
 		}
 
-		// Tạo mới Access Token từ claims của Refresh Token
-		accessToken, err := middlewares.GenerateAccessToken(refreshClaims.UserID, refreshClaims.Role)
+		// Tạo mới token từ claims của token cũ
+		newToken, err := middlewares.GenerateToken(tokenClaims.UserID, tokenClaims.Role)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Failed to generate access token",
+				"error": "Internal Server Error",
 			})
 			return
 		}
 
-		// Gọi hàm set cookie để thiết lập cookies cho người dùng
-		// err = setAuthCookies(c, accessToken, refreshToken, true, false)
-		// if err != nil {
-		// 	c.JSON(http.StatusInternalServerError, gin.H{
-		// 		"error": err.Error(),
-		// 	})
-		// 	return
-		// }
+		// Đưa token cũ vào blacklist
+		middlewares.BlacklistedTokens[tokenString] = tokenClaims.ExpiresAt.Time
 
 		// Trả về thông báo thành công và token mới
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Access token refreshed successfully",
-			"token":   accessToken,
+			"message": "Token refreshed successfully",
+			"token":   newToken,
 		})
 	}
 }
