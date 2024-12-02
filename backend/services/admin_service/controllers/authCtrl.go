@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"bytes"
+	//"bytes"
 	"context"
-	"html/template"
+	//"html/template"
 	"net/http"
-	"os"
+	//"os"
 	"time"
 
 	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
@@ -304,7 +304,7 @@ func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 		otp, err := utils.GenerateOTP(6)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
+				"error": "Internal Server Error: GenerateOTP",
 			})
 			return
 		}
@@ -327,49 +327,11 @@ func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 		}
 
 		// Chuẩn bị email template
-		// Lấy đường dẫn template từ biến môi trường
-        emailTemplatePath := os.Getenv("EMAIL_RESET_TEMPLATE_PATH")
-        if emailTemplatePath == "" {
-            c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
-            return
-        }
-		
-		htmlBody, err := os.ReadFile(emailTemplatePath)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
-			return
-		}
-
-		t, err := template.New("OTP-email").Parse(string(htmlBody))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
-			return
-		}
-
-		var bodyBuffer bytes.Buffer
-		err = t.Execute(&bodyBuffer, map[string]interface{}{
-			"Name":      	user.Username,
-			"OTP": 			otp,
-			"ExpirationTime": 5,
-		})
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
-			})
-			return
-		}
 
 		// Gửi email
-		htmlBodyString := bodyBuffer.String()
-		if err := utils.SendEmail(request.Email, "Password Reset Request", htmlBodyString); err != nil {
+		if err := utils.SendEmail(request.Email, "Password Reset Request", user.Username, otp); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error",
+				"error": "Internal Server Error: Send Email",
 			})
 			return
 		}
@@ -471,6 +433,8 @@ func ResetPassword(userRepo repository.UserRepository) func(*gin.Context) {
 // @Tags Authentication
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Bearer <JWT Token>"
+// @Security Bearer
 // @Success 200 {object} models.RorLResponse "Token refreshed successfully"
 // @Failure 401 {object} models.ErrorResponse "Token is missing, invalid, or blacklisted"
 // @Failure 500 {object} models.ErrorResponse "Internal server error"
