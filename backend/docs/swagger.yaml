@@ -964,6 +964,12 @@ paths:
       - application/json
       description: This API allows users to refresh their token using a valid old
         token. If the old token is valid and not blacklisted, a new token is generated.
+      parameters:
+      - description: Bearer <JWT Token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -979,6 +985,8 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Refresh token
       tags:
       - Authentication

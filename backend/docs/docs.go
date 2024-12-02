@@ -626,6 +626,11 @@ const docTemplate = `{
         },
         "/api/v1/auth/refresh-token": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "This API allows users to refresh their token using a valid old token. If the old token is valid and not blacklisted, a new token is generated.",
                 "consumes": [
                     "application/json"
@@ -637,6 +642,15 @@ const docTemplate = `{
                     "Authentication"
                 ],
                 "summary": "Refresh token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003cJWT Token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Token refreshed successfully",
