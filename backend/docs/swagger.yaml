@@ -546,7 +546,7 @@ definitions:
       vip_level:
         type: string
     type: object
-host: localhost:8080
+host: a1-price.thuanle.me
 info:
   contact:
     email: support@swagger.io
@@ -1937,4 +1937,7 @@ paths:
       summary: Create an advanced indicator alert
       tags:
       - Indicators
+schemes:
+- http
+- https
 swagger: "2.0"

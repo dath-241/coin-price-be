@@ -2913,9 +2913,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "a1-price.thuanle.me",
 	BasePath:         "",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "Coin-Price",
 	Description:      "This is a sample server.",
 	InfoInstanceName: "swagger",

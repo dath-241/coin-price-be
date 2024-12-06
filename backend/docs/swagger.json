@@ -1,4 +1,8 @@
 {
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "This is a sample server.",
@@ -15,7 +19,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "a1-price.thuanle.me",
     "paths": {
         "/api/v1/admin/payment-history": {
             "get": {
