@@ -111,4 +111,4 @@ Hệ thống hỗ trợ việc theo dõi thông tin thị trường (giá tiền
 - Xác nhận thanh toán từ Momo và nâng cấp VIP
 -- POST: ```/api/v1/payment/confirm```
 
-#### Tham khảo thêm qua nhánh [develop](https://github.com/dath-241/coin-price-be-go/tree/develop) và các [issue](https://github.com/dath-241/coin-price-be-go/issues)
+#### Tham khảo thêm qua nhánh [develop](https://github.com/dath-241/coin-price-be-go/tree/develop), các [issue](https://github.com/dath-241/coin-price-be-go/issues), demo [auth, admin, user, payment](https://drive.google.com/drive/u/0/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY), demo [trigger](https://github.com/dath-241/coin-price-be-go/issues/4), demo [coin_price](https://documenter.getpostman.com/view/40206908/2sAYBaAVZH)
