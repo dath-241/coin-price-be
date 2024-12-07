@@ -17,25 +17,19 @@ type MongoPaymentRepository struct {
 }
 
 func (r *MongoPaymentRepository) FindPayments(ctx context.Context, filter bson.M) ([]models.Order, error) {
-    //fmt.Println("Filter used for finding payments:", filter) // Log filter để xem nó có đúng không
+    //fmt.Println("Filter used for finding payments:", filter)
 
     cursor, err := r.Collection.Find(ctx, filter)
     if err != nil {
-        // Log lỗi chi tiết khi gặp lỗi trong quá trình Find
-        //fmt.Println("Error during Find operation:", err)
         return nil, err
     }
     defer cursor.Close(ctx)
 
     var payments []models.Order
     if err := cursor.All(ctx, &payments); err != nil {
-        // Log lỗi khi giải mã dữ liệu trả về
-        //fmt.Println("Error during cursor.All operation:", err)
         return nil, err
     }
 
-    // Log số lượng payments tìm được để xác nhận kết quả
-    //fmt.Println("Number of payments found:", len(payments))
     return payments, nil
 }
 
