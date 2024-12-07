@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -35,7 +34,11 @@ type QueryPaymentStatusResponse struct {
 
 // GenerateSignature generates the HMAC_SHA256 signature for MoMo payment query
 func GenerateQuerySignature(orderId, requestId string) string {
-	data := fmt.Sprintf("accessKey=%s&orderId=%s&partnerCode=%s&requestId=%s", accessKeyEnv, orderId, partnerCodeEnv, requestId)
+	data := "accessKey=" + accessKeyEnv + 
+			"&orderId=" + orderId + 
+			"&partnerCode=" + partnerCodeEnv + 
+			"&requestId=" + requestId
+
 	h := hmac.New(sha256.New, []byte(secretKeyEnv))
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
@@ -63,7 +66,8 @@ func QueryPaymentStatus(orderId, requestId, lang string) (QueryPaymentStatusResp
 	}
 
 	// URL cho MoMo API để kiểm tra trạng thái thanh toán
-	url := fmt.Sprintf("%s/v2/gateway/api/query", baseURLEnv)
+	// url := fmt.Sprintf("%s/v2/gateway/api/query", baseURLEnv)
+	url := baseURLEnv + "/v2/gateway/api/query"
 
 	// Make the HTTP request to MoMo API
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonRequest))

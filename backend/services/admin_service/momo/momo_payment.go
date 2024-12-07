@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -25,12 +24,12 @@ var (
 )
 
 func Init() {
-	partnerCodeEnv = getEnv("MOMO_PARTNER_CODE")
-	accessKeyEnv = getEnv("MOMO_ACCESS_KEY")
-	secretKeyEnv = getEnv("MOMO_SECRET_KEY")
-	baseURLEnv = getEnv("MOMO_BASE_URL")
-	redirectURLEnv = getEnv("MOMO_REDIRECT_URL")
-	ipnURLEnv = getEnv("MOMO_IPN_URL")
+	partnerCodeEnv 	= getEnv("MOMO_PARTNER_CODE")
+	accessKeyEnv 	= getEnv("MOMO_ACCESS_KEY")
+	secretKeyEnv 	= getEnv("MOMO_SECRET_KEY")
+	baseURLEnv 		= getEnv("MOMO_BASE_URL")
+	redirectURLEnv 	= getEnv("MOMO_REDIRECT_URL")
+	ipnURLEnv 		= getEnv("MOMO_IPN_URL")
 }
 
 func getEnv(key string) string {
@@ -70,7 +69,7 @@ func CreateMoMoPayment(amount string, vipLevel string, orderInfo string) (string
 	b, _ := flake.NextID()
 
 	// URL cho MoMo API để kiểm tra trạng thái thanh toán
-	url := fmt.Sprintf("%s/v2/gateway/api/create", baseURLEnv)
+	url := baseURLEnv + "/v2/gateway/api/create"
 
 	var endpoint = url
 	var accessKey = accessKeyEnv
@@ -94,8 +93,9 @@ func CreateMoMoPayment(amount string, vipLevel string, orderInfo string) (string
 		secretKey == "" || 
 		partnerCode == "" || 
 		redirectUrl == "" || 
-		ipnUrl == "") { 
-		return "", "", fmt.Errorf("missing required momo environment variables")
+		ipnUrl == "") {
+		log.Println("Missing required MoMo environment variables") 
+		return "", "", nil
 	}
 
 	// Build the raw signature
@@ -167,11 +167,10 @@ func CreateMoMoPayment(amount string, vipLevel string, orderInfo string) (string
 		return "", "", err
 	}
 
-	fmt.Println("Response from Momo:", result)
-
 	// Check if MoMo response contains a valid payment URL
 	if result["payUrl"] == nil {
-		return "", "", fmt.Errorf("MoMo payment URL not found")
+		log.Println("MoMo payment URL not found or invalid response")
+		return "", "", nil
 	}
 
 	return result["payUrl"].(string), orderId, nil

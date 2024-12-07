@@ -36,21 +36,14 @@ func MoMoCallback() func(c *gin.Context) {
 
 		// Lấy chữ ký từ MoMo gửi về
 		signature := callbackData["signature"].(string)
-		//fmt.Println("Received signature:", signature)
 
 		params := getCallbackParams(callbackData)
 
 		// Xây dựng chuỗi raw signature theo thứ tự a-z
 		rawSignature := buildRawSignature(accessKeyEnv, params)
 
-		// In raw signature để kiểm tra
-		//fmt.Println("Raw signature string:", rawSignature)
-
 		// Tính toán chữ ký HMAC_SHA256
 		calculatedSignature := calculateSignature(rawSignature, secretKeyEnv)
-
-		// In chữ ký tính toán để so sánh
-		//fmt.Println("Calculated signature:", calculatedSignature)
 
 		// So sánh chữ ký nhận được và chữ ký đã tính toán
 		if calculatedSignature != signature {
