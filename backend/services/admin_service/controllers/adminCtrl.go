@@ -23,6 +23,7 @@ import (
 // @Produce json
 // @Param Authorization header string true "Authorization token"
 // @Success 200 {array} models.UserResponse "List of users successfully fetched"
+// @Failure 403 {object} models.ErrorResponse "Access forbidden: insufficient role"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while fetching users"
 // @Router /api/v1/admin/users [get]
 func GetAllUsers(repo repository.UserRepository) gin.HandlerFunc {
@@ -68,6 +69,7 @@ func GetAllUsers(repo repository.UserRepository) gin.HandlerFunc {
 // @Param user_id path string true "User ID"
 // @Success 200 {object} models.UserDTO "User details successfully fetched"
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID"
+// @Failure 403 {object} models.ErrorResponse "Access forbidden: insufficient role"
 // @Failure 404 {object} models.ErrorResponse "User not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while fetching user"
 // @Router /api/v1/admin/user/{user_id} [get]
@@ -130,6 +132,7 @@ func GetUserByAdmin(repo repository.UserRepository) gin.HandlerFunc {
 // @Param user_id path string true "User ID"
 // @Success 200 {object} models.MessageResponse "User deleted successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID"
+// @Failure 403 {object} models.ErrorResponse "Access forbidden: insufficient role"
 // @Failure 404 {object} models.ErrorResponse "User not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while deleting user"
 // @Router /api/v1/admin/user/{user_id} [delete]
@@ -177,6 +180,7 @@ func DeleteUserByAdmin(repo repository.UserRepository) func(*gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Authorization token"
 // @Success 200 {object} models.PaymentHistoryAdminResponse "List of all payment histories"
+// @Failure 403 {object} models.ErrorResponse "Access forbidden: insufficient role"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while fetching payment history"
 // @Router /api/v1/admin/payment-history [get]
 func GetPaymentHistoryForAdmin(repo repository.PaymentRepository) func(*gin.Context) {
@@ -230,6 +234,7 @@ func GetPaymentHistoryForAdmin(repo repository.PaymentRepository) func(*gin.Cont
 // @Param user_id path string true "User ID" 
 // @Success 200 {object} models.PaymentHisDetailsAdminResponse "List of payment transactions for the user"
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing parameters"
+// @Failure 403 {object} models.ErrorResponse "Access forbidden: insufficient role"
 // @Failure 404 {object} models.ErrorResponse "No payment history found for this user"
 // @Failure 500 {object} models.ErrorResponse "Internal server error during payment history retrieval"
 // @Router /api/v1/admin/payment-history/{user_id} [get]
@@ -297,6 +302,7 @@ func GetPaymentHistoryOfAUserByAdmin(repo repository.PaymentRepository) func(*gi
 // @Param user_id path string true "User ID"
 // @Success 200 {object} models.MessageResponse "Account banned successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing user ID"
+// @Failure 403 {object} models.ErrorResponse "Access forbidden: insufficient role"
 // @Failure 404 {object} models.ErrorResponse "User not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while banning account"
 // @Router /api/v1/admin/user/{user_id}/ban [put] 
@@ -380,6 +386,7 @@ func BanAccount(userRepo repository.UserRepository) func(*gin.Context) {
 // @Param user_id path string true "User ID"
 // @Success 200 {object} models.MessageResponse "Account activated successfully"
 // @Failure 400 {object} models.ErrorResponse "Invalid user ID or missing user ID"
+// @Failure 403 {object} models.ErrorResponse "Access forbidden: insufficient role"
 // @Failure 404 {object} models.ErrorResponse "User not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error while activating account"
 // @Router /api/v1/admin/user/{user_id}/active [put] 
