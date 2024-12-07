@@ -1,11 +1,8 @@
 package controllers
 
 import (
-	//"bytes"
 	"context"
-	//"html/template"
 	"net/http"
-	//"os"
 	"time"
 
 	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
@@ -35,7 +32,7 @@ func newUser(user models.User) models.User {
 	if user.Profile.AvatarURL == "" {
 		user.Profile.AvatarURL = "https://drive.google.com/file/d/15Ef4yebpGhT8pwgnt__utSESZtJdmA4a/view?usp=sharing"
 	}
-	return user // Bạn có thể thay đổi giá trị trả về dựa trên logic của bạn
+	return user 
 }
 
 
@@ -304,7 +301,7 @@ func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 		otp, err := utils.GenerateOTP(6)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error: GenerateOTP",
+				"error": "Internal Server Error",
 			})
 			return
 		}
@@ -326,12 +323,10 @@ func ForgotPassword(userRepo repository.UserRepository) func(*gin.Context) {
 			return
 		}
 
-		// Chuẩn bị email template
-
 		// Gửi email
 		if err := utils.SendEmail(request.Email, "Password Reset Request", user.Username, otp); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal Server Error: Send Email",
+				"error": "Internal Server Error",
 			})
 			return
 		}

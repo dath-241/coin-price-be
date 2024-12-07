@@ -2,17 +2,19 @@ package controllers
 
 import (
 	"context"
-	"net/http"
-	"time"
+	"fmt"
 	"log"
+	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/dath-241/coin-price-be-go/services/admin_service/config"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/models"
 	"github.com/dath-241/coin-price-be-go/services/admin_service/momo"
-	"github.com/dath-241/coin-price-be-go/services/admin_service/middlewares"
-    "go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/dath-241/coin-price-be-go/services/admin_service/utils"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -31,7 +33,7 @@ import (
 // @Failure 401 {object} models.ErrorResponse "Unauthorized: Invalid or missing authorization token"
 // @Failure 500 {object} models.ErrorResponse "Internal server error during payment creation"
 // @Router /api/v1/payment/vip-upgrade [post]
-// Khởi tạo thanh toán 
+// Khởi tạo thanh toán
 func CreateVIPPayment() func(*gin.Context) {
     return func(c *gin.Context) {
         //Lấy token từ header Authorization
@@ -67,7 +69,7 @@ func CreateVIPPayment() func(*gin.Context) {
         }
         if err := c.ShouldBindJSON(&paymentRequest); err != nil {
             c.JSON(http.StatusBadRequest, gin.H{
-                "error": err.Error(),
+                "error": "Invalid request data",
             })
             return
         }
@@ -80,6 +82,7 @@ func CreateVIPPayment() func(*gin.Context) {
             return
         }
 
+        // Kiểm tra cấp VIP
 		vipLevels := map[string]int{
             "VIP-0": 0,
             "VIP-1": 1,
@@ -90,16 +93,18 @@ func CreateVIPPayment() func(*gin.Context) {
         currentVIPLevel := vipLevels[currentVIP]
         requestedVIPLevel, exists := vipLevels[paymentRequest.VIPLevel]
 
-        if !exists {
+        if !exists || (requestedVIPLevel <= currentVIPLevel) {
             c.JSON(http.StatusBadRequest, gin.H{
                 "error": "Invalid target VIP level",
             })
             return
         }
 
-        if requestedVIPLevel <= currentVIPLevel {
+        if valid, expectedAmount := utils.IsValidUpgradeCost(currentVIP, paymentRequest.VIPLevel, paymentRequest.Amount); !valid {
+            log.Printf("Invalid amount for upgrade: expected %d, got %d\n", expectedAmount, paymentRequest.Amount)
+
             c.JSON(http.StatusBadRequest, gin.H{
-                "error": "Invalid request data",
+                "error": fmt.Sprintf("Invalid amount. Expected %d for upgrade from %s to %s", expectedAmount, currentVIP, paymentRequest.VIPLevel),
             })
             return
         }
@@ -146,6 +151,30 @@ func CreateVIPPayment() func(*gin.Context) {
             "payment_url": paymentURL,
             "order_id":    orderId,
         })
+
+        // Bắt đầu timer 1h40p để tự động thay đổi trạng thái sau 100 phút
+        go func() {
+            timer := time.NewTimer(100 * time.Minute)
+            <-timer.C
+
+            // Cập nhật trạng thái của đơn hàng sau 100 phút
+            updateOrderStatusToFailed(orderId)
+        }()
+    }
+}
+
+// Hàm cập nhật trạng thái đơn hàng thành "failed"
+func updateOrderStatusToFailed(orderId string) {
+    collection := config.DB.Collection("OrderMoMo")
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    update := bson.M{"$set": bson.M{"transaction_status": "failed"}}
+    _, err := collection.UpdateOne(ctx, bson.M{"order_id": orderId}, update)
+    if err != nil {
+        log.Printf("Error updating order status for orderId %s: %v", orderId, err)
+    } else {
+        log.Printf("Order %s status updated to failed due to timeout", orderId)
     }
 }
 
@@ -240,13 +269,13 @@ func confirmPaymentHandlerSuccess(c *gin.Context, OrderID string, Role string){
 // @Param statusRequest body models.QueryPaymentRequest true "Order ID from the payment gateway"
 // @Success 200 {object} models.ReponseQueryPaymentRequest "Payment confirmed and VIP level upgraded"
 // @Failure 400 {object} models.ErrorResponse "Invalid order ID or missing parameters"
+// @Failure 403 {object} models.ErrorResponse "You do not have permission to query this order"
 // @Failure 404 {object} models.ErrorResponse "Order not found"
 // @Failure 500 {object} models.ErrorResponse "Internal server error during payment confirmation"
 // @Router /api/v1/payment/status [post]
 // Check payment status and upgrade user's VIP level if successful
 func HandleQueryPaymentStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Define the struct for the incoming request body
 
 		// Bind the JSON body to the struct
 		var req models.QueryPaymentRequest
@@ -292,7 +321,7 @@ func HandleQueryPaymentStatus() gin.HandlerFunc {
 			return
 		}
 
-        		// Lấy thông tin đơn hàng từ MongoDB bằng OrderID
+        // Lấy thông tin đơn hàng từ MongoDB bằng OrderID
 		collection := config.DB.Collection("OrderMoMo")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()

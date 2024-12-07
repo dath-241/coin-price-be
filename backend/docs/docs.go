@@ -58,6 +58,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.PaymentHistoryAdminResponse"
                         }
                     },
+                    "403": {
+                        "description": "Access forbidden: insufficient role",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal server error while fetching payment history",
                         "schema": {
@@ -110,6 +116,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid user ID or missing parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Access forbidden: insufficient role",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
@@ -176,6 +188,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Access forbidden: insufficient role",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "User not found",
                         "schema": {
@@ -232,6 +250,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Access forbidden: insufficient role",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
@@ -298,6 +322,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Access forbidden: insufficient role",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "User not found",
                         "schema": {
@@ -360,6 +390,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Access forbidden: insufficient role",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "User not found",
                         "schema": {
@@ -410,6 +446,12 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.UserResponse"
                             }
+                        }
+                    },
+                    "403": {
+                        "description": "Access forbidden: insufficient role",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }
                     },
                     "500": {
@@ -968,6 +1010,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid order ID or missing parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to query this order",
                         "schema": {
                             "$ref": "#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse"
                         }

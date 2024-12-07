@@ -579,6 +579,10 @@ paths:
           description: List of all payment histories
           schema:
             $ref: '#/definitions/models.PaymentHistoryAdminResponse'
+        "403":
+          description: 'Access forbidden: insufficient role'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error while fetching payment history
           schema:
@@ -615,6 +619,10 @@ paths:
             $ref: '#/definitions/models.PaymentHisDetailsAdminResponse'
         "400":
           description: Invalid user ID or missing parameters
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: 'Access forbidden: insufficient role'
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
@@ -658,6 +666,10 @@ paths:
           description: Invalid user ID
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: 'Access forbidden: insufficient role'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
@@ -696,6 +708,10 @@ paths:
             $ref: '#/definitions/models.UserDTO'
         "400":
           description: Invalid user ID
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: 'Access forbidden: insufficient role'
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
@@ -739,6 +755,10 @@ paths:
           description: Invalid user ID or missing user ID
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: 'Access forbidden: insufficient role'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
@@ -780,6 +800,10 @@ paths:
           description: Invalid user ID or missing user ID
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: 'Access forbidden: insufficient role'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
           description: User not found
           schema:
@@ -814,6 +838,10 @@ paths:
             items:
               $ref: '#/definitions/models.UserResponse'
             type: array
+        "403":
+          description: 'Access forbidden: insufficient role'
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "500":
           description: Internal server error while fetching users
           schema:
@@ -1187,6 +1215,10 @@ paths:
             $ref: '#/definitions/models.ReponseQueryPaymentRequest'
         "400":
           description: Invalid order ID or missing parameters
+          schema:
+            $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
+        "403":
+          description: You do not have permission to query this order
           schema:
             $ref: '#/definitions/github_com_dath-241_coin-price-be-go_services_admin_service_models.ErrorResponse'
         "404":
