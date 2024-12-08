@@ -12,19 +12,6 @@ import (
 )
 
 // GetUserAlerts retrieves all alerts for a user by their ID.
-// GetUserAlerts retrieves all alerts for a user by their ID.
-// @Summary Get user alerts
-// @Description Retrieve all alerts for a user by their ID
-// @Tags Users
-// @Accept json
-// @Produce json
-// @Param Authorization header string true "Bearer Token"
-// @Param id path string true "User ID"
-// @Success 200 {object} models.ResponseUserAlerts "List of user alerts"
-// @Failure 401 {object} models.ErrorResponse "Unauthorized"
-// @Failure 500 {object} models.ErrorResponse "Failed to retrieve alerts"
-// @Security ApiKeyAuth
-// @Router /api/v1/users/{id}/alerts [get]
 func GetUserAlerts(c *gin.Context) {
 	// Get user ID from URL parameter
 	userID := c.Param("id")

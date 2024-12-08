@@ -31,7 +31,6 @@ func SetupRoute(route *gin.Engine) {
 
 	users := route.Group("/api/v1/users")
 	{
-		users.GET("/:id/alerts", servicesU.GetUserAlerts)
 		users.POST("/:id/alerts/notify", servicesU.NotifyUser)
 	}
 }

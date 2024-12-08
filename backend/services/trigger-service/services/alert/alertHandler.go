@@ -90,10 +90,9 @@ func CreateAlert(c *gin.Context) {
 	newAlert.UpdatedAt = currentTime
 
 	if newAlert.MaxRepeatCount == 0 {
-		newAlert.MaxRepeatCount = 5 
+		newAlert.MaxRepeatCount = 5
 	}
 	newAlert.UserID = currentUserID
-
 
 	if _, err := config.AlertCollection.InsertOne(ctx, newAlert); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save alert"})
@@ -154,14 +153,15 @@ func GetAlerts(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
 	}
-	var results []models.Alert
-	alertType := c.Query("type")
 
-	filter := bson.M{}
+	// Áp dụng filter tìm kiếm, chỉ lấy alert của user hiện tại
+	alertType := c.Query("type")
+	filter := bson.M{"user_id": currentUserID}
 	if alertType != "" {
 		filter["type"] = alertType
 	}
 
+	var results []models.Alert
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -203,7 +203,7 @@ func GetAlert(c *gin.Context) {
 	}
 
 	// Xác thực token
-	claims, err := middlewares.VerifyJWT(tokenString) 
+	claims, err := middlewares.VerifyJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
@@ -215,6 +215,8 @@ func GetAlert(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
 	}
+
+	// Lấy alert ID từ param
 	id := c.Param("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -222,10 +224,11 @@ func GetAlert(c *gin.Context) {
 		return
 	}
 
+	// Tìm alert và kiểm tra xem alert có thuộc về user hiện tại không
 	var alert models.Alert
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&alert)
+	err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId, "user_id": currentUserID}).Decode(&alert)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
 		return
@@ -249,63 +252,64 @@ func GetAlert(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /api/v1/vip2/alerts/{id} [delete]
 func DeleteAlert(c *gin.Context) {
-    // Lấy token từ header Authorization
-    tokenString := c.GetHeader("Authorization")
-    if tokenString == "" {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
-        return
-    }
+	// Lấy token từ header Authorization
+	tokenString := c.GetHeader("Authorization")
+	if tokenString == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		return
+	}
 
-    // Xác thực token
-    claims, err := middlewares.VerifyJWT(tokenString)
-    if err != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-        return
-    }
+	// Xác thực token
+	claims, err := middlewares.VerifyJWT(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
 
-    // Lấy userID từ claims trong token
-    currentUserID := claims.UserID
-    if currentUserID == "" {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
-        return
-    }
+	// Lấy userID từ claims trong token
+	currentUserID := claims.UserID
+	if currentUserID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
+		return
+	}
 
-    id := c.Param("id")
-    objectId, err := primitive.ObjectIDFromHex(id)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid alert ID"})
-        return
-    }
+	id := c.Param("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid alert ID"})
+		return
+	}
 
-    // Tìm alert và kiểm tra xem nó có thuộc về người dùng hiện tại không
-    var alert models.Alert
-    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-    defer cancel()
-    err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId, "user_id": currentUserID}).Decode(&alert)
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
-        return
-    }
+	// Tìm alert và kiểm tra xem nó có thuộc về người dùng hiện tại không
+	var alert models.Alert
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId, "user_id": currentUserID}).Decode(&alert)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
+		return
+	}
 
-    // Xoá alert từ AlertCollection
-    result, err := config.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
-    if err != nil || result.DeletedCount == 0 {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
-        return
-    }
+	// Xoá alert từ AlertCollection
+	result, err := config.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
+	if err != nil || result.DeletedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
+		return
+	}
 
-    // Cập nhật mảng alerts của user để loại bỏ alert đã xoá
-    userCollection := config.DB.Collection("User")
-    update := bson.M{
-        "$pull": bson.M{"alerts": id}, // Xoá id khỏi mảng alerts
-    }
-    if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": currentUserID}, update); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
-        return
-    }
+	// Cập nhật mảng alerts của user để loại bỏ alert đã xoá
+	userCollection := config.DB.Collection("User")
+	update := bson.M{
+		"$pull": bson.M{"alerts": id}, // Xoá id khỏi mảng alerts
+	}
+	if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": currentUserID}, update); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"message": "Alert deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Alert deleted successfully"})
 }
+
 // Handler to retrieve new and delisted symbols
 // @Summary Get new and delisted symbols
 // @Description Retrieve new and delisted symbols from Binance
