@@ -231,8 +231,13 @@ func UpdateMessageAfterTrigger(alert *models.Alert) {
 		alert.Message = fmt.Sprintf("Price difference between Spot and Future for %s is now %.2f", alert.Symbol, alert.Price)
 	case "funding_rate_interval":
 		alert.Message = fmt.Sprintf("Funding rate interval of %s is now %s", alert.Symbol, alert.LastInterval)
-
+	case "new_listing":
+		alert.Message = fmt.Sprintf(" %s has been listed ", alert.Symbol)
+	case "delisting":
+		alert.Message = fmt.Sprintf(" %s has been delisted ", alert.Symbol)
+	
 	}
+	
 	SaveAlert(alert)
 }
 func CheckAndSendAlerts() {
