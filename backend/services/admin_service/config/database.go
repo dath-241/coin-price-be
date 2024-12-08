@@ -16,8 +16,6 @@ var (
 	client              *mongo.Client // Lưu trữ client để quản lý kết nối
 	AlertCollection     *mongo.Collection
 	IndicatorCollection *mongo.Collection
-	TodosCollection     *mongo.Collection
-	TodosTestCollection *mongo.Collection
 )
 
 // ConnectDatabase kết nối đến MongoDB và trả về database
@@ -51,8 +49,6 @@ func ConnectDatabase() error {
 	DB = client.Database(dbName)
 	AlertCollection = DB.Collection("alerts")
 	IndicatorCollection = DB.Collection("indicators")
-	TodosCollection = DB.Collection("Todos")
-	TodosTestCollection = DB.Collection("TodosTest")
 
 	log.Println("Collections initialized successfully:")
 	if AlertCollection != nil {
@@ -61,13 +57,6 @@ func ConnectDatabase() error {
 	if IndicatorCollection != nil {
 		log.Println("- IndicatorCollection")
 	}
-	if TodosCollection != nil {
-		log.Println("- TodosCollection")
-	}
-	if TodosTestCollection != nil {
-		log.Println("- TodosTestCollection")
-	}
-
 	log.Println("Connected to MongoDB!")
 	return nil
 }
