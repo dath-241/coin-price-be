@@ -45,13 +45,13 @@
 ## **4. Các chức năng chính** [(API doc)](https://a1-price.thuanle.me/docs/index.html)
 ### **4.1. Authentication**
 Cung cấp các chức năng chính cho người dùng về xác thực như: đăng ký, đăng nhập, đăng nhập bằng google, quên mật khẩu, đổi mật khẩu, đăng xuất, làm mới token.
-[Chi tiết](https://github.com/dath-241/coin-price-be-go)
+[Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/update-readme/admin-docs/admin.md)
 ### **4.2. Admin**
 Cung cấp các chức năng chính cho admin như: lấy danh sách người dùng, lấy thông tin người dùng, xóa người dùng, cấm người dùng, bỏ cấm người dùng, lấy lịch sử thanh toán của người dùng và của hệ thống.
-[Chi tiết](https://github.com/dath-241/coin-price-be-go)
+[Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/update-readme/admin-docs/admin.md)
 ### **4.3. User**
 Cung cấp các chức năng chính cho người dùng liên quan đến dữ liệu người dùng như: lấy thống tin người dùng, cập nhật thông tin người dùng, xóa tài khoản người dùng, đổi mật khẩu người dùng, đổi email người dùng, lấy lịch sử thanh toán, lấy danh sách các trigger của người dùng, gửi thông báo trigger đến email người dùng.
-[Chi tiết](https://github.com/dath-241/coin-price-be-go)
+[Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/update-readme/admin-docs/admin.md)
 ### **4.4. Coin price**
 Cung cấp các chức năng chính cho người dùng lấy dữ liệu thị trường tiền ảo: lấy giá spot realtime, lấy giá future realtime, lấy funding rate realtime, lấy kline, lấy marketcap,...
 [Chi tiết](https://github.com/dath-241/coin-price-be-go)
@@ -60,7 +60,7 @@ Cung cấp các chức năng chính cho người dùng về thiết lập các t
 [Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/update-readme/trigger-docs/trigger.md)
 ### **4.6. Payment**
 Cung cấp các chức năng chính cho người dùng về thanh toán: khởi tạo thanh toán nâng cấp VIP qua Momo, gọi thanh toán qua Momo, kiểm tra trạng thái thanh toán qua Momo, xác nhận thanh toán và nâng cấp VIP qua Momo.
-[Chi tiết](https://github.com/dath-241/coin-price-be-go)
+[Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/update-readme/admin-docs/admin.md)
 ## **5. Cấu trúc các nhánh trên hệ thống**
 ### **5.1. Cấu trúc nhánh** [main](https://github.com/dath-241/coin-price-be-go/tree/main)
 ```plaintext
