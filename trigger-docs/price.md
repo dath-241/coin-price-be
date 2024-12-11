@@ -1,9 +1,3 @@
-# Lab6QLDAPM
-
-# Project Title
-
-A brief description of what this project does and who it's for
-
 # RESTful API Documentation
 
 ## I. RESTful API
