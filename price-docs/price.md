@@ -145,11 +145,14 @@ Fetch API từ: `https://fapi.binance.com/fapi/v2/ticker/price`. Khi người d�
   - `price`: Giá spot của `symbol` nhập vào.
   - `eventTime`: Thời gian lúc gọi API.
 - **Trường hợp 1**: Thiếu symbol
-![Screenshot 2024-12-07 201040](https://github.com/user-attachments/assets/bdd2f08e-6260-48af-8537-de1643c2fd72)
+<img width="785" alt="image" src="https://github.com/user-attachments/assets/6cd07c9c-8cdf-4af6-b085-cbe84d676ef1" />
+
 - **Trường hợp 2**: symbol không tồn tại
-![Screenshot 2024-12-07 201507](https://github.com/user-attachments/assets/a77f7421-410a-47ea-a0e6-cf7bb53bf80c)
+<img width="791" alt="image" src="https://github.com/user-attachments/assets/f1edc20a-eb4f-47bd-b73b-7698f098ddeb" />
+
 - **Trường hợp 3**: symbol tồn tại
-![Screenshot 2024-12-07 201545](https://github.com/user-attachments/assets/e3014bc9-271c-4fd4-b9c5-eaa542492900)
+<img width="773" alt="image" src="https://github.com/user-attachments/assets/dfa369b3-a21b-4aab-858e-c1dc5bbc2a76" />
+
 ---
 
 ### 3. Lấy giá future
@@ -172,11 +175,14 @@ Fetch API từ: `https://fapi.binance.com/fapi/v1/premiumIndex`. Khi người d�
   - `price`: Giá spot của `symbol` nhập vào.
   - `eventTime`: Thời gian lúc gọi API.
 - **Trường hợp 1**: Thiếu symbol
-![Screenshot 2024-12-07 201040](https://github.com/user-attachments/assets/bdd2f08e-6260-48af-8537-de1643c2fd72)
+<img width="792" alt="image" src="https://github.com/user-attachments/assets/67d8fcd6-c012-4662-b660-e19851c4540f" />
+
 - **Trường hợp 2**: symbol không tồn tại
-![Screenshot 2024-12-07 201507](https://github.com/user-attachments/assets/a77f7421-410a-47ea-a0e6-cf7bb53bf80c)
+<img width="782" alt="image" src="https://github.com/user-attachments/assets/b1f634a8-a8b1-4b7d-b7cb-583e17f823ae" />
+
 - **Trường hợp 3**: symbol tồn tại
-![Screenshot 2024-12-07 201545](https://github.com/user-attachments/assets/e3014bc9-271c-4fd4-b9c5-eaa542492900)
+<img width="784" alt="image" src="https://github.com/user-attachments/assets/048c7b98-5992-4187-b1e7-a7ce3c40cd37" />
+
 ---
 
 ## WebSocket API
@@ -318,7 +324,9 @@ Fetch từ: `http://stream.binance.com/ws/%s@ticker`
   Sau 5 giây, socket sẽ tự động đóng và trả về:
   - Mã lỗi: `1002`
   - Message: `Symbol error`
-  ![Screenshot 2024-12-07 213129](https://github.com/user-attachments/assets/6d765b35-0613-45b0-a246-97f39383b733)
+  <img width="1014" alt="image" src="https://github.com/user-attachments/assets/88ce999e-070e-4b55-8ac6-664847987e08" />
+
+
 
 
 - **TH2: `symbol` không tồn tại**  
@@ -326,11 +334,15 @@ Fetch từ: `http://stream.binance.com/ws/%s@ticker`
   - Trả về mã lỗi: `1002`
   - Message: `Symbol error`
   - Đóng socket.
-![Screenshot 2024-12-07 213910](https://github.com/user-attachments/assets/93d6a7aa-db6f-4fc4-8e07-6080ed67835f)
+<img width="1015" alt="image" src="https://github.com/user-attachments/assets/83555b77-3634-4e63-8551-c168f98eb6f3" />
+
+
 
 - **TH3: `symbol` tồn tại**  
   Nếu Binance trả về thông tin hợp lệ, server sẽ xử lý và gửi lại cho người dùng sau mỗi 1 giây.
-![Screenshot 2024-12-07 214108](https://github.com/user-attachments/assets/b6c13682-8c2e-4394-a02f-b9a971ec3d90)
+<img width="1012" alt="image" src="https://github.com/user-attachments/assets/f7da891d-eec9-4273-8562-40959b7f26f8" />
+
+
   Thông tin trả về sẽ có định dạng như sau:
   ```json
   {
@@ -353,7 +365,8 @@ Fetch từ: `wss://stream.binance.com/ws/%s@kline_1s`
   Sau 5 giây, socket sẽ tự động đóng và trả về:
   - Mã lỗi: `1002`
   - Message: `Symbol error`
-  ![Screenshot 2024-12-07 213129](https://github.com/user-attachments/assets/6d765b35-0613-45b0-a246-97f39383b733)
+  <img width="1011" alt="image" src="https://github.com/user-attachments/assets/fd8cc045-20ac-4b24-a2f9-936995b2686f" />
+
 
 
 - **TH2: `symbol` không tồn tại**  
@@ -361,16 +374,18 @@ Fetch từ: `wss://stream.binance.com/ws/%s@kline_1s`
   - Trả về mã lỗi: `1002`
   - Message: `Symbol error`
   - Đóng socket.
-![Screenshot 2024-12-07 213910](https://github.com/user-attachments/assets/93d6a7aa-db6f-4fc4-8e07-6080ed67835f)
+<img width="1021" alt="image" src="https://github.com/user-attachments/assets/babb5d97-4d7e-4f36-9913-85e6f45ce041" />
+
 
 - **TH3: `symbol` tồn tại**  
   Nếu Binance trả về thông tin hợp lệ, server sẽ xử lý và gửi lại cho người dùng sau mỗi 1 giây.
-![Screenshot 2024-12-07 214108](https://github.com/user-attachments/assets/b6c13682-8c2e-4394-a02f-b9a971ec3d90)
+<img width="1009" alt="image" src="https://github.com/user-attachments/assets/9ff7e552-6e40-45b7-898f-edbeafa31f4d" />
+
   Thông tin trả về sẽ có định dạng như sau:
   ```json
   {
-    "eventTime":"2024-12-04 16:20:53",
-    "price":"95206.02000000",
+    "eventTime":"2024-12-04 15:53:30",
+    "price":"95803.99000000",
     "symbol":"BTCUSDT"
   }
   ```
