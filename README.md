@@ -32,16 +32,16 @@
 ## **3. Công nghệ sử dụng**
 | Công nghệ | Mô tả |
 |-------------|----------|
-|Golang|Ngôn ngữ phát triển hệ thống backend với hiệu năng cao, hỗ trợ tốt cho xây dựng hệ thống phân tán và microservices|
-|Gin|Framework của Go, giúp xây dựng các API RESTful nhẹ nhàng và nhanh chóng|
-|Swaggo|Tạo tài liệu cho API tự động và hỗ trợ tương tác giúp cho developer dễ dàng hiểu để sử dụng API|
-|Git, GitHub|Quản lý phiên bản code, hỗ trợ các chức năng cho cộng tác như pull request, issue tracking, CI/CD|
-|Docker, DockerHub, DockerCompose|Công cụ container hóa ứng dụng, xây dựng, lưu trữ các image, định nghĩa và khởi chạy đa container|
-|Mailjet|Dịch vụ hỗ trợ gửi email xác nhận, thông báo đến người dùng|
-|MongoDB|Cơ sở dữ liệu NoSQL linh hoạt cho việc lưu trữ thông tin người dùng, các trigger, lịch sử thanh toán,...|
-|MomoAPI|API của ví điện tử MOMO để tích hợp tính năng thanh toán để nâng cấp VIP vào hệ thống|
-|BinanceAPI,CoinGecko,CoinMarketCap|API hỗ trợ lấy dữ liệu thị trường giao dịch tiên ảo realtime|
-|Testify|Framework testing của Go hỗ trợ viết unit tests đơn giản và hiệu quả|
+|[Golang](https://go.dev/)|Ngôn ngữ phát triển hệ thống backend với hiệu năng cao, hỗ trợ tốt cho xây dựng hệ thống phân tán và microservices|
+|[Gin](https://gin-gonic.com/)|Framework của Go, giúp xây dựng các API RESTful nhẹ nhàng và nhanh chóng|
+|[Swaggo](https://github.com/swaggo/swag)|Tạo tài liệu cho API tự động và hỗ trợ tương tác giúp cho developer dễ dàng hiểu để sử dụng API|
+|[Git](https://git-scm.com/), [GitHub](https://github.com/)|Quản lý phiên bản code, hỗ trợ các chức năng cho cộng tác như pull request, issue tracking, CI/CD|
+|[Docker](https://www.docker.com/), [DockerHub](https://hub.docker.com/), [DockerCompose](https://docs.docker.com/compose/)|Công cụ container hóa ứng dụng, xây dựng, lưu trữ các image, định nghĩa và khởi chạy đa container|
+|[Mailjet](https://www.mailjet.com/)|Dịch vụ hỗ trợ gửi email xác nhận, thông báo đến người dùng|
+|[MongoDB](https://www.mongodb.com/)|Cơ sở dữ liệu NoSQL linh hoạt cho việc lưu trữ thông tin người dùng, các trigger, lịch sử thanh toán,...|
+|[MomoAPI](https://developers.momo.vn/v2/#/)|API của ví điện tử MOMO để tích hợp tính năng thanh toán để nâng cấp VIP vào hệ thống|
+|[BinanceAPI](https://www.binance.com/en/binance-api), [CoinGecko](https://www.coingecko.com/en/api), [CoinMarketCap](https://coinmarketcap.com/api/)|API hỗ trợ lấy dữ liệu thị trường giao dịch tiên ảo realtime|
+|[Testify](https://github.com/stretchr/testify)|Framework testing của Go hỗ trợ viết unit tests đơn giản và hiệu quả|
 ## **4. Các chức năng chính** [(API doc)](https://a1-price.thuanle.me/docs/index.html)
 ### **4.1. Authentication**
 Cung cấp các chức năng chính cho người dùng về xác thực như: đăng ký, đăng nhập, đăng nhập bằng google, quên mật khẩu, đổi mật khẩu, đăng xuất, làm mới token.
@@ -87,7 +87,7 @@ Cung cấp các chức năng chính cho người dùng về thanh toán: khởi 
 ```
 
 
-#### **6. Tham khảo thêm**
+## **6. Tham khảo thêm**
 Các [issue](https://github.com/dath-241/coin-price-be-go/issues)
 Các demo [auth, admin, user, payment](https://drive.google.com/drive/u/0/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY), demo [trigger](https://github.com/dath-241/coin-price-be-go/issues/4), demo [coin_price](https://documenter.getpostman.com/view/40206908/2sAYBaAVZH)
 
