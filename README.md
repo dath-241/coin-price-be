@@ -1,7 +1,7 @@
 # **Coin-price-be-go – GVHD: Thầy Lê Đình Thuận**
-* [Giới thiệu dự án](#1-giới-thiệu-dự-án)
+- [Giới thiệu dự án](#1-giới-thiệu-dự-án)
 - [Giới thiệu nhóm](#2-giới-thiệu-nhóm)
-* [Công nghệ sử dụng](#3-công-nghệ-sử-dụng)
+- [Công nghệ sử dụng](#3-công-nghệ-sử-dụng)
 - [Các chức năng chính](#4-các-chức-năng-chính-api-doc)
     - [Authentication](#41-authentication)
     - [Admin](#42-admin)
