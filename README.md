@@ -57,7 +57,7 @@ Cung cấp các chức năng chính cho người dùng lấy dữ liệu thị t
 [Chi tiết](https://github.com/dath-241/coin-price-be-go)
 ### **4.5. Trigger**
 Cung cấp các chức năng chính cho người dùng về thiết lập các trigger: tạo trigger, lấy trigger, xóa trigger, lấy danh sách new/delisted symbol, tạo trigger cho new/delisted symbol, khởi chạy trigger, dừng trigger, tạo trigger cho advanced indicators,...
-[Chi tiết](https://github.com/dath-241/coin-price-be-go)
+[Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/update-readme/trigger-docs/trigger.md)
 ### **4.6. Payment**
 Cung cấp các chức năng chính cho người dùng về thanh toán: khởi tạo thanh toán nâng cấp VIP qua Momo, gọi thanh toán qua Momo, kiểm tra trạng thái thanh toán qua Momo, xác nhận thanh toán và nâng cấp VIP qua Momo.
 [Chi tiết](https://github.com/dath-241/coin-price-be-go)
