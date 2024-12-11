@@ -1,13 +1,19 @@
 # **Coin-price-be-go – GVHD: Thầy Lê Đình Thuận**
-- [Giới thiệu dự án](#giới-thiệu-dự-án)
-- [Giới thiệu nhóm](#giới-thiệu-nhóm)
-- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
-- [Các chức năng chính](#các-chức-năng-chính)
-- [Cấu trúc các nhánh trên hệ thống](#cấu-trúc-các-nhánh-trên-hệ-thống)
-    - [Cấu trúc nhánh main](#cấu-trúc-nhánh-main)
-    - [Cấu trúc nhánh develop](#cấu-trúc-nhánh-develop)
-    - [Cấu trúc nhánh production](#cấu-trúc-nhánh-production)
-- [Tham thảo thêm](#tham-khảo-thêm)
+* [Giới thiệu dự án](#1-giới-thiệu-dự-án)
+- [Giới thiệu nhóm](#2-giới-thiệu-nhóm)
+* [Công nghệ sử dụng](#3-công-nghệ-sử-dụng)
+- [Các chức năng chính](#4-các-chức-năng-chính-api-doc)
+    - [Authentication](#41-authentication)
+    - [Admin](#42-admin)
+    - [User](#43-user)
+    - [Coin price](#44-coin-price)
+    - [Trigger](#45-trigger)
+    - [Payment](#46-payment)
+- [Cấu trúc các nhánh trên hệ thống](#5-cấu-trúc-các-nhánh-trên-hệ-thống)
+    - [Cấu trúc nhánh main](#51-cấu-trúc-nhánh-main)
+    - [Cấu trúc nhánh develop](#52-cấu-trúc-nhánh-develop)
+    - [Cấu trúc nhánh production](#53-cấu-trúc-nhánh-production)
+- [Tham thảo thêm](#6-tham-khảo-thêm)
 ## **1. Giới thiệu dự án**
 **Coin-price-be-go** là hệ thống backend với chức năng chính là hỗ trợ người dùng việc theo dõi thông tin thị trường tiền điện tử (giá spot, future, kline,...), tạo các trigger thông báo biến động về giá sử dụng các API từ Binance, CoinMarketCap, CoinGecko.
 ## **2. Giới thiệu nhóm**
@@ -84,3 +90,4 @@ Cung cấp các chức năng chính cho người dùng về thanh toán: khởi 
 #### **6. Tham khảo thêm**
 Các [issue](https://github.com/dath-241/coin-price-be-go/issues)
 Các demo [auth, admin, user, payment](https://drive.google.com/drive/u/0/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY), demo [trigger](https://github.com/dath-241/coin-price-be-go/issues/4), demo [coin_price](https://documenter.getpostman.com/view/40206908/2sAYBaAVZH)
+
