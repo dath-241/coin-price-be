@@ -62,6 +62,14 @@ type FuturePriceResponse struct {
 	LastPrice string `json:"lastPrice"`
 }
 
+
+type FundingInfoResponse struct {
+    Symbol                  string  `json:"symbol"`
+    AdjustedFundingRateCap  string  `json:"adjustedFundingRateCap"`
+    AdjustedFundingRateFloor string `json:"adjustedFundingRateFloor"`
+    FundingIntervalHours    int     `json:"fundingIntervalHours"`
+    Disclaimer              bool    `json:"disclaimer"` // This field will be ignored
+}
 // Hàm lấy giá Spot
 func GetSpotPrice(symbol string) (float64, error) {
 	url := fmt.Sprintf("https://api.binance.com/api/v3/ticker/price?symbol=%s", symbol)
@@ -136,31 +144,29 @@ func GetFuturePrice(symbol string) (float64, error) {
 }
 
 func GetFundingRateInterval(symbol string) (string, error) {
-	url := fmt.Sprintf("https://fapi.binance.com/fapi/v1/fundingRate?symbol=%s&limit=2", symbol)
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
+    url := fmt.Sprintf("https://fapi.binance.com/fapi/v1/fundingInfo?symbol=%s", symbol)
+    resp, err := http.Get(url)
+    if err != nil {
+        return "", err
+    }
+    defer resp.Body.Close()
 
-	var results []FundingRateResponse
-	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
-		return "", err
-	}
+    var results []FundingInfoResponse
+    if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
+        return "", err
+    }
 
-	if len(results) < 2 {
-		return "", fmt.Errorf("insufficient data to determine funding rate interval")
-	}
+    for _, result := range results {
+        if result.Symbol == symbol {
+            fundingIntervalHours := result.FundingIntervalHours
+            intervalDuration := time.Duration(fundingIntervalHours) * time.Hour
+            interval := fmt.Sprintf("%v", intervalDuration)
+            log.Println("Funding rate interval:", interval)
+            return interval, nil
+        }
+    }
 
-	fundingTime1 := results[0].FundingTime
-	fundingTime2 := results[1].FundingTime
-
-	intervalDuration := time.Duration(fundingTime2-fundingTime1) * time.Millisecond
-
-	interval := fmt.Sprintf("%v", intervalDuration)
-
-	log.Println("Funding rate interval:", interval)
-	return interval, nil
+    return "", fmt.Errorf("symbol %s not found in funding info response", symbol)
 }
 
 func GetPriceDifference(symbol string) (float64, error) {

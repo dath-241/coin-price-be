@@ -26,7 +26,11 @@ func CheckFundingRateInterval(alert *models.Alert) bool {
 			log.Printf("Error fetching funding rate interval: %v", err)
 			return false
 		}
-
+		if alert.LastInterval == "" {
+			alert.LastInterval = currentInterval
+			SaveAlert(alert)
+			return false
+		}
 		if currentInterval != alert.LastInterval {
 			log.Printf("Funding rate interval has changed from %s to %s", alert.LastInterval, currentInterval)
 			alert.LastInterval = currentInterval
@@ -231,8 +235,12 @@ func UpdateMessageAfterTrigger(alert *models.Alert) {
 		alert.Message = fmt.Sprintf("Price difference between Spot and Future for %s is now %.2f", alert.Symbol, alert.Price)
 	case "funding_rate_interval":
 		alert.Message = fmt.Sprintf("Funding rate interval of %s is now %s", alert.Symbol, alert.LastInterval)
-
+	case "new_listing":
+		alert.Message = fmt.Sprintf(" %s has been listed ", alert.Symbol)
+	case "delisting":
+		alert.Message = fmt.Sprintf(" %s has been delisted ", alert.Symbol)
 	}
+	
 	SaveAlert(alert)
 }
 func CheckAndSendAlerts() {

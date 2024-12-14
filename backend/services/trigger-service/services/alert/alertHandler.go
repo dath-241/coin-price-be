@@ -90,10 +90,9 @@ func CreateAlert(c *gin.Context) {
 	newAlert.UpdatedAt = currentTime
 
 	if newAlert.MaxRepeatCount == 0 {
-		newAlert.MaxRepeatCount = 5 
+		newAlert.MaxRepeatCount = 5
 	}
 	newAlert.UserID = currentUserID
-
 
 	if _, err := config.AlertCollection.InsertOne(ctx, newAlert); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save alert"})
@@ -154,14 +153,15 @@ func GetAlerts(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
 	}
-	var results []models.Alert
-	alertType := c.Query("type")
 
-	filter := bson.M{}
+	// Áp dụng filter tìm kiếm, chỉ lấy alert của user hiện tại
+	alertType := c.Query("type")
+	filter := bson.M{"user_id": currentUserID}
 	if alertType != "" {
 		filter["type"] = alertType
 	}
 
+	var results []models.Alert
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -203,7 +203,7 @@ func GetAlert(c *gin.Context) {
 	}
 
 	// Xác thực token
-	claims, err := middlewares.VerifyJWT(tokenString) 
+	claims, err := middlewares.VerifyJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 		return
@@ -215,6 +215,8 @@ func GetAlert(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in token"})
 		return
 	}
+
+	// Lấy alert ID từ param
 	id := c.Param("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -222,10 +224,11 @@ func GetAlert(c *gin.Context) {
 		return
 	}
 
+	// Tìm alert và kiểm tra xem alert có thuộc về user hiện tại không
 	var alert models.Alert
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&alert)
+	err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId, "user_id": currentUserID}).Decode(&alert)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
 		return
@@ -277,8 +280,15 @@ func DeleteAlert(c *gin.Context) {
 		return
 	}
 
+	// Tìm alert và kiểm tra xem nó có thuộc về người dùng hiện tại không
+	var alert models.Alert
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	err = config.AlertCollection.FindOne(ctx, bson.M{"_id": objectId, "user_id": currentUserID}).Decode(&alert)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Alert not found"})
+		return
+	}
 
 	// Xoá alert từ AlertCollection
 	result, err := config.AlertCollection.DeleteOne(ctx, bson.M{"_id": objectId})
@@ -287,19 +297,12 @@ func DeleteAlert(c *gin.Context) {
 		return
 	}
 
-	// Chuyển userID thành ObjectID
-	objID, err := primitive.ObjectIDFromHex(currentUserID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
 	// Cập nhật mảng alerts của user để loại bỏ alert đã xoá
 	userCollection := config.DB.Collection("User")
 	update := bson.M{
 		"$pull": bson.M{"alerts": id}, // Xoá id khỏi mảng alerts
 	}
-	if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": objID}, update); err != nil {
+	if _, err := userCollection.UpdateOne(ctx, bson.M{"_id": currentUserID}, update); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user alerts"})
 		return
 	}
