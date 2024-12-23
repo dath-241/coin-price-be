@@ -13,7 +13,7 @@ Tổng quan về xây dựng các API cho việc xác thực, quản lý ngườ
 
 ---
 ### I. Hiện thực API về xác thực Authentication
-
+- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
 #### 1. Đăng ký tài khoản người dùng
 - **Mô tả**: Cho phép người dùng đăng ký bằng tên người dùng, mật khẩu, email và số điện thoại (tùy chọn).
 - **Method**: POST
@@ -122,7 +122,7 @@ Tổng quan về xây dựng các API cho việc xác thực, quản lý ngườ
 
 ---
 ### II. Hiện thực API về admin management
-
+- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
 #### 1. Lấy thông tin tổng quát về tất cả user
 - **Mô tả**: Quản trị viên có thể truy xuất danh sách tất cả người dùng trong hệ thống. Trả về thông tin cơ bản về mỗi người dùng.
 - **Method**: GET
@@ -219,7 +219,7 @@ Tổng quan về xây dựng các API cho việc xác thực, quản lý ngườ
 ---
 
 ### III. Hiện thực API về user management
-
+- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
 #### 1. Xem thông tin tài khoản
 - **Mô tả**: hiển thị thông tin tài khoản người dùng hiện tại qua xác thực token.
 - **Method**: GET
@@ -317,6 +317,7 @@ Tổng quan về xây dựng các API cho việc xác thực, quản lý ngườ
 ---
 
 ### IV. Hiện thực API về Payment
+- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
 #### 1. Tạo link payment MoMo
 - **Mô tả**: tạo yêu cầu thanh toán MoMo để nâng cấp cấp VIP của người dùng.
 - **Method**: POST
