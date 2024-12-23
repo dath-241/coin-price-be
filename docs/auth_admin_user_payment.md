@@ -5,14 +5,15 @@
   - [Hiện thực API về Admin Management](#ii-hiện-thực-api-về-admin-management)
   - [Hiện thực API về User Management](#iii-hiện-thực-api-về-user-management)
   - [Hiện thực API về Payment](#iv-hiện-thực-api-về-payment)
+- [Clean code](#clean-code)
 - [Đánh giá dự án](#đánh-giá-dự-án)
 
 ## Tổng quan
 Tổng quan về xây dựng các API cho việc xác thực, quản lý người dùng và thanh toán.
 
 ---
-### I. Hiện thực API về xác thực Authentication      
-- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
+### I. Hiện thực API về xác thực Authentication
+
 #### 1. Đăng ký tài khoản người dùng
 - **Mô tả**: Cho phép người dùng đăng ký bằng tên người dùng, mật khẩu, email và số điện thoại (tùy chọn).
 - **Method**: POST
@@ -121,7 +122,7 @@ Tổng quan về xây dựng các API cho việc xác thực, quản lý ngườ
 
 ---
 ### II. Hiện thực API về admin management
-- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
+
 #### 1. Lấy thông tin tổng quát về tất cả user
 - **Mô tả**: Quản trị viên có thể truy xuất danh sách tất cả người dùng trong hệ thống. Trả về thông tin cơ bản về mỗi người dùng.
 - **Method**: GET
@@ -218,7 +219,7 @@ Tổng quan về xây dựng các API cho việc xác thực, quản lý ngườ
 ---
 
 ### III. Hiện thực API về user management
-- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
+
 #### 1. Xem thông tin tài khoản
 - **Mô tả**: hiển thị thông tin tài khoản người dùng hiện tại qua xác thực token.
 - **Method**: GET
@@ -316,7 +317,6 @@ Tổng quan về xây dựng các API cho việc xác thực, quản lý ngườ
 ---
 
 ### IV. Hiện thực API về Payment
-- **Thông tin chi tiết về Request Body và Response:** [TRUY CẬP TẠI ĐÂY](https://drive.google.com/drive/u/3/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY)
 #### 1. Tạo link payment MoMo
 - **Mô tả**: tạo yêu cầu thanh toán MoMo để nâng cấp cấp VIP của người dùng.
 - **Method**: POST
@@ -388,6 +388,49 @@ Nguồn: Cổng thanh toán MoMo (AIO v2).
   - **500**: lỗi server
 ---
 
+## Clean code
+### I. Cấu trúc thư mục
+```plaintext
+.
+├── /admin_service
+│   └── /config	# Cấu hình kết nối database
+│   └── /controllers	# Định nghĩa các logic xử lý yêu cầu (request) mà server nhận được từ client.
+│   └── /middlewares	# Chứa các middleware như xác thực JWT, phân quyền và tạo token 
+│   └── /models	 # Định nghĩa các cấu trúc dữ liệu (struct)
+│   └── /momo	# Các hàm liên quan đến xử lý API MoMo
+│   └── /repository	# # Định nghĩa các interface để tương tác với database 
+│   └── /routes	# Định nghĩa các endpoint của API và ánh xạ chúng tới các controller tương ứng.
+│   └── /utils	# Các hàm tiện ích hỗ trợ 
+
+
+```
+- Cấu trúc này giúp dự án dễ dàng mở rộng, phân tách rõ ràng các chức năng và dễ bảo trì.
+
+### II. 
+### III. Xử lý lỗi
+- Sử dụng cấu trúc điều kiện if-else để kiểm tra và phản hồi lỗi với thông tin cụ thể. Tránh để các lỗi chưa được xử lý (unhandled errors).
+- Ví dụ:
+  Lỗi sever bên thứ ba:
+  ```
+  if err != nil { c.JSON(http.StatusInternalServerError, gin.H{ "error": "Internal Server Error", }) return }
+  ```
+  Lỗi về dữ liệu đầu vào:
+  ```
+  if err := c.ShouldBindJSON(&user); err != nil { c.JSON(http.StatusBadRequest, gin.H{ "error": "Invalid input", }) return }
+  …
+  ```
+### IV.
+### V. Tối ưu middleware 
+- **Có xây dựng một dịch vụ để hỗ trợ xác thực, phân quyền người dùng với 3 hàm chuyên biệt:**
+  - `AuthMiddleware`: Kiểm tra token trong header, xác thực token và phân quyền người dùng. Nếu token hợp lệ và người dùng có quyền, tiếp tục xử lý; nếu không, trả về lỗi.
+  - `VerifyJWT`: Xác thực một JWT và trả về các claims nếu token hợp lệ, kiểm tra cả thời gian hết hạn.
+  - `GenerateToken`: Tạo một JWT mới với thông tin người dùng (user_id, role) và thời gian hết hạn, ký token với khóa bí mật.
+- **Lợi ích của tối ưu middleware:**
+  - Bảo mật cao: JWT được ký bằng khóa bí mật, đảm bảo dữ liệu không bị giả mạo.
+  - Phân quyền: Giúp dễ dàng quản lý quyền truy cập đến các tài nguyên.
+  - Dễ mở rộng: Cấu trúc rõ ràng, có thể thêm các chức năng kiểm tra khác như IP, session.
+
+  
 ## Đánh giá dự án
 
 ### I. Những cái làm được:
