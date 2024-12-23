@@ -47,6 +47,7 @@
 Sử dụng chung SRS với nhóm coin-price-web: [link](https://github.com/dath-241/coin-price-web/blob/main/Documents/System%20Requirement%20Specification/Crypto_Market_SRS.pdf)
 ## **5. Các chức năng chính** 
 Link SwaggerUI cho API doc [(link)](https://a1-price.thuanle.me/docs/index.html)
+
 Các demo chạy chức năng [auth, admin, user, payment](https://drive.google.com/drive/u/0/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY), demo [trigger](https://github.com/dath-241/coin-price-be-go/issues/4), demo [coin_price](https://documenter.getpostman.com/view/40206908/2sAYBaAVZH)
 ### **5.1. Authentication**
 Cung cấp các chức năng chính cho người dùng về xác thực như: đăng ký, đăng nhập, đăng nhập bằng google, quên mật khẩu, đổi mật khẩu, đăng xuất, làm mới token.
@@ -80,7 +81,8 @@ Cung cấp các chức năng chính cho người dùng về thanh toán: khởi 
 ├── /.github
 │   └── /workflows 
 │       └── dev.yml # CI/CD cho nhánh develop
-└── /backend # Mã nguồn chính của dự án
+├── /backend # Mã nguồn chính của dự án
+└── README.md # File mô tả phân công công việc
 ```
 ### **6.3. Cấu trúc nhánh** [production](https://github.com/dath-241/coin-price-be-go/tree/production)
 ```plaintext
@@ -94,5 +96,6 @@ Cung cấp các chức năng chính cho người dùng về thanh toán: khởi 
 
 ## **7. Tham khảo thêm**
 Các [issue](https://github.com/dath-241/coin-price-be-go/issues)
+
 Các demo [auth, admin, user, payment](https://drive.google.com/drive/u/0/folders/1K-4gh6WLLL45MHfxtsAJNu-4GHYpwoAY), demo [trigger](https://github.com/dath-241/coin-price-be-go/issues/4), demo [coin_price](https://documenter.getpostman.com/view/40206908/2sAYBaAVZH)
 
