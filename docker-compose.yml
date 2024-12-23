@@ -12,16 +12,3 @@ services:
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"  # Enable Watchtower for this container
-  db:
-    container_name: go-mongodb
-    image: mongo:latest
-    ports:
-      - 27017:27017
-    volumes:
-      - coin-price:/data/db
-    restart: unless-stopped
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"  # Enable Watchtower for this container
-
-volumes:
-  coin-price:
