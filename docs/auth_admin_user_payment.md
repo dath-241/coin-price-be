@@ -406,20 +406,45 @@ Nguồn: Cổng thanh toán MoMo (AIO v2).
 ```
 - Cấu trúc này giúp dự án dễ dàng mở rộng, phân tách rõ ràng các chức năng và dễ bảo trì.
 
-### II. 
+### II. Tên biến, hàm, struct
+- Đươc đặt tên theo nguyên tắc self-explanatory(tự giải thích):
+- Ví dụ:
+  ```go
+  type User struct {
+	  Username  string     `json:"username" bson:"username" binding:"required" 	
+      Email     string     `json:"email" bson:"email" binding:"required,email" 	
+      Password  string     `json:"password,omitempty" bson:"password,omitempty" binding:"required"	
+      …
+  }
+  ```
 ### III. Xử lý lỗi
 - Sử dụng cấu trúc điều kiện if-else để kiểm tra và phản hồi lỗi với thông tin cụ thể. Tránh để các lỗi chưa được xử lý (unhandled errors).
 - Ví dụ:
   Lỗi sever bên thứ ba:
-  ```
+  ```go
   if err != nil { c.JSON(http.StatusInternalServerError, gin.H{ "error": "Internal Server Error", }) return }
   ```
   Lỗi về dữ liệu đầu vào:
-  ```
+  ```go
   if err := c.ShouldBindJSON(&user); err != nil { c.JSON(http.StatusBadRequest, gin.H{ "error": "Invalid input", }) return }
   …
   ```
-### IV.
+### IV. Loại bỏ lặp code
+- Các hàm được sử dụng nhiều được tách riêng
+- Ví dụ:
+  - Hàm kiểm tra định dạng mật khẩu
+  ```go
+  // Hàm kiểm tra định dạng mật khẩu
+  func IsValidPassword(password string) bool {
+    if len(password) < 8 {
+        return false
+    }
+    …
+
+    return hasLetter && hasDigit && hasSpecial
+  }
+
+  ```
 ### V. Tối ưu middleware 
 - **Có xây dựng một dịch vụ để hỗ trợ xác thực, phân quyền người dùng với 3 hàm chuyên biệt:**
   - `AuthMiddleware`: Kiểm tra token trong header, xác thực token và phân quyền người dùng. Nếu token hợp lệ và người dùng có quyền, tiếp tục xử lý; nếu không, trả về lỗi.
@@ -454,6 +479,7 @@ Nguồn: Cổng thanh toán MoMo (AIO v2).
 - Tự động nếu giao dịch bị hết hạn, đơn hàng sẽ được cập nhật về “failed”.
 - Trước khi tạo link payment MoMo, có kiểm tra đối chiếu số tiền nâng cấp VIP tùy theo mức độ đã được quy định trước đó.
 - Có hỗ trợ kiểm tra trạng thái giao dịch để cập nhật VIP cho người dùng.
+- Có Backoff Strategy để giới hạn số lần và thời gian giữa các lần thử kết nối lại cơ sở dữ liệu khi gặp lỗi.
 
 ### II. Những cái chưa làm được:
 
