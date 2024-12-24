@@ -184,13 +184,8 @@ func CheckSnoozeCondition(alert *models.Alert) bool {
 		}
 	case "At Specific Time":
 		start := alert.NextTriggerTime
-		if currentTime.Before(start) || currentTime.After(start) {
-			if currentTime.Before(start) {
-				log.Println("Chưa đến thời gian gửi", alert.ID.Hex())
-			} else if currentTime.After(start) {
-				log.Println("Đã hết thời gian gửi", alert.ID.Hex())
-			}
-
+		if currentTime.Before(start) {
+			log.Println("Chưa đến thời gian gửi", alert.ID.Hex())
 			return false
 		}
 	case "Forever":
