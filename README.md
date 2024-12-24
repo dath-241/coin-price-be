@@ -60,7 +60,7 @@ Cung cấp các chức năng chính cho người dùng liên quan đến dữ li
 [Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/main/docs/auth_admin_user_payment.md#iii-hi%E1%BB%87n-th%E1%BB%B1c-api-v%E1%BB%81-user-management)
 ### **5.4. Coin price**
 Cung cấp các chức năng chính cho người dùng lấy dữ liệu thị trường tiền ảo: lấy giá spot realtime, lấy giá future realtime, lấy funding rate realtime, lấy kline, lấy marketcap,...
-[Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/main/docs/price.md)
+[Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/main/docs/coin_price.md)
 ### **5.5. Trigger**
 Cung cấp các chức năng chính cho người dùng về thiết lập các trigger: tạo trigger, lấy trigger, xóa trigger, lấy danh sách new/delisted symbol, tạo trigger cho new/delisted symbol, khởi chạy trigger, dừng trigger, tạo trigger cho advanced indicators,...
 [Chi tiết](https://github.com/dath-241/coin-price-be-go/blob/main/docs/trigger.md)
