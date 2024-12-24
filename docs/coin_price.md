@@ -1,4 +1,4 @@
-# API Admin Documentation
+# API Price Documentation
 
 - [Tổng quan](#tổng-quan)
   - [Hiện thực API về giá](#i-hiện-thực-api-về-giá)
