@@ -143,13 +143,12 @@ Tổng quan về xây dựng các API cho việc lấy giá (giá spot và giá 
 - Đươc đặt tên theo nguyên tắc self-explanatory(tự giải thích):
 - Ví dụ:
   ```go
-type ResponseSpotPrice struct {
+  type ResponseSpotPrice struct {
 	Symbol    string `json:"symbol"`
 	Price     string `json:"price"`
 	EventTime string `json:"eventTime"`
 }
-	```
-
+    ```
 ---
 
 ## Đánh giá dự án
