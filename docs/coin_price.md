@@ -150,6 +150,10 @@ Tổng quan về xây dựng các API cho việc lấy giá (giá spot và giá 
 	EventTime string `json:"eventTime"`
 }
     ```
+
+### III. Xử lý lỗi
+- Sử dụng cấu trúc điều kiện if-else để kiểm tra và phản hồi lỗi với thông tin cụ thể. Tránh để các lỗi chưa được xử lý (unhandled errors).
+
 ---
 
 ## Đánh giá dự án
