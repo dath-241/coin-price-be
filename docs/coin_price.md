@@ -129,7 +129,7 @@ Tổng quan về xây dựng các API cho việc lấy giá (giá spot và giá 
 ### I. Cấu trúc thư mục
 ```plaintext
 .
-├── /price_service
+├── /price-service
 │   └── /models	 # Định nghĩa các cấu trúc dữ liệu (struct)
 │   └── /repository	# # Định nghĩa các interface để tương tác với database 
 │   └── /routes	# Định nghĩa các endpoint của API và ánh xạ chúng tới các controller tương ứng.
