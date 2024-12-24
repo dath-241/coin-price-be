@@ -125,10 +125,11 @@ Tổng quan về xây dựng các API cho việc lấy giá (giá spot và giá 
   - **1002**: Lỗi server (Query params không tồn tại)
 
 ---
+## Clean Code
 ### I. Cấu trúc thư mục
 ```plaintext
 .
-├── /admin_service
+├── /price_service
 │   └── /models	 # Định nghĩa các cấu trúc dữ liệu (struct)
 │   └── /repository	# # Định nghĩa các interface để tương tác với database 
 │   └── /routes	# Định nghĩa các endpoint của API và ánh xạ chúng tới các controller tương ứng.
