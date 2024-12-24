@@ -148,35 +148,7 @@ type ResponseSpotPrice struct {
 	Price     string `json:"price"`
 	EventTime string `json:"eventTime"`
 }
-  ```
-### III. Xử lý lỗi
-- Sử dụng cấu trúc điều kiện if-else để kiểm tra và phản hồi lỗi với thông tin cụ thể. Tránh để các lỗi chưa được xử lý (unhandled errors).
-- Ví dụ:
-  Lỗi sever bên thứ ba:
-  ```go
-  if err != nil { c.JSON(http.StatusInternalServerError, gin.H{ "error": "Internal Server Error", }) return }
-  ```
-  Lỗi về dữ liệu đầu vào:
-  ```go
-  if err := c.ShouldBindJSON(&user); err != nil { c.JSON(http.StatusBadRequest, gin.H{ "error": "Invalid input", }) return }
-  …
-  ```
-### IV. Loại bỏ lặp code
-- Các hàm được sử dụng nhiều được tách riêng
-- Ví dụ:
-  - Hàm kiểm tra định dạng mật khẩu
-  ```go
-  // Hàm kiểm tra định dạng mật khẩu
-  func IsValidPassword(password string) bool {
-    if len(password) < 8 {
-        return false
-    }
-    …
-
-    return hasLetter && hasDigit && hasSpecial
-  }
-
-  ```
+	```
 
 ---
 
