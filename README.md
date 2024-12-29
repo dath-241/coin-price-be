@@ -20,15 +20,15 @@
 ## **2. Giới thiệu nhóm**
 **Tên nhóm**: Nhóm Ngọc Hiền
 **Danh sách thành viên**: 7 thành viên
-|    MSSV   |         Họ tên         |  Role  | Github |
-|:---------:|:----------------------:|:------:|:------:|
-|  2211024  |      Lê Ngọc Hiền      | PO     |[HienLe2004](https://github.com/HienLe2004), [LeHien6601](https://github.com/LeHien6601)|
-|  2211101  |   Nguyễn Thanh Hoàng   | Dev    |[NTHKiris](https://github.com/NTHKiris)|
-|  2210768  |    Nguyễn Văn Đoàn     | Dev    |[DoanJackson](https://github.com/DoanJackson), [anhchienne](https://github.com/anhchienne)|
-|  2211144  | Nguyễn Trịnh Ngọc Huân | Dev    |[huannguyen2114](https://github.com/huannguyen2114)|
-|  2212962  |     Trần Quang Tác     | Dev    |[tacsquang](https://github.com/tacsquang)|
-|  2210871  |     Quách Khải Hào     | Dev    |[quachkhaihao](https://github.com/quachkhaihao)|
-|  2212922  |    Nguyễn Quang Sáng   | Dev    |[Sangquangnqs](https://github.com/Sangquangnqs), [millerbright](https://github.com/millerbright)|
+|    MSSV   |         Họ tên         |  Role  | Github |Nhiệm vụ|
+|:---------:|:----------------------:|:------:|:------:|:------:|
+|  2211024  |      Lê Ngọc Hiền      | PO     |[HienLe2004](https://github.com/HienLe2004), [LeHien6601](https://github.com/LeHien6601)|Tổ chức họp, đánh giá tiến độ, xây dựng cấu trúc dự án, phân chia công việc, hiện thực CI/CD|
+|  2211101  |   Nguyễn Thanh Hoàng   | Dev    |[NTHKiris](https://github.com/NTHKiris)|Hiện thực các API về alerts và viết unit test, API doc kèm theo|
+|  2210768  |    Nguyễn Văn Đoàn     | Dev    |[DoanJackson](https://github.com/DoanJackson), [anhchienne](https://github.com/anhchienne)|Hiện thực các API về coin-price và viết unit test, API doc kèm theo|
+|  2211144  | Nguyễn Trịnh Ngọc Huân | Dev    |[huannguyen2114](https://github.com/huannguyen2114)|Hiện thực các API về coin-price và viết unit test, API doc kèm theo|
+|  2212962  |     Trần Quang Tác     | Dev    |[tacsquang](https://github.com/tacsquang)|Hiện thực các API về admin, auth, user, payment và viết unit test, API doc kèm theo|
+|  2210871  |     Quách Khải Hào     | Dev    |[quachkhaihao](https://github.com/quachkhaihao)|Hiện thực các API về alerts và viết unit test, API doc kèm theo|
+|  2212922  |    Nguyễn Quang Sáng   | Dev    |[Sangquangnqs](https://github.com/Sangquangnqs), [millerbright](https://github.com/millerbright)|Hiện thực các API về admin, auth, user, payment và viết unit test, API doc kèm theo|
 
 ## **3. Công nghệ sử dụng**
 | Công nghệ | Mô tả |
