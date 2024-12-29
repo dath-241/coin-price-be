@@ -73,6 +73,7 @@ Cung cấp các chức năng chính cho người dùng về thanh toán: khởi 
 .
 ├── /reports # Các meeing minutues và đánh giá hàng tuần của nhóm
 ├── /docs # Các mô tả chi tiết về các chức năng chính của hệ thống
+├── /backend # Mã nguồn chính của dự án
 └── README.md # File mô tả chính về hệ thống
 ```
 ### **6.2. Cấu trúc nhánh** [develop](https://github.com/dath-241/coin-price-be-go/tree/develop)

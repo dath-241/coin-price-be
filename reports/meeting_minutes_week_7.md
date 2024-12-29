@@ -1,4 +1,4 @@
-# Meeting minutes week 5
+# Meeting minutes week 7
 ## Thời gian và địa điểm:
 9/11/2024 - Online
 ## Người tham dự:
